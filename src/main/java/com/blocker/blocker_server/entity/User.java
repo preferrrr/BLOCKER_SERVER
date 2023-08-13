@@ -18,7 +18,19 @@ import java.util.stream.Collectors;
 @Setter
 public class User implements UserDetails {
     @Id
-    String email;
+    private String email;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String picture;
+
+    @Column(name = "refreshtoken_value")
+    private String refreshtokenValue;
+
+    @Column
+    private String signature;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles = new ArrayList<>();
@@ -37,7 +49,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return null;
+        return email;
     }
 
     @Override

@@ -10,16 +10,23 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ExceptionHandler {
 
 
-//    @org.springframework.web.bind.annotation.ExceptionHandler({DuplicateUsernameException.class})
-//    public ResponseEntity<?> handleDuplicateUsernameException(final DuplicateUsernameException e) {
-//
-//        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
-//        log.error(msg);
-//
-//        ExceptionMessage exceptionMessage = new ExceptionMessage("이미 존재하는 아이디입니다.");
-//
-//        return new ResponseEntity<>(exceptionMessage, HttpStatus.BAD_REQUEST);
-//    }
+    @org.springframework.web.bind.annotation.ExceptionHandler({InvalidRequestParameterException.class})
+    public ResponseEntity<?> handleDuplicateUsernameException(final InvalidRequestParameterException e) {
 
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({NotFoundException.class})
+    public ResponseEntity<?> handleExistUsernameException(final NotFoundException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND); /**404, db에 없음.*/
+    }
 
 }

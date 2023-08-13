@@ -42,9 +42,9 @@ public class SecurityConfig {
                 .sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authR -> {
 
-                    //User
-                    //authR.requestMatchers("/users/my-page").hasAuthority("USER");
-                    //authR.requestMatchers("/users/**").permitAll();
+                    //users
+                    authR.requestMatchers("/users/login").permitAll();
+                    authR.requestMatchers(HttpMethod.POST, "/users/signature").hasAuthority("GUEST");
 
                 })
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);

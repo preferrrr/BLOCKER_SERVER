@@ -2,12 +2,12 @@ package com.blocker.blocker_server.exception;
 
 import lombok.Getter;
 
-public class ExceptionExample extends RuntimeException{
+public class NotFoundException extends RuntimeException{
     @Getter
     private final String NAME;
 
-    public ExceptionExample(String msg) {
+    public NotFoundException(String msg) {
         super(msg);
-        NAME = "example";
+        NAME = "NotFoundException";
     }
 }
