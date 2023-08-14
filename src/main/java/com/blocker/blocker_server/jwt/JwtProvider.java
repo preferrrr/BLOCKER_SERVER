@@ -1,6 +1,7 @@
 package com.blocker.blocker_server.jwt;
 
 import com.blocker.blocker_server.entity.User;
+import com.blocker.blocker_server.exception.InvalidRefreshTokenException;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +22,7 @@ public class JwtProvider {
 
     @Value("${jwt.secret}")
     private String secretKey;
-    private final long ACCESS_TOKEN_VALID_TIME =  2 * 30 * 60 * 1000L;   // 60분
+    private final long ACCESS_TOKEN_VALID_TIME = 2 * 30 * 60 * 1000L;   // 60분
     private final long REFRESH_TOKEN_VALID_TIME = 60 * 60 * 24 * 14 * 1000L;   // 2주
 
 
@@ -59,8 +60,8 @@ public class JwtProvider {
     }
 
     public String resolveToken(HttpServletRequest request) {
-        if(request.getHeader("authorization") != null)
-            return request.getHeader("authorization").substring(7);
+        if (request.getHeader("Authorization") != null)
+            return request.getHeader("Authorization").substring(7);
 
         return null;
     }
@@ -83,23 +84,43 @@ public class JwtProvider {
         return (ArrayList<String>) getClaimsFromToken(token).getBody().get("roles");
     }
 
-    public boolean isValidAccessToken(String token) {
+    public boolean isTokenValid(String token) {
         try {
             Jws<Claims> claims = getClaimsFromToken(token);
             return !claims.getBody().getExpiration().before(new Date());
         } catch (ExpiredJwtException e) {
-            throw new JwtException("expired jwt");
-        } catch (SecurityException  e) {
-            throw new JwtException("wrong signature");
+            throw new JwtException("[expired jwt] token : " + token);
+        } catch (SecurityException e) {
+            throw new JwtException("[wrong signature] token : " + token);
         } catch (MalformedJwtException e) {
-            throw new JwtException("invalid jwt");
+            throw new JwtException("[invalid jwt] token : " + token);
         } catch (UnsupportedJwtException e) {
-            throw new JwtException("unsupported JWT");
+            throw new JwtException("[unsupported JWT] token : " + token);
         }
     }
 
     public Jws<Claims> getClaimsFromToken(String token) throws JwtException {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+    }
+
+
+    public String getRefreshTokenValue(String token) {
+        Jws<Claims> claims;
+
+        try {
+            claims = getClaimsFromToken(token);
+        } catch (ExpiredJwtException e) {
+            throw new InvalidRefreshTokenException("[expired jwt] token : " + token);
+        } catch (SecurityException e) {
+            throw new InvalidRefreshTokenException("[wrong signature] token : " + token);
+        } catch (MalformedJwtException e) {
+            throw new InvalidRefreshTokenException("[invalid refresh token] : " + token);
+        } catch (UnsupportedJwtException e) {
+            throw new InvalidRefreshTokenException("[unsupported JWT] token : " + token);
+        }
+
+        return (String) claims.getBody().get("value");
+
     }
 
 }

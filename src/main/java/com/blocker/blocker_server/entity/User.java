@@ -27,7 +27,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String picture;
 
-    @Column(name = "refreshtoken_value")
+    @Column(name = "refreshtoken_value", unique = true) // UUID를 사용 => 중복될 확률 매ㅐㅐ우 희박. 유니크키로 설정해서 검색 속도 올림.
     private String refreshtokenValue;
 
     @Column

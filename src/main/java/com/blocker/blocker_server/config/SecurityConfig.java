@@ -44,8 +44,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authR -> {
 
                     //User
-                    authR.requestMatchers("/users/my-page").hasAuthority("USER");
-                    authR.requestMatchers("/users/**").permitAll();
+                    authR.requestMatchers("/users/login").permitAll();
+                    authR.requestMatchers("/users/reissue-token").permitAll();
+                    authR.requestMatchers(HttpMethod.POST,"/users/signature").hasAuthority("GUEST");
 
 
 

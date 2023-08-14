@@ -45,4 +45,14 @@ public class ExceptionHandler {
         return new ResponseEntity<>(HttpStatus.FORBIDDEN); /**403, 토큰에 저장된 이메일 이상함.*/
     }
 
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({InvalidRefreshTokenException.class})
+    public ResponseEntity<?> handleInvalidRefreshTokenException(final InvalidRefreshTokenException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); /**401, 유효하지 않은 리프레스 토큰.*/
+    }
+
 }

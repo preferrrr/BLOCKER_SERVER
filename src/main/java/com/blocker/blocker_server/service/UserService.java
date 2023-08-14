@@ -4,9 +4,11 @@ import com.blocker.blocker_server.dto.LoginRequestDto;
 import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.exception.FailSaveSignatureException;
 import com.blocker.blocker_server.exception.InvalidEmailException;
+import com.blocker.blocker_server.exception.InvalidRefreshTokenException;
 import com.blocker.blocker_server.exception.NotFoundException;
 import com.blocker.blocker_server.jwt.JwtProvider;
 import com.blocker.blocker_server.repository.UserRepository;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,10 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional
@@ -47,9 +46,9 @@ public class UserService {
 
         List<String> roles;
 
-        String refreshtokenValue = UUID.randomUUID().toString().replaceAll("-","");
+        String refreshtokenValue = UUID.randomUUID().toString().replaceAll("-", "");
 
-        if(findUser.isEmpty()) { // 새로운 유저
+        if (findUser.isEmpty()) { // 새로운 유저
             User newUser = new User();
             newUser.setEmail(email);
             newUser.setPicture(requestDto.getPicture());
@@ -81,10 +80,10 @@ public class UserService {
         }
     }
 
-    public HttpHeaders createHeaders(String email, String refreshtokenValue ,List<String> roles) {
+    public HttpHeaders createHeaders(String email, String refreshtokenValue, List<String> roles) {
         HttpHeaders headers = new HttpHeaders();
 
-        headers.add("authorization", "Bearer " + jwtProvider.createAccessToken(email, roles)); // access token
+        headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(email, roles)); // access token
 
         ResponseCookie cookie = ResponseCookie.from("refreshToken", jwtProvider.createRefreshToken(refreshtokenValue))
                 .maxAge(14 * 24 * 60 * 60)
@@ -101,7 +100,7 @@ public class UserService {
 
     public void setSignature(User user, MultipartFile file) {
 
-        User me = userRepository.findByEmail(user.getEmail()).orElseThrow(()->new InvalidEmailException("email : " + user.getEmail()));
+        User me = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new InvalidEmailException("email : " + user.getEmail()));
 
         //TODO : 나중에는 S3에 저장
         String filePath = "C:\\test\\" + file.getOriginalFilename();
@@ -118,6 +117,23 @@ public class UserService {
         List<String> roles = me.getRoles();
         roles.add("USER");
         me.setRoles(roles);
+
+    }
+
+    public HttpHeaders reissueToken(String cookie) {
+
+        String token = cookie.substring(13, cookie.indexOf(";"));
+
+        String value = jwtProvider.getRefreshTokenValue(token); // 토큰 유효성 검사까지 함.
+
+        //value로 유저 찾고, 그 유저 이메일로 엑세스 토큰 재발급.
+
+        User user = userRepository.findByRefreshtokenValue(value).orElseThrow(() -> new InvalidRefreshTokenException("[not exists value] token : " + token));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(user.getEmail(), user.getRoles())); // access token
+
+        return headers;
 
     }
 }

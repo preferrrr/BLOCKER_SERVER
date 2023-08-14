@@ -1,13 +1,15 @@
 package com.blocker.blocker_server.controller;
 
 import com.blocker.blocker_server.dto.LoginRequestDto;
+import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,5 +39,15 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("/reissue-token")
+    public ResponseEntity<?> reissueToken(@RequestHeader("Cookie") String cookie) {
+
+        if(cookie.isEmpty() || cookie.isBlank())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        HttpHeaders headers = userService.reissueToken(cookie);
+
+        return new ResponseEntity<>(headers, HttpStatus.OK);
+    }
 
 }
