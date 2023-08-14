@@ -59,9 +59,10 @@ public class JwtProvider {
     }
 
     public String resolveToken(HttpServletRequest request) {
-        String accessToken = request.getHeader("Authorization");
+        if(request.getHeader("authorization") != null)
+            return request.getHeader("authorization").substring(7);
 
-        return accessToken;
+        return null;
     }
 
 
@@ -82,12 +83,18 @@ public class JwtProvider {
         return (ArrayList<String>) getClaimsFromToken(token).getBody().get("roles");
     }
 
-    public boolean isTokenValid(String token) {
+    public boolean isValidAccessToken(String token) {
         try {
             Jws<Claims> claims = getClaimsFromToken(token);
             return !claims.getBody().getExpiration().before(new Date());
-        } catch (Exception e) {
-            return false;
+        } catch (ExpiredJwtException e) {
+            throw new JwtException("expired jwt");
+        } catch (SecurityException  e) {
+            throw new JwtException("wrong signature");
+        } catch (MalformedJwtException e) {
+            throw new JwtException("invalid jwt");
+        } catch (UnsupportedJwtException e) {
+            throw new JwtException("unsupported JWT");
         }
     }
 

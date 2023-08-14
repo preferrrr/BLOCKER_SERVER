@@ -1,6 +1,7 @@
 package com.blocker.blocker_server.config;
 
 import com.blocker.blocker_server.jwt.JwtAuthenticationFilter;
+import com.blocker.blocker_server.jwt.JwtExceptionFilter;
 import com.blocker.blocker_server.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -43,11 +44,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authR -> {
 
                     //User
-                    //authR.requestMatchers("/users/my-page").hasAuthority("USER");
-                    //authR.requestMatchers("/users/**").permitAll();
+                    authR.requestMatchers("/users/my-page").hasAuthority("USER");
+                    authR.requestMatchers("/users/**").permitAll();
+
+
 
                 })
-                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtExceptionFilter(), JwtAuthenticationFilter.class);
 
         return http.build();
 
