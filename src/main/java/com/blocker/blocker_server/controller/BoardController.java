@@ -29,7 +29,7 @@ public class BoardController {
 
         List<GetBoardsResponseDto> response = boardService.getBoards(pageable);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetBoardsResponseDto {
+    private Long boardId;
     private String title;
     private String name;
     private String content;
@@ -19,6 +20,6 @@ public class GetBoardsResponseDto {
     private Integer view;
     private Integer bookmarkCount;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime modifiedAt;
 
 }

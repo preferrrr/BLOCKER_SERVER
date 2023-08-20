@@ -1,6 +1,5 @@
-package com.lodestar.lodestar_server.config;
+package com.blocker.blocker_server.config;
 
-import com.querydsl.core.annotations.Config;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

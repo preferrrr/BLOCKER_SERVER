@@ -48,6 +48,9 @@ public class SecurityConfig {
                     authR.requestMatchers("/users/reissue-token").permitAll();
                     authR.requestMatchers(HttpMethod.POST,"/users/signature").hasAuthority("GUEST");
 
+                    //Board
+                    authR.requestMatchers(HttpMethod.GET, "/boards").hasAuthority("USER");
+
 
 
                 })
