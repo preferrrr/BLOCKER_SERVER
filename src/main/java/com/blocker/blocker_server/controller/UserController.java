@@ -1,6 +1,6 @@
 package com.blocker.blocker_server.controller;
 
-import com.blocker.blocker_server.dto.LoginRequestDto;
+import com.blocker.blocker_server.dto.request.LoginRequestDto;
 import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.service.UserService;
 import lombok.RequiredArgsConstructor;

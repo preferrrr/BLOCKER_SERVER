@@ -1,4 +1,4 @@
-package com.blocker.blocker_server.dto;
+package com.blocker.blocker_server.dto.request;
 
 import com.blocker.blocker_server.exception.InvalidRequestParameterException;
 import lombok.AllArgsConstructor;

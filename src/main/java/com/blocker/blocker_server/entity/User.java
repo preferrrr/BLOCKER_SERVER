@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Table(name = "USER")
 @Getter
 @Setter
-public class User implements UserDetails {
+public class User extends BaseEntity implements UserDetails {
 
     @Id
     private String email;
@@ -35,6 +35,9 @@ public class User implements UserDetails {
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Board> boards = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

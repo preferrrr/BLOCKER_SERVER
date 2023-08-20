@@ -1,14 +1,12 @@
 package com.blocker.blocker_server.service;
 
-import com.blocker.blocker_server.dto.LoginRequestDto;
+import com.blocker.blocker_server.dto.request.LoginRequestDto;
 import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.exception.FailSaveSignatureException;
 import com.blocker.blocker_server.exception.InvalidEmailException;
 import com.blocker.blocker_server.exception.InvalidRefreshTokenException;
-import com.blocker.blocker_server.exception.NotFoundException;
 import com.blocker.blocker_server.jwt.JwtProvider;
 import com.blocker.blocker_server.repository.UserRepository;
-import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -103,7 +101,8 @@ public class UserService {
         User me = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new InvalidEmailException("email : " + user.getEmail()));
 
         //TODO : 나중에는 S3에 저장
-        String filePath = "C:\\test\\" + file.getOriginalFilename();
+        //String filePath = "C:\\test\\" + file.getOriginalFilename(); // 로컬
+        String filePath = "/home/ubuntu/signature/" + file.getOriginalFilename(); //서버
 
         try {
             Path destination = new File(filePath).toPath();
