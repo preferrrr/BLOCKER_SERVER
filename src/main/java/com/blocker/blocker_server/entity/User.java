@@ -34,14 +34,14 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "refreshtoken_value", unique = true) // UUID를 사용 => 중복될 확률 매ㅐㅐ우 희박. 유니크키로 설정해서 검색 속도 올림.
     private String refreshtokenValue;
 
-    @Column
-    private String signature;
-
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> boards = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Signature signature;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
