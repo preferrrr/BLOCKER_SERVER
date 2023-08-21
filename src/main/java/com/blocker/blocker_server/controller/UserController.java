@@ -11,6 +11,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -29,7 +31,7 @@ public class UserController {
     }
 
     @PostMapping("/signature")
-    public ResponseEntity<?> setSignature(@AuthenticationPrincipal User user, @RequestPart("signature") MultipartFile file) {
+    public ResponseEntity<?> setSignature(@AuthenticationPrincipal User user, @RequestPart("signature") MultipartFile file) throws IOException {
 
         if(file.isEmpty())
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

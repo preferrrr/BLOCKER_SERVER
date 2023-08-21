@@ -1,5 +1,7 @@
 package com.blocker.blocker_server.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.blocker.blocker_server.dto.request.LoginRequestDto;
 import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.exception.FailSaveSignatureException;
@@ -8,6 +10,7 @@ import com.blocker.blocker_server.exception.InvalidRefreshTokenException;
 import com.blocker.blocker_server.jwt.JwtProvider;
 import com.blocker.blocker_server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -27,8 +30,10 @@ import java.util.*;
 @Transactional
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
+    private final S3Service s3Service;
 
     public ResponseEntity<?> login(LoginRequestDto requestDto) {
 
@@ -96,26 +101,18 @@ public class UserService {
     }
 
 
-    public void setSignature(User user, MultipartFile file) {
+    public void setSignature(User user, MultipartFile file) throws IOException{
 
         User me = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new InvalidEmailException("email : " + user.getEmail()));
 
-        //TODO : 나중에는 S3에 저장
-        //String filePath = "C:\\test\\" + file.getOriginalFilename(); // 로컬
-        String filePath = "/home/ubuntu/signature/" + file.getOriginalFilename(); //서버
+        String signaturePath = s3Service.saveFile(file);
+        me.setSignature(signaturePath);
 
-        try {
-            Path destination = new File(filePath).toPath();
-            Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new FailSaveSignatureException("email : " + user.getEmail());
-        }
-
-        me.setSignature(filePath);
         List<String> roles = me.getRoles();
-        roles.add("USER");
+        roles.add("USER"); //GUEST에서 USER 권한 추가.
         me.setRoles(roles);
+
+
 
     }
 
