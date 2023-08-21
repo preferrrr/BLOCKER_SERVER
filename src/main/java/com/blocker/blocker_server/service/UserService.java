@@ -101,8 +101,8 @@ public class UserService {
         User me = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new InvalidEmailException("email : " + user.getEmail()));
 
         //TODO : 나중에는 S3에 저장
-        String filePath = "C:\\test\\" + file.getOriginalFilename(); // 로컬
-        //String filePath = "/home/ubuntu/signature/" + file.getOriginalFilename(); //서버
+        //String filePath = "C:\\test\\" + file.getOriginalFilename(); // 로컬
+        String filePath = "/home/ubuntu/signature/" + file.getOriginalFilename(); //서버
 
         try {
             Path destination = new File(filePath).toPath();
