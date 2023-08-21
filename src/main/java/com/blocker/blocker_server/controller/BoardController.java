@@ -25,7 +25,7 @@ public class BoardController {
      * /boards
      * */
     @GetMapping("")
-    public ResponseEntity<?> getBoards(@PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<List<GetBoardsResponseDto>> getBoards(@PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         List<GetBoardsResponseDto> response = boardService.getBoards(pageable);
 

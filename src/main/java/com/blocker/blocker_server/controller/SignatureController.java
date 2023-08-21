@@ -23,7 +23,7 @@ public class SignatureController {
     private final SignatureService signatureService;
 
     @PostMapping("")
-    public ResponseEntity<?> setSignature(@AuthenticationPrincipal User user, @RequestPart("signature") MultipartFile file) throws IOException {
+    public ResponseEntity<HttpHeaders> setSignature(@AuthenticationPrincipal User user, @RequestPart("signature") MultipartFile file) throws IOException {
 
         if(file.isEmpty())
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

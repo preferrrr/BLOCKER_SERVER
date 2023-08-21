@@ -5,6 +5,7 @@ import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.exception.InvalidEmailException;
 import com.blocker.blocker_server.exception.InvalidRefreshTokenException;
 import com.blocker.blocker_server.jwt.JwtProvider;
+import com.blocker.blocker_server.repository.SignatureRepository;
 import com.blocker.blocker_server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +26,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
+    private final SignatureRepository signatureRepository;
 
     public ResponseEntity<HttpHeaders> login(LoginRequestDto requestDto) {
 
@@ -49,7 +51,6 @@ public class UserService {
             newUser.setName(requestDto.getName());
             roles = new ArrayList<>();
             roles.add("GUEST");
-            newUser.setSignature(null);
             newUser.setRoles(roles);
             newUser.setRefreshtokenValue(refreshtokenValue);
 
@@ -68,8 +69,9 @@ public class UserService {
 
             me.setRefreshtokenValue(refreshtokenValue);
 
-            if(me.getSignature() == null)
+            if(!signatureRepository.existsByUser(me))
                 return new ResponseEntity<>(headers,HttpStatus.CREATED);
+
             return new ResponseEntity<>(headers, HttpStatus.OK);
 
         }

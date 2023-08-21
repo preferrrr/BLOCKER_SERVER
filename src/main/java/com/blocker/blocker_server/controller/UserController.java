@@ -21,7 +21,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto requestDto) {
+    public ResponseEntity<HttpHeaders> login(@RequestBody LoginRequestDto requestDto) {
 
         requestDto.validateFieldsNotNull();
 
@@ -31,7 +31,7 @@ public class UserController {
     }
 
     @GetMapping("/reissue-token")
-    public ResponseEntity<?> reissueToken(@RequestHeader("Cookie") String cookie) {
+    public ResponseEntity<HttpHeaders> reissueToken(@RequestHeader("Cookie") String cookie) {
 
         if(cookie.isEmpty() || cookie.isBlank())
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
