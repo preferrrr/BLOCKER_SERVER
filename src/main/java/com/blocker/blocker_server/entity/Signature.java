@@ -10,14 +10,14 @@ import org.hibernate.annotations.DynamicInsert;
 @Setter
 @Table(name = "SIGNATURE")
 @DynamicInsert
-public class Signature {
+public class Signature extends BaseEntity {
 
     @EmbeddedId
     private SignatureId id;
 
-    @MapsId("userId")
+    @MapsId("email")
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "email")
     private User user;
 
 

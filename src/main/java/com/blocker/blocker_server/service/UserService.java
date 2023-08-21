@@ -1,16 +1,12 @@
 package com.blocker.blocker_server.service;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.blocker.blocker_server.dto.request.LoginRequestDto;
 import com.blocker.blocker_server.entity.User;
-import com.blocker.blocker_server.exception.FailSaveSignatureException;
 import com.blocker.blocker_server.exception.InvalidEmailException;
 import com.blocker.blocker_server.exception.InvalidRefreshTokenException;
 import com.blocker.blocker_server.jwt.JwtProvider;
 import com.blocker.blocker_server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -19,11 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 @Service
@@ -33,9 +25,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
-    private final S3Service s3Service;
 
-    public ResponseEntity<?> login(LoginRequestDto requestDto) {
+    public ResponseEntity<HttpHeaders> login(LoginRequestDto requestDto) {
 
         //이메일로 조회해서
         //DB에 있으면 로그인처리(200, token 2개) user.getRoles로 토큰에 roles 세팅.
@@ -102,20 +93,7 @@ public class UserService {
     }
 
 
-    public void setSignature(User user, MultipartFile file) throws IOException{
 
-        User me = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new InvalidEmailException("email : " + user.getEmail()));
-
-        String signaturePath = s3Service.saveFile(file);
-        me.setSignature(signaturePath);
-
-        List<String> roles = me.getRoles();
-        roles.add("USER"); //GUEST에서 USER 권한 추가.
-        me.setRoles(roles);
-
-
-
-    }
 
     public HttpHeaders reissueToken(String cookie) {
 

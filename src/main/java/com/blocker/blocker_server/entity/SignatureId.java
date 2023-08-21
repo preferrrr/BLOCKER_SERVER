@@ -14,7 +14,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SignatureId implements Serializable {
 
-    private Long userId;
+    private String email;
 
     private String path;
 

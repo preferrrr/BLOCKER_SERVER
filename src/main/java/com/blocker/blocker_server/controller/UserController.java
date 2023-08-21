@@ -30,17 +30,6 @@ public class UserController {
         return response;
     }
 
-    @PostMapping("/signature")
-    public ResponseEntity<?> setSignature(@AuthenticationPrincipal User user, @RequestPart("signature") MultipartFile file) throws IOException {
-
-        if(file.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-        userService.setSignature(user, file);
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
     @GetMapping("/reissue-token")
     public ResponseEntity<?> reissueToken(@RequestHeader("Cookie") String cookie) {
 
