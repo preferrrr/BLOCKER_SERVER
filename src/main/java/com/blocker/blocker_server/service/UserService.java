@@ -70,7 +70,6 @@ public class UserService {
 
 
         } else { // 이미 가입한 유저
-            //User user = userRepository.findById(email).orElseThrow(()->new NotFoundException("[login] email : " + email));
             User me = findUser.get();
             roles = me.getRoles();
 
@@ -78,6 +77,8 @@ public class UserService {
 
             me.setRefreshtokenValue(refreshtokenValue);
 
+            if(me.getSignature() == null)
+                return new ResponseEntity<>(headers,HttpStatus.CREATED);
             return new ResponseEntity<>(headers, HttpStatus.OK);
 
         }
