@@ -36,14 +36,6 @@ public class ExceptionHandler {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); /**500, 전자 서명 저장 실패.*/
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler({InvalidEmailException.class})
-    public ResponseEntity<?> handleInvalidEmailException(final InvalidEmailException e) {
-
-        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
-        log.error(msg);
-
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN); /**403, 토큰에 저장된 이메일 이상함.*/
-    }
 
 
     @org.springframework.web.bind.annotation.ExceptionHandler({InvalidRefreshTokenException.class})
@@ -55,4 +47,13 @@ public class ExceptionHandler {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); /**401, 유효하지 않은 리프레스 토큰.*/
     }
 
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({ExistsSignatureException.class})
+    public ResponseEntity<?> handleExistsSignatureException(final ExistsSignatureException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.CONFLICT); /**409, 등록한 전자서명이 이미 존재.*/
+    }
 }

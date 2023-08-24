@@ -2,7 +2,6 @@ package com.blocker.blocker_server.service;
 
 import com.blocker.blocker_server.dto.request.LoginRequestDto;
 import com.blocker.blocker_server.entity.User;
-import com.blocker.blocker_server.exception.InvalidEmailException;
 import com.blocker.blocker_server.exception.InvalidRefreshTokenException;
 import com.blocker.blocker_server.jwt.JwtProvider;
 import com.blocker.blocker_server.repository.SignatureRepository;
@@ -14,9 +13,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.*;
 
 @Service

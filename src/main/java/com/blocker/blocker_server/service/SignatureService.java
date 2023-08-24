@@ -5,7 +5,8 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.blocker.blocker_server.entity.Signature;
 import com.blocker.blocker_server.entity.SignatureId;
 import com.blocker.blocker_server.entity.User;
-import com.blocker.blocker_server.exception.InvalidEmailException;
+import com.blocker.blocker_server.exception.ExistsSignatureException;
+import com.blocker.blocker_server.exception.NotFoundException;
 import com.blocker.blocker_server.jwt.JwtProvider;
 import com.blocker.blocker_server.repository.SignatureRepository;
 import com.blocker.blocker_server.repository.UserRepository;
@@ -34,7 +35,10 @@ public class SignatureService {
 
     public HttpHeaders setSignature(User user, MultipartFile file) throws IOException {
 
-        User me = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new InvalidEmailException("email : " + user.getEmail()));
+        User me = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new NotFoundException("email : " + user.getEmail()));
+        // pk인 email로 조회했는데 없다면? 401 vs 404 고민했지만, 401은 jwt의 토큰 만료 response와 겹치기 때문에 404로 결정.
+        if(signatureRepository.existsByUser(user))
+            throw new ExistsSignatureException("email : " + user.getEmail());
 
         String signaturePath = saveFile(file);
 
