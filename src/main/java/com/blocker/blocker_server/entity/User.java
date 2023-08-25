@@ -1,7 +1,9 @@
 package com.blocker.blocker_server.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -17,9 +19,9 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "USER")
 @Getter
-@Setter
 @DynamicInsert
 @DynamicUpdate
+@NoArgsConstructor
 public class User extends BaseEntity implements UserDetails {
 
     @Id
@@ -31,6 +33,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false)
     private String picture;
 
+    @Setter
     @Column(name = "refreshtoken_value", unique = true) // UUID를 사용 => 중복될 확률 매ㅐㅐ우 희박. 유니크키로 설정해서 검색 속도 올림.
     private String refreshtokenValue;
 
@@ -42,6 +45,27 @@ public class User extends BaseEntity implements UserDetails {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Signature signature;
+
+    @Builder
+    public User(String email, String name, String picture, String refreshtokenValue,List<String> roles) {
+        this.email = email;
+        this.name = name;
+        this.picture = picture;
+        this.refreshtokenValue = refreshtokenValue;
+        this.roles = roles;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updatePicture(String picture) {
+        this.picture = picture;
+    }
+
+    public void updateRoles(List<String> roles) {
+        this.roles = roles;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

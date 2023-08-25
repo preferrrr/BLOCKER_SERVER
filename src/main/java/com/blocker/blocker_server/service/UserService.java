@@ -42,14 +42,17 @@ public class UserService {
         String refreshtokenValue = UUID.randomUUID().toString().replaceAll("-", "");
 
         if (findUser.isEmpty()) { // 새로운 유저
-            User newUser = new User();
-            newUser.setEmail(email);
-            newUser.setPicture(requestDto.getPicture());
-            newUser.setName(requestDto.getName());
+
             roles = new ArrayList<>();
             roles.add("GUEST");
-            newUser.setRoles(roles);
-            newUser.setRefreshtokenValue(refreshtokenValue);
+
+            User newUser = User.builder()
+                    .email(email)
+                    .picture(requestDto.getPicture())
+                    .name(requestDto.getName())
+                    .roles(roles)
+                    .refreshtokenValue(refreshtokenValue)
+                    .build();
 
             userRepository.save(newUser);
 
@@ -63,6 +66,12 @@ public class UserService {
             roles = me.getRoles();
 
             HttpHeaders headers = createHeaders(email, refreshtokenValue, roles);
+
+            if(!me.getName().equals(requestDto.getName()))
+                me.updateName(requestDto.getName());
+
+            if(!me.getPicture().equals(requestDto.getPicture()))
+                me.updatePicture(requestDto.getPicture());
 
             me.setRefreshtokenValue(refreshtokenValue);
 

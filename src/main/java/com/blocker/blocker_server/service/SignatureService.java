@@ -40,21 +40,21 @@ public class SignatureService {
         if(signatureRepository.existsByUser(user))
             throw new ExistsSignatureException("email : " + user.getEmail());
 
-        String signaturePath = saveFile(file);
+        String signatureAddress = saveFile(file);
 
-        Signature signature = new Signature();
-        SignatureId id = new SignatureId();
-        id.setEmail(me.getEmail());
-        id.setPath(signaturePath);
-        signature.setId(id);
-        signature.setUser(me);
+        Signature signature = Signature.builder()
+                .email(me.getEmail())
+                .signatureAddress(signatureAddress)
+                .user(me)
+                .build();
+
 
         signatureRepository.save(signature);
 
-
+        //TODO : delete, insert * 2번 쿼리 생김.
         List<String> roles = me.getRoles();
         roles.add("USER"); //GUEST에서 USER 권한 추가.
-        me.setRoles(roles);
+        me.updateRoles(roles);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(me.getEmail(), roles)); // access token

@@ -39,16 +39,17 @@ public class BoardService {
         List<GetBoardListResponseDto> dtos = new ArrayList<>();
 
         for(Board board : entityList) {
-            GetBoardListResponseDto dto = new GetBoardListResponseDto();
-            dto.setBoardId(board.getBoardId());
-            dto.setCreatedAt(board.getCreatedAt());
-            dto.setModifiedAt(board.getModifiedAt());
-            dto.setTitle(board.getTitle());
-            dto.setContent(board.getContent());
-            dto.setName(board.getUser().getName());
-            dto.setView(board.getView());
-            dto.setBookmarkCount(board.getBookmarkCount());
-            dto.setRepresentImage("test image");
+            GetBoardListResponseDto dto = GetBoardListResponseDto.builder()
+                    .boardId(board.getBoardId())
+                    .createdAt(board.getCreatedAt())
+                    .modifiedAt(board.getModifiedAt())
+                    .title(board.getTitle())
+                    .content(board.getContent())
+                    .name(board.getUser().getName())
+                    .view(board.getView())
+                    .bookmarkCount(board.getBookmarkCount())
+                    .representImage(board.getRepresentImage())
+                    .build();
 
             dtos.add(dto);
         }
@@ -62,29 +63,33 @@ public class BoardService {
         boolean isWriter = board.getUser().getEmail().equals(me.getEmail());
         boolean isBookmark = bookmarkRepository.existsByUserAndBoard(me, board);
 
-        GetBoardResponseDto response = new GetBoardResponseDto();
-
-        response.setBoardId(board.getBoardId());
-        response.setTitle(board.getTitle());
-        response.setName(board.getUser().getName());
-        response.setRepresentImage(board.getRepresentImage());
-        response.setView(board.getView());
-        response.setBookmarkCount(board.getBookmarkCount());
-        response.setCreatedAt(board.getCreatedAt());
-        response.setModifiedAt(board.getModifiedAt());
-
         List<ImageDto> imageAddresses = new ArrayList<>();
         for(Image image : board.getImages()) {
-            ImageDto imageDto = new ImageDto();
-            imageDto.setImageId(image.getImageId());
-            imageDto.setImageAddress(image.getImageAddress());
+
+            ImageDto imageDto = ImageDto.builder()
+                    .imageId(image.getImageId())
+                    .imageAddress(image.getImageAddress())
+                    .build();
+
             imageAddresses.add(imageDto);
         }
 
-        response.setInfo(board.getInfo());
-        response.setContractId(null);
-        response.setWriter(isWriter);
-        response.setBookmark(isBookmark);
+        GetBoardResponseDto response = GetBoardResponseDto.builder()
+                .boardId(board.getBoardId())
+                .title(board.getTitle())
+                .name(board.getUser().getName())
+                .content(board.getContent())
+                .representImage(board.getRepresentImage())
+                .view(board.getView())
+                .bookmarkCount(board.getBookmarkCount())
+                .createdAt(board.getCreatedAt())
+                .modifiedAt(board.getModifiedAt())
+                .images(imageAddresses)
+                .info(board.getInfo())
+                .contractId(null)
+                .isWriter(isWriter)
+                .isBookmark(isBookmark)
+                .build();
 
         return response;
 

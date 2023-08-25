@@ -1,17 +1,12 @@
 package com.blocker.blocker_server.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class GetBoardResponseDto {
     private Long boardId;
     private String title;
@@ -22,7 +17,7 @@ public class GetBoardResponseDto {
     private Integer bookmarkCount;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-    private List<String> images;
+    private List<ImageDto> images;
     private String info;
     private Long contractId;
     private boolean isWriter;

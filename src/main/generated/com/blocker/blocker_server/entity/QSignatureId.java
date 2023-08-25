@@ -21,7 +21,7 @@ public class QSignatureId extends BeanPath<SignatureId> {
 
     public final StringPath email = createString("email");
 
-    public final StringPath path = createString("path");
+    public final StringPath signatureAddress = createString("signatureAddress");
 
     public QSignatureId(String variable) {
         super(SignatureId.class, forVariable(variable));

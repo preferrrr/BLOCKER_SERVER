@@ -1,7 +1,9 @@
 package com.blocker.blocker_server.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -10,8 +12,8 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @Table(name = "BOARD")
+@NoArgsConstructor
 @DynamicInsert
 public class Board extends BaseEntity
 {
@@ -42,4 +44,15 @@ public class Board extends BaseEntity
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
+
+    @Builder
+    public Board(User user, String title, String content, Integer bookmarkCount, Integer view, String representImage, String info) {
+        this.user = user;
+        this.title = title;
+        this.content = content;
+        this.bookmarkCount = bookmarkCount;
+        this.view = view;
+        this.representImage = representImage;
+        this.info = info;
+    }
 }

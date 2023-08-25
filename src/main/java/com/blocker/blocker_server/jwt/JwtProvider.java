@@ -68,10 +68,11 @@ public class JwtProvider {
 
 
     public Authentication getAuthentication(String token) {
-        User user = new User();
-        String email = getEmail(token);
-        user.setEmail(email);
-        user.setRoles(getRoles(token));
+        User user = User.builder()
+                .email(getEmail(token))
+                .roles(getRoles(token))
+                .build();
+
         return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
     }
 
