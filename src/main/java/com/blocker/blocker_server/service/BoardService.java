@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.service;
 
+import com.blocker.blocker_server.dto.request.SaveBoardRequestDto;
 import com.blocker.blocker_server.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.dto.response.GetBoardResponseDto;
 import com.blocker.blocker_server.dto.response.ImageDto;
@@ -9,6 +10,7 @@ import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.exception.NotFoundException;
 import com.blocker.blocker_server.repository.BoardRepository;
 import com.blocker.blocker_server.repository.BookmarkRepository;
+import com.blocker.blocker_server.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final ImageRepository imageRepository;
 
     public List<GetBoardListResponseDto> getBoards(Pageable pageable) {
 
@@ -92,6 +95,31 @@ public class BoardService {
                 .build();
 
         return response;
+
+    }
+
+    public void saveBoard(User me, SaveBoardRequestDto requestDto) {
+
+        //TODO : 계약서
+        Board newBoard = Board.builder()
+                .user(me)
+                .title(requestDto.getTitle())
+                .content(requestDto.getContent())
+                .info(requestDto.getInfo())
+                .representImage(requestDto.getRepresentImage())
+                .build();
+
+        List<Image> images = new ArrayList<>();
+
+        for(String imageAddress : requestDto.getImages()) {
+            Image newImage = Image.builder()
+                    .board(newBoard)
+                    .imageAddress(imageAddress)
+                    .build();
+            images.add(newImage);
+        }
+        boardRepository.save(newBoard);
+        imageRepository.saveAll(images);
 
     }
 }

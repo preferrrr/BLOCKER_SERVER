@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.controller;
 
+import com.blocker.blocker_server.dto.request.SaveBoardRequestDto;
 import com.blocker.blocker_server.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.dto.response.GetBoardResponseDto;
 import com.blocker.blocker_server.entity.User;
@@ -49,11 +50,15 @@ public class BoardController {
      * 게시글 작성
      * /boards
      * */
-//    @PostMapping("")
-//    public ResponseEntity<HttpStatus> saveBoard(@AuthenticationPrincipal User user,
-//                                                @RequestBody SaveBoardRequestDto requestDto) {
-//
-//        boardService.saveBoard(user, requestDto)
-//    }
+    @PostMapping("")
+    public ResponseEntity<HttpStatus> saveBoard(@AuthenticationPrincipal User user,
+                                                @RequestBody SaveBoardRequestDto requestDto) {
+
+        requestDto.validateFieldsNotNull();
+
+        boardService.saveBoard(user, requestDto);
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 
 }
