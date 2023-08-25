@@ -1,8 +1,14 @@
 package com.blocker.blocker_server.service;
 
 import com.blocker.blocker_server.dto.response.GetBoardListResponseDto;
+import com.blocker.blocker_server.dto.response.GetBoardResponseDto;
+import com.blocker.blocker_server.dto.response.ImageDto;
 import com.blocker.blocker_server.entity.Board;
+import com.blocker.blocker_server.entity.Image;
+import com.blocker.blocker_server.entity.User;
+import com.blocker.blocker_server.exception.NotFoundException;
 import com.blocker.blocker_server.repository.BoardRepository;
+import com.blocker.blocker_server.repository.BookmarkRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,11 +21,13 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class BoardService {
+
     private final BoardRepository boardRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     public List<GetBoardListResponseDto> getBoards(Pageable pageable) {
 
-        List<Board> entityList = boardRepository.getBoards(pageable);
+        List<Board> entityList = boardRepository.getBoardList(pageable);
 
         List<GetBoardListResponseDto> response = createDtos(entityList);
 
@@ -46,5 +54,39 @@ public class BoardService {
         }
 
         return dtos;
+    }
+
+    public GetBoardResponseDto getBoard(User me, Long boardId) {
+        Board board = boardRepository.getBoard(boardId).orElseThrow(()->new NotFoundException("[get board] boardId : " + boardId));
+
+        boolean isWriter = board.getUser().getEmail().equals(me.getEmail());
+        boolean isBookmark = bookmarkRepository.existsByUserAndBoard(me, board);
+
+        GetBoardResponseDto response = new GetBoardResponseDto();
+
+        response.setBoardId(board.getBoardId());
+        response.setTitle(board.getTitle());
+        response.setName(board.getUser().getName());
+        response.setRepresentImage(board.getRepresentImage());
+        response.setView(board.getView());
+        response.setBookmarkCount(board.getBookmarkCount());
+        response.setCreatedAt(board.getCreatedAt());
+        response.setModifiedAt(board.getModifiedAt());
+
+        List<ImageDto> imageAddresses = new ArrayList<>();
+        for(Image image : board.getImages()) {
+            ImageDto imageDto = new ImageDto();
+            imageDto.setImageId(image.getImageId());
+            imageDto.setImageAddress(image.getImageAddress());
+            imageAddresses.add(imageDto);
+        }
+
+        response.setInfo(board.getInfo());
+        response.setContractId(null);
+        response.setWriter(isWriter);
+        response.setBookmark(isBookmark);
+
+        return response;
+
     }
 }

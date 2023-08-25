@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -19,6 +20,8 @@ public class GetBoardResponseDto {
     private String representImage;
     private Integer view;
     private Integer bookmarkCount;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
     private List<String> images;
     private String info;
     private Long contractId;

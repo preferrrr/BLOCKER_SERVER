@@ -33,8 +33,14 @@ public class QBoard extends EntityPathBase<Board> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
+    public final ListPath<Image, QImage> images = this.<Image, QImage>createList("images", Image.class, QImage.class, PathInits.DIRECT2);
+
+    public final StringPath info = createString("info");
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
+
+    public final StringPath representImage = createString("representImage");
 
     //inherited
     public final StringPath status = _super.status;

@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -32,5 +35,11 @@ public class Board extends BaseEntity
     @Column(columnDefinition = "INT DEFAULT 0")
     private Integer view;
 
+    @Column(name = "represent_image")
+    private String representImage;
 
+    private String info;
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> images = new ArrayList<>();
 }
