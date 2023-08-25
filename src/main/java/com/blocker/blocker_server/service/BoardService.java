@@ -12,6 +12,7 @@ import com.blocker.blocker_server.exception.NotFoundException;
 import com.blocker.blocker_server.repository.BoardRepository;
 import com.blocker.blocker_server.repository.BookmarkRepository;
 import com.blocker.blocker_server.repository.ImageRepository;
+import com.blocker.blocker_server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final BookmarkRepository bookmarkRepository;
     private final ImageRepository imageRepository;
+    private final UserRepository userRepository;
 
     public List<GetBoardListResponseDto> getBoards(Pageable pageable) {
 
@@ -99,7 +101,9 @@ public class BoardService {
 
     }
 
-    public void saveBoard(User me, SaveBoardRequestDto requestDto) {
+    public void saveBoard(User user, SaveBoardRequestDto requestDto) {
+
+        User me = userRepository.getReferenceById(user.getEmail());
 
         //TODO : 계약서
         Board newBoard = Board.builder()

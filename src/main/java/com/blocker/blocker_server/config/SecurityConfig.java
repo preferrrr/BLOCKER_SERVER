@@ -50,6 +50,7 @@ public class SecurityConfig {
                     //Board
                     authR.requestMatchers(HttpMethod.GET, "/boards").hasAuthority("USER");
                     authR.requestMatchers("/boards/{boardId}").hasAuthority("USER");
+                    authR.requestMatchers(HttpMethod.POST, "/boards").hasAuthority("USER");
 
                     //Signature
                     authR.requestMatchers(HttpMethod.POST,"/signatures").hasAuthority("GUEST");
