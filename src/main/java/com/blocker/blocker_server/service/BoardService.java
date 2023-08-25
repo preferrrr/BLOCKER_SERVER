@@ -1,6 +1,6 @@
 package com.blocker.blocker_server.service;
 
-import com.blocker.blocker_server.dto.response.GetBoardsResponseDto;
+import com.blocker.blocker_server.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.entity.Board;
 import com.blocker.blocker_server.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,21 +17,21 @@ import java.util.List;
 public class BoardService {
     private final BoardRepository boardRepository;
 
-    public List<GetBoardsResponseDto> getBoards(Pageable pageable) {
+    public List<GetBoardListResponseDto> getBoards(Pageable pageable) {
 
         List<Board> entityList = boardRepository.getBoards(pageable);
 
-        List<GetBoardsResponseDto> response = createDtos(entityList);
+        List<GetBoardListResponseDto> response = createDtos(entityList);
 
         return response;
     }
 
-    public List<GetBoardsResponseDto> createDtos(List<Board> entityList) {
+    public List<GetBoardListResponseDto> createDtos(List<Board> entityList) {
 
-        List<GetBoardsResponseDto> dtos = new ArrayList<>();
+        List<GetBoardListResponseDto> dtos = new ArrayList<>();
 
         for(Board board : entityList) {
-            GetBoardsResponseDto dto = new GetBoardsResponseDto();
+            GetBoardListResponseDto dto = new GetBoardListResponseDto();
             dto.setBoardId(board.getBoardId());
             dto.setCreatedAt(board.getCreatedAt());
             dto.setModifiedAt(board.getModifiedAt());

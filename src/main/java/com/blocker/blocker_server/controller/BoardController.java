@@ -1,6 +1,6 @@
 package com.blocker.blocker_server.controller;
 
-import com.blocker.blocker_server.dto.response.GetBoardsResponseDto;
+import com.blocker.blocker_server.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -25,9 +25,9 @@ public class BoardController {
      * /boards
      * */
     @GetMapping("")
-    public ResponseEntity<List<GetBoardsResponseDto>> getBoards(@PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<List<GetBoardListResponseDto>> getBoards(@PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        List<GetBoardsResponseDto> response = boardService.getBoards(pageable);
+        List<GetBoardListResponseDto> response = boardService.getBoards(pageable);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
