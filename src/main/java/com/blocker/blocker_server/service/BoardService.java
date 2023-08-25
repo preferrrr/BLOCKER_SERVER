@@ -7,6 +7,7 @@ import com.blocker.blocker_server.dto.response.ImageDto;
 import com.blocker.blocker_server.entity.Board;
 import com.blocker.blocker_server.entity.Image;
 import com.blocker.blocker_server.entity.User;
+import com.blocker.blocker_server.exception.ForbiddenException;
 import com.blocker.blocker_server.exception.NotFoundException;
 import com.blocker.blocker_server.repository.BoardRepository;
 import com.blocker.blocker_server.repository.BookmarkRepository;
@@ -121,5 +122,14 @@ public class BoardService {
         boardRepository.save(newBoard);
         imageRepository.saveAll(images);
 
+    }
+
+    public void deleteBoard(User me, Long boardId) {
+        Board board = boardRepository.findById(boardId).orElseThrow(()->new NotFoundException("[delete board] boardId : " + boardId));
+
+        if(!board.getUser().getEmail().equals(me.getEmail()))
+            throw new ForbiddenException("[delete board] boardId, email : " + boardId + ", " + me.getEmail());
+
+        boardRepository.deleteById(boardId);
     }
 }

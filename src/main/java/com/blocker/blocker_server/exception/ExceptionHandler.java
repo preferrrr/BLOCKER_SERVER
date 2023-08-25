@@ -56,4 +56,13 @@ public class ExceptionHandler {
 
         return new ResponseEntity<>(HttpStatus.CONFLICT); /**409, 등록한 전자서명이 이미 존재.*/
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({ForbiddenException.class})
+    public ResponseEntity<?> handleForbiddenException(final ForbiddenException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN); /**403, 권한 없음. ex) 게시글 삭제*/
+    }
 }

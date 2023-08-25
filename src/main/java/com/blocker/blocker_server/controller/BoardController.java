@@ -61,4 +61,17 @@ public class BoardController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+
+    /**
+     * 게시글 삭제
+     * /boards
+     * */
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<HttpStatus> deleteBoard(@AuthenticationPrincipal User user,
+                                                  @PathVariable("boardId") Long boardId) {
+
+        boardService.deleteBoard(user, boardId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
