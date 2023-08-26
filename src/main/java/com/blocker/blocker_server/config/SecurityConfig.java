@@ -60,7 +60,7 @@ public class SecurityConfig {
 
                     //Bookmark
                     authR.requestMatchers(HttpMethod.POST, "/bookmarks").hasAuthority("USER");
-
+                    authR.requestMatchers(HttpMethod.DELETE, "/bookmarks/{boardId}").hasAuthority("USER");
 
 
 

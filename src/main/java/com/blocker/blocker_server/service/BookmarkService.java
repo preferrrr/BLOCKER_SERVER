@@ -37,4 +37,18 @@ public class BookmarkService {
         board.addBookmarkCount();
 
     }
+
+    public void deleteBookmark(User user, Long boardId) {
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> new NotFoundException("[delete bookmark] boardId : " + boardId));
+
+        if(!bookmarkRepository.existsByUserAndBoard(user,board))
+            throw new NotFoundException("[delete bookmark] boardId : " + boardId + ", email : " + user.getEmail());
+
+        bookmarkRepository.deleteByUserAndBoard(user, board);
+
+        board.subBookmarkCount();
+
+    }
+
+
 }

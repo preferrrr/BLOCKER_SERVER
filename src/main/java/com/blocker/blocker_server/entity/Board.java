@@ -68,4 +68,8 @@ public class Board extends BaseEntity
     public void addBookmarkCount() {
         this.bookmarkCount += 1;
     }
+
+    public void subBookmarkCount() {
+        this.bookmarkCount -= 1;
+    }
 }

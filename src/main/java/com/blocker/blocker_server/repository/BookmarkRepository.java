@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, BookmarkId> {
     boolean existsByUserAndBoard(User user, Board board);
+
+    void deleteByUserAndBoard(User user, Board board);
 }
