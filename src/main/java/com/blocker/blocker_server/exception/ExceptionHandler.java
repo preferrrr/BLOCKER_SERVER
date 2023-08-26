@@ -74,4 +74,13 @@ public class ExceptionHandler {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT); /**204, 이미지 파일 안 보냄.*/
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({DuplicateBookmarkException.class})
+    public ResponseEntity<?> handleDuplicateBookmarkException(final DuplicateBookmarkException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.CONFLICT); /**409, 이미 북마크로 등록했음.*/
+    }
 }

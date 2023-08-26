@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.dto.response;
 
+import com.blocker.blocker_server.entity.BookmarkId;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,6 @@ public class GetBoardResponseDto {
     private List<ImageDto> images;
     private String info;
     private Long contractId;
-    private boolean isWriter;
-    private boolean isBookmark;
+    private Boolean isWriter;
+    private Boolean isBookmark;
 }
