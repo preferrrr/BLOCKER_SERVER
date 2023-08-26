@@ -3,6 +3,7 @@ package com.blocker.blocker_server.entity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -10,6 +11,7 @@ import org.hibernate.annotations.DynamicInsert;
 @Getter
 @Table(name = "BOOKMARK")
 @DynamicInsert
+@NoArgsConstructor
 public class Bookmark {
 
     @EmbeddedId
@@ -26,10 +28,10 @@ public class Bookmark {
     private Board board;
 
     @Builder
-    public Bookmark(String email, Long boardId, User user, Board board) {
+    public Bookmark(User user, Board board) {
         BookmarkId id = BookmarkId.builder()
-                .boardId(boardId)
-                .email(email)
+                .boardId(board.getBoardId())
+                .email(user.getEmail())
                 .build();
 
         this.id = id;

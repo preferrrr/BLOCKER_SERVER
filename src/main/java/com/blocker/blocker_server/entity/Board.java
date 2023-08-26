@@ -64,4 +64,8 @@ public class Board extends BaseEntity
         this.representImage = requestDto.getRepresentImage();
         //TODO : 계약서
     }
+
+    public void addBookmarkCount() {
+        this.bookmarkCount += 1;
+    }
 }

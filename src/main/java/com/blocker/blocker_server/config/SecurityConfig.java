@@ -58,6 +58,10 @@ public class SecurityConfig {
                     //Image
                     authR.requestMatchers(HttpMethod.POST, "/images").hasAuthority("USER");
 
+                    //Bookmark
+                    authR.requestMatchers(HttpMethod.POST, "/bookmarks").hasAuthority("USER");
+
+
 
 
                 })
