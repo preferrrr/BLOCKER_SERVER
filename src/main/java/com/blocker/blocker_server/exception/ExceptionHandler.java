@@ -65,4 +65,13 @@ public class ExceptionHandler {
 
         return new ResponseEntity<>(HttpStatus.FORBIDDEN); /**403, 권한 없음. ex) 게시글 삭제*/
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({InvalidImageException.class})
+    public ResponseEntity<?> handleInvalidImageException(final InvalidImageException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT); /**204, 이미지 파일 안 보냄.*/
+    }
 }
