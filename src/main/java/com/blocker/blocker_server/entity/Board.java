@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.entity;
 
+import com.blocker.blocker_server.dto.request.ModifyBoardRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,5 +55,13 @@ public class Board extends BaseEntity
         this.view = view;
         this.representImage = representImage;
         this.info = info;
+    }
+    
+    public void updateBoard(ModifyBoardRequestDto requestDto) {
+        this.title = requestDto.getTitle();
+        this.content = requestDto.getContent();
+        this.info = requestDto.getInfo();
+        this.representImage = requestDto.getRepresentImage();
+        //TODO : 계약서
     }
 }

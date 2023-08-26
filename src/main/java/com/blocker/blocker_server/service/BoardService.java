@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.service;
 
+import com.blocker.blocker_server.dto.request.ModifyBoardRequestDto;
 import com.blocker.blocker_server.dto.request.SaveBoardRequestDto;
 import com.blocker.blocker_server.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.dto.response.GetBoardResponseDto;
@@ -135,5 +136,28 @@ public class BoardService {
             throw new ForbiddenException("[delete board] boardId, email : " + boardId + ", " + me.getEmail());
 
         boardRepository.deleteById(boardId);
+    }
+
+    public void modifyBoard(User me, Long boardId, ModifyBoardRequestDto requestDto) {
+        Board board = boardRepository.findById(boardId).orElseThrow(()->new NotFoundException("[modify board] boardId : " + boardId));
+
+        if(!board.getUser().getEmail().equals(me.getEmail()))
+            throw new ForbiddenException("[modify board] boardId, email : " + boardId + ", " + me.getEmail());
+
+        board.updateBoard(requestDto);
+        //TODO : 계약서 관련된 거 검증 후 추가해야함.
+
+        List<Image> addImages = new ArrayList<>();
+        for(String imageAddress : requestDto.getAddImageAddresses()) {
+            Image image = Image.builder()
+                    .board(board)
+                    .imageAddress(imageAddress)
+                    .build();
+            addImages.add(image);
+        }
+
+        imageRepository.saveAll(addImages);
+        imageRepository.deleteAllById(requestDto.getDeleteImageIds()); //imageId가 존재하는지 db 조회로 검증을 해야할까 ?
+
     }
 }

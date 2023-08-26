@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.controller;
 
+import com.blocker.blocker_server.dto.request.ModifyBoardRequestDto;
 import com.blocker.blocker_server.dto.request.SaveBoardRequestDto;
 import com.blocker.blocker_server.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.dto.response.GetBoardResponseDto;
@@ -73,5 +74,21 @@ public class BoardController {
         boardService.deleteBoard(user, boardId);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /**
+     * 게시글 수정
+     * /boards/{boardId}*/
+    @PatchMapping("/{boardId}")
+    public ResponseEntity<HttpStatus> modifyBoard(@AuthenticationPrincipal User user,
+                                                  @PathVariable("boardId") Long boardId,
+                                                  @RequestBody ModifyBoardRequestDto requestDto) {
+
+        requestDto.validateFieldsNotNull();
+
+        boardService.modifyBoard(user, boardId, requestDto);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 }
