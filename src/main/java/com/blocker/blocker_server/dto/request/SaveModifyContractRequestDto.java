@@ -1,11 +1,10 @@
 package com.blocker.blocker_server.dto.request;
 
 import com.blocker.blocker_server.exception.InvalidRequestParameterException;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class SaveContractRequestDto {
+public class SaveModifyContractRequestDto {
     private String title;
     private String content;
 

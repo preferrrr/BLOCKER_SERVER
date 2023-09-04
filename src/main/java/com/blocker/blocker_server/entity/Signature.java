@@ -21,7 +21,7 @@ public class Signature extends BaseEntity {
 
     @MapsId("email")
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "email")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Builder

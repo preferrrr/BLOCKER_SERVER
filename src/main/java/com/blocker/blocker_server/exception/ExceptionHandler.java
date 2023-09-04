@@ -83,4 +83,22 @@ public class ExceptionHandler {
 
         return new ResponseEntity<>(HttpStatus.CONFLICT); /**409, 이미 북마크로 등록했음.*/
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({ModifyContractException.class})
+    public ResponseEntity<?> ModifyContractException(final ModifyContractException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 진행 중이거나 완료된 계약은 수정 불가.*/
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({InvalidQueryStringException.class})
+    public ResponseEntity<?> InvalidQueryStringExceptionException(final InvalidQueryStringException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 잘못된 쿼리스트링.*/
+    }
 }

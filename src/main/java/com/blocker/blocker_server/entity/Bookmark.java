@@ -19,12 +19,12 @@ public class Bookmark {
 
     @MapsId("email")
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "email")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @MapsId("boardId")
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board")
+    @JoinColumn(name = "board_id")
     private Board board;
 
     @Builder

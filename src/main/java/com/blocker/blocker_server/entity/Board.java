@@ -46,8 +46,12 @@ public class Board extends BaseEntity
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contract_id", nullable = false)
+    private Contract contract;
+
     @Builder
-    public Board(User user, String title, String content, Integer bookmarkCount, Integer view, String representImage, String info) {
+    public Board(User user, String title, String content, Integer bookmarkCount, Integer view, String representImage, String info, Contract contract) {
         this.user = user;
         this.title = title;
         this.content = content;
@@ -55,6 +59,7 @@ public class Board extends BaseEntity
         this.view = view;
         this.representImage = representImage;
         this.info = info;
+        this.contract = contract;
     }
     
     public void updateBoard(ModifyBoardRequestDto requestDto) {

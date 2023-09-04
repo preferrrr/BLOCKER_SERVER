@@ -10,10 +10,7 @@ import com.blocker.blocker_server.entity.Image;
 import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.exception.ForbiddenException;
 import com.blocker.blocker_server.exception.NotFoundException;
-import com.blocker.blocker_server.repository.BoardRepository;
-import com.blocker.blocker_server.repository.BookmarkRepository;
-import com.blocker.blocker_server.repository.ImageRepository;
-import com.blocker.blocker_server.repository.UserRepository;
+import com.blocker.blocker_server.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +28,7 @@ public class BoardService {
     private final BookmarkRepository bookmarkRepository;
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
+    private final ContractRepository contractRepository;
 
     public List<GetBoardListResponseDto> getBoards(Pageable pageable) {
 
@@ -106,13 +104,13 @@ public class BoardService {
 
         User me = userRepository.getReferenceById(user.getEmail());
 
-        //TODO : 계약서
         Board newBoard = Board.builder()
                 .user(me)
                 .title(requestDto.getTitle())
                 .content(requestDto.getContent())
                 .info(requestDto.getInfo())
                 .representImage(requestDto.getRepresentImage())
+                .contract(contractRepository.getReferenceById(requestDto.getContractId()))
                 .build();
 
         List<Image> images = new ArrayList<>();
