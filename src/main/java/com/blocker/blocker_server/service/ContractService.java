@@ -34,11 +34,11 @@ public class ContractService {
     }
 
     public void modifyContract(User user, Long contractId, SaveModifyContractRequestDto requestDto) {
-        Contract contract = contractRepository.findById(contractId).orElseThrow(()->new NotFoundException("[modify contract] contractId : " + contractId));
+        Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[modify contract] contractId : " + contractId));
 
-        if(!contract.getUser().getEmail().equals(user.getEmail())) // 내가 적은 계약서가 아님.
+        if (!contract.getUser().getEmail().equals(user.getEmail())) // 내가 적은 계약서가 아님.
             throw new ForbiddenException("[modify contract] contractId, email : " + contractId + ", " + user.getEmail());
-        else if(contract.getContractState().equals(ContractState.SIGNING) ||
+        else if (contract.getContractState().equals(ContractState.SIGNING) ||
                 contract.getContractState().equals(ContractState.COMPLETE)) // 계약이 진행 중이거나 완료됐으면 수정하지 못함. 권한 없는 요청과 구분하기 위해 400으로.
             throw new ModifyContractException("[modify contract] contractId, email : " + contractId + ", " + user.getEmail());
 
@@ -51,7 +51,7 @@ public class ContractService {
 
         List<GetContractResponseDto> dtos = new ArrayList<>();
 
-        for(Contract contract : contracts) {
+        for (Contract contract : contracts) {
             GetContractResponseDto dto = GetContractResponseDto.builder()
                     .contractId(contract.getContractId())
                     .title(contract.getTitle())
@@ -69,7 +69,7 @@ public class ContractService {
 
     public GetContractResponseDto getContract(Long contractId) {
 
-        Contract contract = contractRepository.findById(contractId).orElseThrow(()->new NotFoundException("[get contract] contractId : " + contractId));
+        Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[get contract] contractId : " + contractId));
 
         GetContractResponseDto dto = GetContractResponseDto.builder()
                 .contractId(contractId)
@@ -80,5 +80,15 @@ public class ContractService {
                 .build();
 
         return dto;
+    } //TODO : 계약서 수정은 진행 중일 때도 가능. but 진행 중이라면 계약 참여자들의 서명이 모두 취소되어야함.
+
+    public void deleteContract(User user, Long contractId) {
+        Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[delete contract] contractId : " + contractId));
+
+        //TODO : 계약서 삭제는 진행 중일 때 가능.
+        if(!user.getEmail().equals(contract.getUser().getEmail()))
+            throw new ForbiddenException("[delete contract] contractId, email : " + contractId + ", " + user.getEmail());
+
+        contractRepository.deleteById(contractId);
     }
 }

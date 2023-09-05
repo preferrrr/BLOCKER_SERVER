@@ -71,5 +71,16 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**계약서 삭제
+     * /contracts/{contractId}
+     * */
+    @DeleteMapping("/{contractId}")
+    public ResponseEntity<HttpStatus> deleteContract(@AuthenticationPrincipal User user,
+                                                     @PathVariable("contractId") Long contractId) {
+        contractService.deleteContract(user, contractId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
 }
