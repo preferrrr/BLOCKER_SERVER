@@ -1,6 +1,7 @@
 package com.blocker.blocker_server.service;
 
 import com.blocker.blocker_server.dto.request.LoginRequestDto;
+import com.blocker.blocker_server.dto.response.SearchUserResponse;
 import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.exception.InvalidRefreshTokenException;
 import com.blocker.blocker_server.jwt.JwtProvider;
@@ -117,6 +118,25 @@ public class UserService {
         headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(user.getEmail(), user.getRoles())); // access token
 
         return headers;
+
+    }
+
+    public List<SearchUserResponse> searchUsers(String keyword) {
+
+        List<User> userList = userRepository.searchUsers(keyword);
+
+        List<SearchUserResponse> result = new ArrayList<>();
+
+        for (User user : userList) {
+            SearchUserResponse response = SearchUserResponse.builder()
+                    .email(user.getEmail())
+                    .name(user.getName())
+                    .picture(user.getPicture())
+                    .build();
+            result.add(response);
+        }
+
+        return result;
 
     }
 }

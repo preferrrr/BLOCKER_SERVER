@@ -1,17 +1,15 @@
 package com.blocker.blocker_server.controller;
 
 import com.blocker.blocker_server.dto.request.LoginRequestDto;
-import com.blocker.blocker_server.entity.User;
+import com.blocker.blocker_server.dto.response.SearchUserResponse;
 import com.blocker.blocker_server.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,6 +37,14 @@ public class UserController {
         HttpHeaders headers = userService.reissueToken(cookie);
 
         return new ResponseEntity<>(headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<SearchUserResponse>> searchUsers(@RequestParam("keyword") String keyword) {
+
+        List<SearchUserResponse> result = userService.searchUsers(keyword);
+
+        return new ResponseEntity(result, HttpStatus.OK);
     }
 
 }

@@ -46,6 +46,7 @@ public class SecurityConfig {
                     //User
                     authR.requestMatchers("/users/login").permitAll();
                     authR.requestMatchers("/users/reissue-token").permitAll();
+                    authR.requestMatchers("/users/search").hasAuthority("USER");
 
                     //Board
                     authR.requestMatchers(HttpMethod.GET, "/boards").hasAuthority("USER");
