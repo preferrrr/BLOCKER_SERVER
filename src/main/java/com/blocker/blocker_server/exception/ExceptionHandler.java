@@ -101,4 +101,13 @@ public class ExceptionHandler {
 
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 잘못된 쿼리스트링.*/
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({ExistsProceededContractException.class})
+    public ResponseEntity<?> InvalidQueryStringExceptionException(final ExistsProceededContractException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.CONFLICT); /**409, 해당 계약서는 이미 서명 진행 중.*/
+    }
 }

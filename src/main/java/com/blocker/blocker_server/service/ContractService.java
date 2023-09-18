@@ -38,8 +38,8 @@ public class ContractService {
 
         if (!contract.getUser().getEmail().equals(user.getEmail())) // 내가 적은 계약서가 아님.
             throw new ForbiddenException("[modify contract] contractId, email : " + contractId + ", " + user.getEmail());
-        else if (contract.getContractState().equals(ContractState.SIGNING) ||
-                contract.getContractState().equals(ContractState.COMPLETE)) // 계약이 진행 중이거나 완료됐으면 수정하지 못함. 권한 없는 요청과 구분하기 위해 400으로.
+        else if (contract.getContractState().equals(ContractState.PROCEED) ||
+                contract.getContractState().equals(ContractState.CONCLUDE)) // 계약이 진행 중이거나 완료됐으면 수정하지 못함. 권한 없는 요청과 구분하기 위해 400으로.
             throw new ModifyContractException("[modify contract] contractId, email : " + contractId + ", " + user.getEmail());
 
         contract.modifyContract(requestDto.getTitle(), requestDto.getContent());

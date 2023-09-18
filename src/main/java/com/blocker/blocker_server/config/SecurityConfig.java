@@ -41,31 +41,34 @@ public class SecurityConfig {
                 .csrf((csrf) -> csrf.disable())
                 .cors((cors) -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authR -> {
+                .authorizeHttpRequests(auth -> {
 
                     //User
-                    authR.requestMatchers("/users/login").permitAll();
-                    authR.requestMatchers("/users/reissue-token").permitAll();
-                    authR.requestMatchers("/users/search").hasAuthority("USER");
+                    auth.requestMatchers("/users/login").permitAll();
+                    auth.requestMatchers("/users/reissue-token").permitAll();
+                    auth.requestMatchers("/users/search").hasAuthority("USER");
 
                     //Board
-                    authR.requestMatchers(HttpMethod.GET, "/boards").hasAuthority("USER");
-                    authR.requestMatchers("/boards/{boardId}").hasAuthority("USER");
-                    authR.requestMatchers(HttpMethod.POST, "/boards").hasAuthority("USER");
+                    auth.requestMatchers(HttpMethod.GET, "/boards").hasAuthority("USER");
+                    auth.requestMatchers("/boards/{boardId}").hasAuthority("USER");
+                    auth.requestMatchers(HttpMethod.POST, "/boards").hasAuthority("USER");
 
                     //Signature
-                    authR.requestMatchers(HttpMethod.POST,"/signatures").hasAuthority("GUEST");
+                    auth.requestMatchers(HttpMethod.POST,"/signatures").hasAuthority("GUEST");
 
                     //Image
-                    authR.requestMatchers(HttpMethod.POST, "/images").hasAuthority("USER");
+                    auth.requestMatchers(HttpMethod.POST, "/images").hasAuthority("USER");
 
                     //Bookmark
-                    authR.requestMatchers(HttpMethod.POST, "/bookmarks").hasAuthority("USER");
-                    authR.requestMatchers(HttpMethod.DELETE, "/bookmarks/{boardId}").hasAuthority("USER");
+                    auth.requestMatchers(HttpMethod.POST, "/bookmarks").hasAuthority("USER");
+                    auth.requestMatchers(HttpMethod.DELETE, "/bookmarks/{boardId}").hasAuthority("USER");
 
                     //Contract
-                    authR.requestMatchers("/contracts").hasAuthority("USER");
-                    authR.requestMatchers("/contracts/{contractId}").hasAuthority("USER");
+                    auth.requestMatchers("/contracts").hasAuthority("USER");
+                    auth.requestMatchers("/contracts/{contractId}").hasAuthority("USER");
+
+                    //Sign
+                    auth.requestMatchers("/signs").hasAuthority("USER");
 
 
 

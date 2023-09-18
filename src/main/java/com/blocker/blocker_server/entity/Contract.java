@@ -37,12 +37,16 @@ public class Contract extends BaseEntity{
         this.user = user;
         this.title = title;
         this.content = content;
-        this.contractState = ContractState.NOT_CONCLUDED;
+        this.contractState = ContractState.NOT_PROCEED;
     }
 
     public void modifyContract(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public void updateStateToProceed() {
+        this.contractState = ContractState.PROCEED;
     }
 
 }
