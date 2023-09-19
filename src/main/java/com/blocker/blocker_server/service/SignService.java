@@ -61,4 +61,14 @@ public class SignService {
         signRepository.saveAll(signs);
 
     }
+
+    public void signContract(User me, Long contractId) {
+
+        Sign mySign = signRepository.findByContractAndUser(contractRepository.getReferenceById(contractId), me)
+                .orElseThrow(()->new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId));
+
+        mySign.sign();
+
+        //TODO : 마지막 사람이라면 블록체인으로 계약 체결되도록.
+    }
 }

@@ -43,4 +43,8 @@ public class Sign extends BaseEntity{
         this.signState = SignState.N;
     }
 
+    public void sign() {
+        this.signState = SignState.Y;
+    }
+
 }
