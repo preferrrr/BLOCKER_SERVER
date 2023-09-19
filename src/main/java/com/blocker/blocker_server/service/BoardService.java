@@ -6,6 +6,7 @@ import com.blocker.blocker_server.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.dto.response.GetBoardResponseDto;
 import com.blocker.blocker_server.dto.response.ImageDto;
 import com.blocker.blocker_server.entity.Board;
+import com.blocker.blocker_server.entity.Contract;
 import com.blocker.blocker_server.entity.Image;
 import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.exception.ForbiddenException;
@@ -91,7 +92,7 @@ public class BoardService {
                 .modifiedAt(board.getModifiedAt())
                 .images(imageAddresses)
                 .info(board.getInfo())
-                .contractId(null)
+                .contractId(board.getContract().getContractId())
                 .isWriter(isWriter)
                 .isBookmark(isBookmark)
                 .build();
@@ -104,13 +105,17 @@ public class BoardService {
 
         User me = userRepository.getReferenceById(user.getEmail());
 
+        Contract contract = contractRepository.findById(requestDto.getContractId()).orElseThrow(()-> new NotFoundException("[modify board] contractId : " + requestDto.getContractId()));
+        if(!contract.getUser().getEmail().equals(me.getEmail()))
+            throw new ForbiddenException("[save board] contractId, email : " + contract.getContractId() + ", " + me.getEmail());
+
         Board newBoard = Board.builder()
                 .user(me)
                 .title(requestDto.getTitle())
                 .content(requestDto.getContent())
                 .info(requestDto.getInfo())
                 .representImage(requestDto.getRepresentImage())
-                .contract(contractRepository.getReferenceById(requestDto.getContractId()))
+                .contract(contract)
                 .build();
 
         List<Image> images = new ArrayList<>();
@@ -142,8 +147,18 @@ public class BoardService {
         if(!board.getUser().getEmail().equals(me.getEmail()))
             throw new ForbiddenException("[modify board] boardId, email : " + boardId + ", " + me.getEmail());
 
-        board.updateBoard(requestDto);
-        //TODO : 계약서 관련된 거 검증 후 추가해야함.
+        Contract contract;
+        //게시글에 포함된 계약서가 달라졌다면, 새로운 계약서 조회해서 나의 계약서가 맞는지 체크. 같다면 확인해줄 필요 없음
+        if(!board.getContract().getContractId().equals(requestDto.getContractId())) {
+            contract = contractRepository.findById(requestDto.getContractId()).orElseThrow(()-> new NotFoundException("[modify board] contractId : " + requestDto.getContractId()));
+
+            if(!contract.getUser().getEmail().equals(me.getEmail()))
+                throw new ForbiddenException("[modify board] contractId, email : " + contract.getContractId() + ", " + me.getEmail());
+
+        } else
+            contract = contractRepository.getReferenceById(requestDto.getContractId());
+        //Dynamic insert로 바뀐 값만 업데이트 됨.
+        board.updateBoard(requestDto.getTitle(), requestDto.getContent(), requestDto.getInfo(), requestDto.getRepresentImage(), contract);
 
         List<Image> addImages = new ArrayList<>();
         for(String imageAddress : requestDto.getAddImageAddresses()) {

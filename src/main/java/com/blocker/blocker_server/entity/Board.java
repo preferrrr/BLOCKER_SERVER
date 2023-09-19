@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 @Table(name = "BOARD")
 @NoArgsConstructor
 @DynamicInsert
+@DynamicUpdate
 public class Board extends BaseEntity
 {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,12 +64,12 @@ public class Board extends BaseEntity
         this.contract = contract;
     }
     
-    public void updateBoard(ModifyBoardRequestDto requestDto) {
-        this.title = requestDto.getTitle();
-        this.content = requestDto.getContent();
-        this.info = requestDto.getInfo();
-        this.representImage = requestDto.getRepresentImage();
-        //TODO : 계약서
+    public void updateBoard(String title, String content, String info, String representImage, Contract contract) {
+        this.title = title;
+        this.content = content;
+        this.info = info;
+        this.representImage = representImage;
+        this.contract = contract;
     }
 
     public void addBookmarkCount() {
