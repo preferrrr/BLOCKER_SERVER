@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "CONTRACT")
 @Getter
@@ -31,6 +34,9 @@ public class Contract extends BaseEntity{
 
     @OneToOne(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
     private Board board;
+
+    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Sign> signs = new ArrayList<>();
 
     @Builder
     public Contract(User user, String title, String content) {

@@ -38,6 +38,8 @@ public class QContract extends EntityPathBase<Contract> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
 
+    public final ListPath<Sign, QSign> signs = this.<Sign, QSign>createList("signs", Sign.class, QSign.class, PathInits.DIRECT2);
+
     //inherited
     public final StringPath status = _super.status;
 

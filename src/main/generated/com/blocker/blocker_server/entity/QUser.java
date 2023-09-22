@@ -46,6 +46,8 @@ public class QUser extends EntityPathBase<User> {
 
     public final QSignature signature;
 
+    public final ListPath<Sign, QSign> signs = this.<Sign, QSign>createList("signs", Sign.class, QSign.class, PathInits.DIRECT2);
+
     //inherited
     public final StringPath status = _super.status;
 

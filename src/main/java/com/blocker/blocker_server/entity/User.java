@@ -49,6 +49,9 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Contract> contracts = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Sign> signs = new ArrayList<>();
+
     @Builder
     public User(String email, String name, String picture, String refreshtokenValue,List<String> roles) {
         this.email = email;

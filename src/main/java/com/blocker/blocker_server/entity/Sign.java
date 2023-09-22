@@ -11,18 +11,18 @@ import org.hibernate.annotations.DynamicInsert;
 @Getter
 @NoArgsConstructor
 @DynamicInsert
-public class Sign extends BaseEntity{
+public class Sign extends BaseEntity {
 
     @EmbeddedId
     private SignId id;
 
     @MapsId("email")
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     @MapsId("contractId")
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contract_id")
     private Contract contract;
 
@@ -45,6 +45,10 @@ public class Sign extends BaseEntity{
 
     public void sign() {
         this.signState = SignState.Y;
+    }
+
+    public void cancel() {
+        this.signState = SignState.N;
     }
 
 }

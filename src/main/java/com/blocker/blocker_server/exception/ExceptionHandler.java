@@ -85,7 +85,7 @@ public class ExceptionHandler {
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler({ModifyContractException.class})
-    public ResponseEntity<?> ModifyContractException(final ModifyContractException e) {
+    public ResponseEntity<?> handleModifyContractException(final ModifyContractException e) {
 
         String msg = e.getNAME() + ": [" + e.getMessage() + "]";
         log.error(msg);
@@ -94,7 +94,7 @@ public class ExceptionHandler {
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler({InvalidQueryStringException.class})
-    public ResponseEntity<?> InvalidQueryStringExceptionException(final InvalidQueryStringException e) {
+    public ResponseEntity<?> handleInvalidQueryStringExceptionException(final InvalidQueryStringException e) {
 
         String msg = e.getNAME() + ": [" + e.getMessage() + "]";
         log.error(msg);
@@ -103,11 +103,22 @@ public class ExceptionHandler {
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler({ExistsProceededContractException.class})
-    public ResponseEntity<?> InvalidQueryStringExceptionException(final ExistsProceededContractException e) {
+    public ResponseEntity<?> handleInvalidQueryStringExceptionException(final ExistsProceededContractException e) {
 
         String msg = e.getNAME() + ": [" + e.getMessage() + "]";
         log.error(msg);
 
         return new ResponseEntity<>(HttpStatus.CONFLICT); /**409, 해당 계약서는 이미 서명 진행 중.*/
+    }
+
+
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({NotAllowModifyContractException.class})
+    public ResponseEntity<?> handleNotAllowedModifyContractException(final NotAllowModifyContractException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 체결 완료된 계약서는 수정할 수 없음.*/
     }
 }
