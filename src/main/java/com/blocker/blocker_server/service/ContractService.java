@@ -3,10 +3,7 @@ package com.blocker.blocker_server.service;
 import com.blocker.blocker_server.dto.request.SaveModifyContractRequestDto;
 import com.blocker.blocker_server.dto.response.GetContractResponseDto;
 import com.blocker.blocker_server.entity.*;
-import com.blocker.blocker_server.exception.ForbiddenException;
-import com.blocker.blocker_server.exception.ModifyContractException;
-import com.blocker.blocker_server.exception.NotAllowModifyContractException;
-import com.blocker.blocker_server.exception.NotFoundException;
+import com.blocker.blocker_server.exception.*;
 import com.blocker.blocker_server.repository.ContractRepository;
 import com.blocker.blocker_server.repository.SignRepository;
 import lombok.RequiredArgsConstructor;
@@ -94,9 +91,13 @@ public class ContractService {
     public void deleteContract(User user, Long contractId) {
         Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[delete contract] contractId : " + contractId));
 
-        //TODO : 계약서 삭제는 진행 중일 때 가능.
+        //미체결 계약서 삭제이기 때문에
+        //계약서의 작성자이어야 하고, 진행 중 다음이라면 삭제하지 못함.
         if(!user.getEmail().equals(contract.getUser().getEmail()))
             throw new ForbiddenException("[delete contract] contractId, email : " + contractId + ", " + user.getEmail());
+
+        if(!contract.getContractState().equals(ContractState.NOT_PROCEED))
+            throw new NotAllowDeleteContractException("[delete contract] contractId : " + contractId);
 
         contractRepository.deleteById(contractId);
     }
