@@ -2,11 +2,13 @@ package com.blocker.blocker_server.service;
 
 import com.blocker.blocker_server.dto.request.ProceedSignRequest;
 import com.blocker.blocker_server.entity.Contract;
+import com.blocker.blocker_server.entity.ContractState;
 import com.blocker.blocker_server.entity.Sign;
 import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.exception.ExistsProceededContractException;
 import com.blocker.blocker_server.exception.ForbiddenException;
 import com.blocker.blocker_server.exception.NotFoundException;
+import com.blocker.blocker_server.exception.NotProceedContractException;
 import com.blocker.blocker_server.repository.ContractRepository;
 import com.blocker.blocker_server.repository.SignRepository;
 import com.blocker.blocker_server.repository.UserRepository;
@@ -28,14 +30,14 @@ public class SignService {
 
     public void proceedContract(User me, ProceedSignRequest request) {
 
-        Contract contract = contractRepository.findById(request.getContractId()).orElseThrow(()-> new NotFoundException("[proceed sign] contractId : " + request.getContractId()));
+        Contract contract = contractRepository.findById(request.getContractId()).orElseThrow(() -> new NotFoundException("[proceed sign] contractId : " + request.getContractId()));
 
         //계약서를 쓴 사람이 내가 아니면 403 FORBIDDEN 반환
-        if(!contract.getUser().getEmail().equals(me.getEmail()))
+        if (!contract.getUser().getEmail().equals(me.getEmail()))
             throw new ForbiddenException("[proceed contract] contractId, email : " + contract.getContractId() + ", " + me.getEmail());
 
         //해당 계약서는 이미 계약을 진행 중이라면 409 conflict 반환
-        if(signRepository.existsByContract(contract))
+        if (signRepository.existsByContract(contract))
             throw new ExistsProceededContractException("contractId : " + request.getContractId());
 
         contract.updateStateToProceed(); // 계약서의 상태를 진행 중으로 바꿈.
@@ -46,11 +48,11 @@ public class SignService {
 
         signs.add(Sign.builder().user(me).contract(contract).build()); // 나도 계약 참여자. 나도 나중에 서명해야함.
 
-        for(String email : emails) {
+        for (String email : emails) {
             signs.add(Sign.builder()
-                            .user(userRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("[proceed sign] email : " + email)))
-                            .contract(contract)
-                            .build());
+                    .user(userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("[proceed sign] email : " + email)))
+                    .contract(contract)
+                    .build());
         }
         //서명 상태는 기본 N으로 되어 있음.
         // 1. 좀 더 확실하게 하려면 초대받은 사람들은, 초대를 승낙한다는 것이 있어야하지 않을까?
@@ -65,10 +67,31 @@ public class SignService {
     public void signContract(User me, Long contractId) {
 
         Sign mySign = signRepository.findByContractAndUser(contractRepository.getReferenceById(contractId), me)
-                .orElseThrow(()->new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId));
+                .orElseThrow(() -> new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId));
 
         mySign.sign();
 
         //TODO : 마지막 사람이라면 블록체인으로 계약 체결되도록.
+    }
+
+    public void breakContract(User me, Long contractId) {
+        Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[break contract] : contractId : " + contractId));
+
+        //진행 중 계약서가 아님.
+        if(!contract.getContractState().equals(ContractState.PROCEED))
+            throw new NotProceedContractException("email, contractId : " + me.getEmail() + ", " + contractId);
+
+        List<Sign> signs = signRepository.findByContract(contract);
+
+        //계약 참여자가 아님.
+        boolean isContractor = signs.stream()
+                .anyMatch(sign -> sign.getUser().getEmail().equals(me.getEmail()));
+        if (!isContractor)
+            throw new ForbiddenException("[break contract] email, contractId : " + me.getEmail() + ", " + contractId);
+
+        contract.updateStateToNotProceed();
+
+        signRepository.deleteAll(signs);
+
     }
 }

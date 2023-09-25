@@ -108,7 +108,7 @@ public class BoardService {
         Contract contract = contractRepository.findById(requestDto.getContractId()).orElseThrow(()-> new NotFoundException("[modify board] contractId : " + requestDto.getContractId()));
         if(!contract.getUser().getEmail().equals(me.getEmail()))
             throw new ForbiddenException("[save board] contractId, email : " + contract.getContractId() + ", " + me.getEmail());
-
+        // 계약서는
         Board newBoard = Board.builder()
                 .user(me)
                 .title(requestDto.getTitle())

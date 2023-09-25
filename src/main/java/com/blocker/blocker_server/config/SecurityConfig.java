@@ -65,10 +65,11 @@ public class SecurityConfig {
 
                     //Contract
                     auth.requestMatchers("/contracts").hasAuthority("USER");
-                    auth.requestMatchers("/contracts/{contractId}").hasAuthority("USER");
+                    auth.requestMatchers("/contracts/*").hasAuthority("USER");
 
                     //Sign
                     auth.requestMatchers("/signs").hasAuthority("USER");
+                    auth.requestMatchers("/signs/contract/*").hasAuthority("USER");
 
 
 

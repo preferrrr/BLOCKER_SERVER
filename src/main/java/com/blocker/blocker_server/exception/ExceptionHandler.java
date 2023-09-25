@@ -130,4 +130,13 @@ public class ExceptionHandler {
 
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 미체결(진행 중 이전)이 아닌 계약서는 지울 수 없음.*/
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({NotProceedContractException.class})
+    public ResponseEntity<?> handleNotProceedContractException(final NotProceedContractException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 진행 중 계약서가 아님.*/
+    }
 }

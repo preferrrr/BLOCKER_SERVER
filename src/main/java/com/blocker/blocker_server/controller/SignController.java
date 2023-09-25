@@ -38,13 +38,26 @@ public class SignController {
 
 
     /**서명
-     * /signs/{contractId}
+     * /signs/contract/{contractId}
      * */
-    @PatchMapping("/{contractId}")
+    @PatchMapping("/contract/{contractId}")
     public ResponseEntity<HttpStatus> signContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long contractId) {
 
         signService.signContract(user, contractId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    /**진행 중 계약 파기
+     * /signs/contract/{contractId}
+     * */
+    @DeleteMapping("/contract/{contractId}")
+    public ResponseEntity<HttpStatus> breakContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long contractId) {
+
+        signService.breakContract(user, contractId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
+
 }
