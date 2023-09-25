@@ -1,14 +1,8 @@
 package com.blocker.blocker_server.service;
 
 import com.blocker.blocker_server.dto.request.ProceedSignRequest;
-import com.blocker.blocker_server.entity.Contract;
-import com.blocker.blocker_server.entity.ContractState;
-import com.blocker.blocker_server.entity.Sign;
-import com.blocker.blocker_server.entity.User;
-import com.blocker.blocker_server.exception.ExistsProceededContractException;
-import com.blocker.blocker_server.exception.ForbiddenException;
-import com.blocker.blocker_server.exception.NotFoundException;
-import com.blocker.blocker_server.exception.NotProceedContractException;
+import com.blocker.blocker_server.entity.*;
+import com.blocker.blocker_server.exception.*;
 import com.blocker.blocker_server.repository.ContractRepository;
 import com.blocker.blocker_server.repository.SignRepository;
 import com.blocker.blocker_server.repository.UserRepository;
@@ -68,6 +62,9 @@ public class SignService {
 
         Sign mySign = signRepository.findByContractAndUser(contractRepository.getReferenceById(contractId), me)
                 .orElseThrow(() -> new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId));
+
+        if(mySign.getSignState().equals(SignState.Y))
+            throw new DuplicateSignException("contractId, email : " + contractId + ", " + me.getEmail());
 
         mySign.sign();
 

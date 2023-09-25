@@ -139,4 +139,13 @@ public class ExceptionHandler {
 
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 진행 중 계약서가 아님.*/
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({DuplicateSignException.class})
+    public ResponseEntity<?> handleDuplicateSignException(final DuplicateSignException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.CONFLICT); /**409, 계약서에 이미 서명함.*/
+    }
 }
