@@ -52,6 +52,9 @@ public class Board extends BaseEntity
     @JoinColumn(name = "contract_id", nullable = false)
     private Contract contract;
 
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bookmark> bookmarks = new ArrayList<>();
+
     @Builder
     public Board(User user, String title, String content, Integer bookmarkCount, Integer view, String representImage, String info, Contract contract) {
         this.user = user;

@@ -82,5 +82,6 @@ public class ContractController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    //TODO : 진행 중 계약서 수정과 미체결 계약서 수정 구분해야 함.
 
 }
