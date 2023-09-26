@@ -28,6 +28,8 @@ public class QBoard extends EntityPathBase<Board> {
 
     public final NumberPath<Integer> bookmarkCount = createNumber("bookmarkCount", Integer.class);
 
+    public final ListPath<Bookmark, QBookmark> bookmarks = this.<Bookmark, QBookmark>createList("bookmarks", Bookmark.class, QBookmark.class, PathInits.DIRECT2);
+
     public final StringPath content = createString("content");
 
     public final QContract contract;

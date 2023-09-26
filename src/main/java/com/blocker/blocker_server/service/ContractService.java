@@ -4,6 +4,7 @@ import com.blocker.blocker_server.dto.request.SaveModifyContractRequestDto;
 import com.blocker.blocker_server.dto.response.GetContractResponseDto;
 import com.blocker.blocker_server.entity.*;
 import com.blocker.blocker_server.exception.*;
+import com.blocker.blocker_server.repository.BoardRepository;
 import com.blocker.blocker_server.repository.ContractRepository;
 import com.blocker.blocker_server.repository.SignRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class ContractService {
 
     private final ContractRepository contractRepository;
     private final SignRepository signRepository;
+    private final BoardRepository boardRepository;
 
     public void saveContract(User user, SaveModifyContractRequestDto requestDto) {
         Contract contract = Contract.builder()
@@ -93,10 +95,10 @@ public class ContractService {
 
         //미체결 계약서 삭제이기 때문에
         //계약서의 작성자이어야 하고, 진행 중 다음이라면 삭제하지 못함.
-        if(!user.getEmail().equals(contract.getUser().getEmail()))
+        if(!user.getEmail().equals(contract.getUser().getEmail()) || !contract.getContractState().equals(ContractState.NOT_PROCEED))
             throw new ForbiddenException("[delete contract] contractId, email : " + contractId + ", " + user.getEmail());
 
-        if(!contract.getContractState().equals(ContractState.NOT_PROCEED))
+        if(boardRepository.existsByContract(contract))
             throw new NotAllowDeleteContractException("[delete contract] contractId : " + contractId);
 
         contractRepository.deleteById(contractId);
