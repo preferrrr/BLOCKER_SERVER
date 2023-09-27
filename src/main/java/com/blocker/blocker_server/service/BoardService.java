@@ -9,6 +9,7 @@ import com.blocker.blocker_server.entity.Board;
 import com.blocker.blocker_server.entity.Contract;
 import com.blocker.blocker_server.entity.Image;
 import com.blocker.blocker_server.entity.User;
+import com.blocker.blocker_server.exception.DuplicateContractException;
 import com.blocker.blocker_server.exception.ForbiddenException;
 import com.blocker.blocker_server.exception.NotFoundException;
 import com.blocker.blocker_server.repository.*;
@@ -108,7 +109,10 @@ public class BoardService {
         Contract contract = contractRepository.findById(requestDto.getContractId()).orElseThrow(()-> new NotFoundException("[modify board] contractId : " + requestDto.getContractId()));
         if(!contract.getUser().getEmail().equals(me.getEmail()))
             throw new ForbiddenException("[save board] contractId, email : " + contract.getContractId() + ", " + me.getEmail());
-        // 계약서는
+        //해당 계약서로 이미 게시글 작성했으면 409 응답.
+        if(boardRepository.existsByContract(contract))
+            throw new DuplicateContractException("contractId : " + contract.getContractId());
+
         Board newBoard = Board.builder()
                 .user(me)
                 .title(requestDto.getTitle())

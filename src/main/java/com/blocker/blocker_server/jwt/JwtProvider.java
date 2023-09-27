@@ -22,7 +22,9 @@ public class JwtProvider {
 
     @Value("${jwt.secret}")
     private String secretKey;
-    private final long ACCESS_TOKEN_VALID_TIME = 2 * 30 * 60 * 1000L;   // 60분
+    //private final long ACCESS_TOKEN_VALID_TIME = 2 * 30 * 60 * 1000L;   // 60분
+    private final long ACCESS_TOKEN_VALID_TIME = 30 * 24 * 2 * 30 * 60 * 1000L;   // 60분
+
     private final long REFRESH_TOKEN_VALID_TIME = 60 * 60 * 24 * 14 * 1000L;   // 2주
 
 

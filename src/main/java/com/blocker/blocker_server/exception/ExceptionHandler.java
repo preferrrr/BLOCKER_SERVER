@@ -148,4 +148,13 @@ public class ExceptionHandler {
 
         return new ResponseEntity<>(HttpStatus.CONFLICT); /**409, 계약서에 이미 서명함.*/
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({DuplicateContractException.class})
+    public ResponseEntity<?> handleDuplicateContractException(final DuplicateContractException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.CONFLICT); /**409, 계약서로 이미 게시글 작성함.*/
+    }
 }
