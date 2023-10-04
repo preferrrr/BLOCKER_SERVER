@@ -60,10 +60,10 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    /**계약서 조회
+    /**미체결 계약서 조회
      * /contracts/{contractId}
      * */
-    @GetMapping("/{contractId}")
+    @GetMapping("/not-proceed/{contractId}")
     public ResponseEntity<GetContractResponseDto> getContract(@PathVariable("contractId") Long contractId) {
 
         GetContractResponseDto response = contractService.getContract(contractId);
