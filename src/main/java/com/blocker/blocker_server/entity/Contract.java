@@ -14,9 +14,10 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @DynamicInsert
-public class Contract extends BaseEntity{
+public class Contract extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "contract_id")
     private Long contractId;
 
@@ -32,8 +33,8 @@ public class Contract extends BaseEntity{
     @Column(name = "contract_state")
     private ContractState contractState;
 
-    @OneToOne(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Board board;
+    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Board> board = new ArrayList<>();
 
     @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Sign> signs = new ArrayList<>();

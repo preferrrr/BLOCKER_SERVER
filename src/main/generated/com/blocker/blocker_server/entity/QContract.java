@@ -24,7 +24,7 @@ public class QContract extends EntityPathBase<Contract> {
 
     public final QBaseEntity _super = new QBaseEntity(this);
 
-    public final QBoard board;
+    public final ListPath<Board, QBoard> board = this.<Board, QBoard>createList("board", Board.class, QBoard.class, PathInits.DIRECT2);
 
     public final StringPath content = createString("content");
 
@@ -65,7 +65,6 @@ public class QContract extends EntityPathBase<Contract> {
 
     public QContract(Class<? extends Contract> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.board = inits.isInitialized("board") ? new QBoard(forProperty("board"), inits.get("board")) : null;
         this.user = inits.isInitialized("user") ? new QUser(forProperty("user"), inits.get("user")) : null;
     }
 
