@@ -60,15 +60,42 @@ public class SignService {
 
     public void signContract(User me, Long contractId) {
 
-        Sign mySign = signRepository.findByContractAndUser(contractRepository.getReferenceById(contractId), me)
-                .orElseThrow(() -> new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId));
+//        Sign mySign = signRepository.findByContractAndUser(contractRepository.getReferenceById(contractId), me)
+//                .orElseThrow(() -> new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId));
+//
+//        if(mySign.getSignState().equals(SignState.Y))
+//            throw new DuplicateSignException("contractId, email : " + contractId + ", " + me.getEmail());
 
+        List<Sign> signs = signRepository.findByContract(contractRepository.getReferenceById(contractId));
+
+        if (signs.size() < 2)
+            throw new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId);
+
+        // 계약 참여자들 모두 가져오고, 나의 Sign에 서명 후
+        // Sign 모두 Y가 되면 블록체인으로 계약 체결, 계약서 상태 CONCLUDE로 바꿈.
+
+        Sign mySign = signs.stream()
+                .filter(sign -> sign.getUser().getEmail().equals(me.getEmail()))
+                .findFirst().orElseThrow(() -> new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId));
+
+        //이미 서명 했으면 409 응답
         if(mySign.getSignState().equals(SignState.Y))
             throw new DuplicateSignException("contractId, email : " + contractId + ", " + me.getEmail());
 
         mySign.sign();
 
-        //TODO : 마지막 사람이라면 블록체인으로 계약 체결되도록.
+        boolean allY = signs.stream()
+                .allMatch(sign -> sign.getSignState().equals(SignState.Y));
+
+        if(allY) {
+            Contract contract = contractRepository.findById(contractId).orElseThrow(()->new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId));
+
+            contract.updateStateToConclude();
+
+            //TODO: 블록체인으로 계약 체결되도록
+
+        }
+
     }
 
     public void breakContract(User me, Long contractId) {

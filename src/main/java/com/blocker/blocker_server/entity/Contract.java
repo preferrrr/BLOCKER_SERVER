@@ -60,4 +60,8 @@ public class Contract extends BaseEntity {
         this.contractState = ContractState.NOT_PROCEED;
     }
 
+    public void updateStateToConclude() {
+        this.contractState = ContractState.CONCLUDE;
+    }
+
 }
