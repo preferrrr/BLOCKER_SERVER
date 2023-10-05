@@ -98,6 +98,9 @@ public class ContractService {
 
         Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[get contract] contractId : " + contractId));
 
+        if(!contract.getContractState().equals(ContractState.NOT_PROCEED))
+            throw new IsNotProceedContractException("contractId : " + contractId);
+
         GetContractResponseDto dto = GetContractResponseDto.builder()
                 .contractId(contractId)
                 .title(contract.getTitle())
