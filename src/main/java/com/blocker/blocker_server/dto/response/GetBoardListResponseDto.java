@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.dto.response;
 
+import com.blocker.blocker_server.entity.ContractState;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ public class GetBoardListResponseDto {
     private String representImage;
     private Integer view;
     private Integer bookmarkCount;
+    private ContractState contractState;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 

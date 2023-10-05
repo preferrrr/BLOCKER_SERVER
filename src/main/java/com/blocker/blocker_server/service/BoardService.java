@@ -56,6 +56,7 @@ public class BoardService {
                     .view(board.getView())
                     .bookmarkCount(board.getBookmarkCount())
                     .representImage(board.getRepresentImage())
+                    .contractState(board.getContract().getContractState())
                     .build();
 
             dtos.add(dto);
@@ -109,9 +110,7 @@ public class BoardService {
         Contract contract = contractRepository.findById(requestDto.getContractId()).orElseThrow(()-> new NotFoundException("[modify board] contractId : " + requestDto.getContractId()));
         if(!contract.getUser().getEmail().equals(me.getEmail()))
             throw new ForbiddenException("[save board] contractId, email : " + contract.getContractId() + ", " + me.getEmail());
-        //해당 계약서로 이미 게시글 작성했으면 409 응답.
-        if(boardRepository.existsByContract(contract))
-            throw new DuplicateContractException("contractId : " + contract.getContractId());
+
 
         Board newBoard = Board.builder()
                 .user(me)

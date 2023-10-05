@@ -25,6 +25,8 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
 
     QImage image = QImage.image;
 
+    QContract contract = QContract.contract;
+
     @Override
     public List<Board> getBoardList(Pageable pageable) {
 
@@ -32,6 +34,7 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
                 .selectFrom(board)
                 .distinct()
                 .join(board.user, user).fetchJoin()
+                .join(board.contract, contract).fetchJoin()
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
