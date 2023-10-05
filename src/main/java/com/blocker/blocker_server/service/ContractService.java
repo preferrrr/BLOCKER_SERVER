@@ -42,9 +42,9 @@ public class ContractService {
         //계약서 미체결, 진행 중일 때는 수정 가능. 계약이 체결됐을 때는 수정할 수 없다.
         //미체결일 경우 그냥 수정만 하면 돼.
         //진행 중일 경우에는 참여자들의 서명을 모두 취소해야함.
-        if(contract.getContractState().equals(ContractState.CONCLUDE)) // 체결완료된 계약서
+        if (contract.getContractState().equals(ContractState.CONCLUDE)) // 체결완료된 계약서
             throw new NotAllowModifyContractException("contractId : " + contractId);
-        else if(contract.getContractState().equals(ContractState.PROCEED)) { // 진행 중 계약서
+        else if (contract.getContractState().equals(ContractState.PROCEED)) { // 진행 중 계약서
             List<Sign> signList = signRepository.findByContract(contract);
             signList.stream()
                     .filter(sign -> sign.getSignState().equals(SignState.Y))
@@ -55,7 +55,13 @@ public class ContractService {
     }
 
     public List<GetContractResponseDto> getContracts(User user, ContractState state) {
-        List<Contract> contracts = contractRepository.findNotConcludedContracts(user, state);
+
+        List<Contract> contracts;
+
+        if (state.equals(ContractState.NOT_PROCEED))
+            contracts = contractRepository.findNotProceedContracts(user, state);
+        else
+            contracts = getProceedOrConcludeContract(user, state);
 
         List<GetContractResponseDto> dtos = new ArrayList<>();
 
@@ -73,6 +79,19 @@ public class ContractService {
 
         return dtos;
 
+    }
+
+    private List<Contract> getProceedOrConcludeContract(User user, ContractState state) {
+
+        List<Sign> signs = signRepository.findByUser(user);
+
+        List<Long> contractIds = new ArrayList<>();
+
+        signs.stream().forEach(sign -> contractIds.add(sign.getContract().getContractId()));
+
+        List<Contract> contracts = contractRepository.findByContractIdInAndContractState(contractIds, state);
+
+        return contracts;
     }
 
     public GetContractResponseDto getContract(Long contractId) {
@@ -95,10 +114,10 @@ public class ContractService {
 
         //미체결 계약서 삭제이기 때문에
         //계약서의 작성자이어야 하고, 진행 중 다음이라면 삭제하지 못함.
-        if(!user.getEmail().equals(contract.getUser().getEmail()) || !contract.getContractState().equals(ContractState.NOT_PROCEED))
+        if (!user.getEmail().equals(contract.getUser().getEmail()) || !contract.getContractState().equals(ContractState.NOT_PROCEED))
             throw new ForbiddenException("[delete contract] contractId, email : " + contractId + ", " + user.getEmail());
 
-        if(boardRepository.existsByContract(contract))
+        if (boardRepository.existsByContract(contract))
             throw new NotAllowDeleteContractException("[delete contract] contractId : " + contractId);
 
         contractRepository.deleteById(contractId);

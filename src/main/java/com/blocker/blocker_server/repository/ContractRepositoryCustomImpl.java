@@ -21,7 +21,7 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom{
     QContract contract = QContract.contract;
 
     @Override
-    public List<Contract> findNotConcludedContracts(User user, ContractState state) {
+    public List<Contract> findNotProceedContracts(User user, ContractState state) {
 
         JPAQuery<Contract> getContractListQuery = jpaQueryFactory
                 .selectFrom(contract)

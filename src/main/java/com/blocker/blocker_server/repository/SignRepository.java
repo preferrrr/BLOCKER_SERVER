@@ -12,4 +12,5 @@ public interface SignRepository extends JpaRepository<Sign, Long> {
     boolean existsByContract(Contract contract);
     Optional<Sign> findByContractAndUser(Contract contract, User user);
     List<Sign> findByContract(Contract contract);
+    List<Sign> findByUser(User user);
 }

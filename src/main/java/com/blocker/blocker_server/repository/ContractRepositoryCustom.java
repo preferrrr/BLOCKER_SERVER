@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface ContractRepositoryCustom {
 
-    List<Contract> findNotConcludedContracts(User user, ContractState state);
+    List<Contract> findNotProceedContracts(User user, ContractState state);
 
 }
