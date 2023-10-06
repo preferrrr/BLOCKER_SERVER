@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -19,6 +20,10 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom{
     private final JPAQueryFactory jpaQueryFactory;
 
     QContract contract = QContract.contract;
+
+    QSign sign = QSign.sign;
+
+    QUser user = QUser.user;
 
     @Override
     public List<Contract> findNotProceedContracts(User user, ContractState state) {
@@ -34,5 +39,19 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom{
         List<Contract> result = getContractListQuery.fetch();
 
         return result;
+    }
+
+    @Override
+    public Optional<Contract> findProceedContractWithSignById(Long contractId) {
+
+        JPAQuery<Contract> getContractWithSignQuery = jpaQueryFactory
+                .selectFrom(contract)
+                .join(contract.signs, sign).fetchJoin()
+                .join(sign.user, user).fetchJoin()
+                .where(contract.contractId.eq(contractId));
+
+        Contract contract = getContractWithSignQuery.fetchOne();
+
+        return Optional.ofNullable(contract);
     }
 }

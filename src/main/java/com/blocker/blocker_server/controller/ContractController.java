@@ -2,6 +2,7 @@ package com.blocker.blocker_server.controller;
 
 import com.blocker.blocker_server.dto.request.SaveModifyContractRequestDto;
 import com.blocker.blocker_server.dto.response.GetContractResponseDto;
+import com.blocker.blocker_server.dto.response.GetProceedContractResponseDto;
 import com.blocker.blocker_server.entity.ContractState;
 import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.exception.InvalidQueryStringException;
@@ -86,6 +87,14 @@ public class ContractController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //TODO : 진행 중 계약서 수정과 미체결 계약서 수정 구분해야 함.
+    /**진행 중 계약서 조회
+     * /contracts/proceed/{contractId}
+     * */
+    @GetMapping("/proceed/{contractId}")
+    public ResponseEntity<GetProceedContractResponseDto> getProceedContract(@AuthenticationPrincipal User user,
+                                                                            @PathVariable("contractId") Long contractId) {
+        GetProceedContractResponseDto response = contractService.getProceedContract(user, contractId);
 
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

@@ -1,7 +1,9 @@
 package com.blocker.blocker_server.service;
 
 import com.blocker.blocker_server.dto.request.SaveModifyContractRequestDto;
+import com.blocker.blocker_server.dto.response.ContractorAndSignState;
 import com.blocker.blocker_server.dto.response.GetContractResponseDto;
+import com.blocker.blocker_server.dto.response.GetProceedContractResponseDto;
 import com.blocker.blocker_server.entity.*;
 import com.blocker.blocker_server.exception.*;
 import com.blocker.blocker_server.repository.BoardRepository;
@@ -98,7 +100,7 @@ public class ContractService {
 
         Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[get contract] contractId : " + contractId));
 
-        if(!contract.getContractState().equals(ContractState.NOT_PROCEED))
+        if (!contract.getContractState().equals(ContractState.NOT_PROCEED))
             throw new IsNotProceedContractException("contractId : " + contractId);
 
         GetContractResponseDto dto = GetContractResponseDto.builder()
@@ -124,5 +126,39 @@ public class ContractService {
             throw new NotAllowDeleteContractException("[delete contract] contractId : " + contractId);
 
         contractRepository.deleteById(contractId);
+    }
+
+    public GetProceedContractResponseDto getProceedContract(User me, Long contractId) {
+
+        Contract contract = contractRepository.findProceedContractWithSignById(contractId).orElseThrow(() -> new NotFoundException("contractId : " + contractId));
+
+        if (!contract.getContractState().equals(ContractState.PROCEED))
+            throw new IsProceedContractException("contractId : " + contractId);
+
+        List<Sign> signs = contract.getSigns();
+
+        //계약 참여자가 아니면 진행 중 계약서는 볼 수 없음.
+        if (signs.stream().noneMatch(sign -> sign.getUser().getEmail().equals(me.getEmail()))) {
+            throw new ForbiddenException("[get proceed contract] contractId, email" + contractId + ", " + me.getEmail());
+        }
+
+        List<ContractorAndSignState> contractorAndSignStates = new ArrayList<>();
+        signs.stream().forEach(sign -> contractorAndSignStates.add(
+                ContractorAndSignState.builder()
+                        .contractor(sign.getUser().getName())
+                        .signState(sign.getSignState())
+                        .build()));
+
+        GetProceedContractResponseDto dto = GetProceedContractResponseDto.builder()
+                .contractId(contractId)
+                .title(contract.getTitle())
+                .content(contract.getContent())
+                .createdAt(contract.getCreatedAt())
+                .modifiedAt(contract.getModifiedAt())
+                .contractorAndSignStates(contractorAndSignStates)
+                .build();
+
+        return dto;
+
     }
 }

@@ -166,4 +166,13 @@ public class ExceptionHandler {
 
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 미체결 계약서가 아님.*/
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({IsProceedContractException.class})
+    public ResponseEntity<?> handleIsProceedContractException(final IsProceedContractException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 진행 중 계약서가 아님.*/
+    }
 }
