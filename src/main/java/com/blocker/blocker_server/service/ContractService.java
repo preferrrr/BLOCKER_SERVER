@@ -161,4 +161,17 @@ public class ContractService {
         return dto;
 
     }
+
+    public void deleteContractWithBoards(User me, Long contractId) {
+        Contract contract = contractRepository.findById(contractId).orElseThrow(()-> new NotFoundException("[delete contract with boards] contractId : " + contractId));
+
+        if(!contract.getUser().getEmail().equals(me.getEmail()))
+            throw new ForbiddenException("[delete contract with boards] contractId, email : " + contractId + ", " + me.getEmail());
+
+        if(!contract.getContractState().equals(ContractState.NOT_PROCEED))
+            throw new IsNotProceedContractException("contractId : " + contractId);
+
+        contractRepository.deleteById(contractId); // OntToMany의 cascade 옵션에 의해 자식들도 모두 지워짐.
+
+    }
 }

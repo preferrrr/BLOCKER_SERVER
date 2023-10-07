@@ -22,9 +22,10 @@ public class ContractController {
 
     private final ContractService contractService;
 
-    /**계약서 등록
+    /**
+     * 계약서 등록
      * /contracts
-     * */
+     */
     @PostMapping("")
     public ResponseEntity<HttpStatus> saveContract(@AuthenticationPrincipal User user,
                                                    @RequestBody SaveModifyContractRequestDto requestDto) {
@@ -36,9 +37,10 @@ public class ContractController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    /**계약서 수정
+    /**
+     * 계약서 수정
      * /contracts/{contractId}
-     * */
+     */
     @PatchMapping("/{contractId}")
     public ResponseEntity<HttpStatus> modifyContract(@AuthenticationPrincipal User user,
                                                      @RequestBody SaveModifyContractRequestDto requestDto,
@@ -51,13 +53,15 @@ public class ContractController {
     }
 
 
-    /**계약서 리스트 조회
-     * /contracts*/
+    /**
+     * 계약서 리스트 조회
+     * /contracts
+     */
     @GetMapping("")
     public ResponseEntity<List<GetContractResponseDto>> getContracts(@AuthenticationPrincipal User user,
                                                                      @RequestParam(name = "state") ContractState state) {
 
-        if(!state.equals(ContractState.PROCEED) && !state.equals(ContractState.NOT_PROCEED) && !state.equals(ContractState.CONCLUDE))
+        if (!state.equals(ContractState.PROCEED) && !state.equals(ContractState.NOT_PROCEED) && !state.equals(ContractState.CONCLUDE))
             throw new InvalidQueryStringException("[get contract] email, state : " + user.getEmail() + ", " + state);
 
         List<GetContractResponseDto> response = contractService.getContracts(user, state);
@@ -65,9 +69,10 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    /**미체결 계약서 조회
+    /**
+     * 미체결 계약서 조회
      * /contracts/not-proceed/{contractId}
-     * */
+     */
     @GetMapping("/not-proceed/{contractId}")
     public ResponseEntity<GetContractResponseDto> getContract(@PathVariable("contractId") Long contractId) {
 
@@ -76,9 +81,10 @@ public class ContractController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    /**계약서 삭제
+    /**
+     * 계약서 삭제
      * /contracts/{contractId}
-     * */
+     */
     @DeleteMapping("/{contractId}")
     public ResponseEntity<HttpStatus> deleteContract(@AuthenticationPrincipal User user,
                                                      @PathVariable("contractId") Long contractId) {
@@ -87,14 +93,23 @@ public class ContractController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    /**진행 중 계약서 조회
+    /**
+     * 진행 중 계약서 조회
      * /contracts/proceed/{contractId}
-     * */
+     */
     @GetMapping("/proceed/{contractId}")
     public ResponseEntity<GetProceedContractResponseDto> getProceedContract(@AuthenticationPrincipal User user,
                                                                             @PathVariable("contractId") Long contractId) {
         GetProceedContractResponseDto response = contractService.getProceedContract(user, contractId);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/with-boards/{contractId}")
+    public ResponseEntity<HttpStatus> deleteContractWithBoards(@AuthenticationPrincipal User user,
+                                                               @PathVariable("contractId") Long contractId) {
+        contractService.deleteContractWithBoards(user, contractId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
