@@ -1,13 +1,9 @@
 package com.blocker.blocker_server.repository;
 
 import com.blocker.blocker_server.entity.*;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,7 +17,7 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom{
 
     QContract contract = QContract.contract;
 
-    QSign sign = QSign.sign;
+    QAgreementSign agreementSign = QAgreementSign.agreementSign;
 
     QUser user = QUser.user;
 
@@ -46,8 +42,8 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom{
 
         JPAQuery<Contract> getContractWithSignQuery = jpaQueryFactory
                 .selectFrom(contract)
-                .join(contract.signs, sign).fetchJoin()
-                .join(sign.user, user).fetchJoin()
+                .join(contract.agreementSigns, agreementSign).fetchJoin()
+                .join(agreementSign.user, user).fetchJoin()
                 .where(contract.contractId.eq(contractId));
 
         Contract contract = getContractWithSignQuery.fetchOne();

@@ -24,6 +24,8 @@ public class QUser extends EntityPathBase<User> {
 
     public final QBaseEntity _super = new QBaseEntity(this);
 
+    public final ListPath<AgreementSign, QAgreementSign> agreementSigns = this.<AgreementSign, QAgreementSign>createList("agreementSigns", AgreementSign.class, QAgreementSign.class, PathInits.DIRECT2);
+
     public final ListPath<Board, QBoard> boards = this.<Board, QBoard>createList("boards", Board.class, QBoard.class, PathInits.DIRECT2);
 
     public final ListPath<Bookmark, QBookmark> bookmarks = this.<Bookmark, QBookmark>createList("bookmarks", Bookmark.class, QBookmark.class, PathInits.DIRECT2);
@@ -47,8 +49,6 @@ public class QUser extends EntityPathBase<User> {
     public final ListPath<String, StringPath> roles = this.<String, StringPath>createList("roles", String.class, StringPath.class, PathInits.DIRECT2);
 
     public final QSignature signature;
-
-    public final ListPath<Sign, QSign> signs = this.<Sign, QSign>createList("signs", Sign.class, QSign.class, PathInits.DIRECT2);
 
     //inherited
     public final StringPath status = _super.status;

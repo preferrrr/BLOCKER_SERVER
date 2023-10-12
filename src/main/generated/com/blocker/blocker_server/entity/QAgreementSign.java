@@ -11,16 +11,16 @@ import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
- * QSign is a Querydsl query type for Sign
+ * QAgreementSign is a Querydsl query type for AgreementSign
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class QSign extends EntityPathBase<Sign> {
+public class QAgreementSign extends EntityPathBase<AgreementSign> {
 
-    private static final long serialVersionUID = -133282493L;
+    private static final long serialVersionUID = 1208040993L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
-    public static final QSign sign = new QSign("sign");
+    public static final QAgreementSign agreementSign = new QAgreementSign("agreementSign");
 
     public final QBaseEntity _super = new QBaseEntity(this);
 
@@ -41,23 +41,23 @@ public class QSign extends EntityPathBase<Sign> {
 
     public final QUser user;
 
-    public QSign(String variable) {
-        this(Sign.class, forVariable(variable), INITS);
+    public QAgreementSign(String variable) {
+        this(AgreementSign.class, forVariable(variable), INITS);
     }
 
-    public QSign(Path<? extends Sign> path) {
+    public QAgreementSign(Path<? extends AgreementSign> path) {
         this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
-    public QSign(PathMetadata metadata) {
+    public QAgreementSign(PathMetadata metadata) {
         this(metadata, PathInits.getFor(metadata, INITS));
     }
 
-    public QSign(PathMetadata metadata, PathInits inits) {
-        this(Sign.class, metadata, inits);
+    public QAgreementSign(PathMetadata metadata, PathInits inits) {
+        this(AgreementSign.class, metadata, inits);
     }
 
-    public QSign(Class<? extends Sign> type, PathMetadata metadata, PathInits inits) {
+    public QAgreementSign(Class<? extends AgreementSign> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.contract = inits.isInitialized("contract") ? new QContract(forProperty("contract"), inits.get("contract")) : null;
         this.id = inits.isInitialized("id") ? new QSignId(forProperty("id")) : null;

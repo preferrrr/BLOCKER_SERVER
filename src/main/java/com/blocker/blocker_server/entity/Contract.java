@@ -37,7 +37,7 @@ public class Contract extends BaseEntity {
     private List<Board> board = new ArrayList<>();
 
     @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Sign> signs = new ArrayList<>();
+    private List<AgreementSign> agreementSigns = new ArrayList<>();
 
     @Builder
     public Contract(User user, String title, String content) {

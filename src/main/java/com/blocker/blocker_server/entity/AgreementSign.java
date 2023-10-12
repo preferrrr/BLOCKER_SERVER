@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
 @Entity
-@Table(name = "SIGN")
+@Table(name = "AGREEMENT_SIGN")
 @Getter
 @NoArgsConstructor
 @DynamicInsert
-public class Sign extends BaseEntity {
+public class AgreementSign extends BaseEntity {
 
     @EmbeddedId
     private SignId id;
@@ -31,7 +31,7 @@ public class Sign extends BaseEntity {
     private SignState signState;
 
     @Builder
-    public Sign(User user, Contract contract) {
+    public AgreementSign(User user, Contract contract) {
         SignId id = SignId.builder()
                 .contractId(contract.getContractId())
                 .email(user.getEmail())

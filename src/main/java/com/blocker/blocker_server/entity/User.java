@@ -50,7 +50,7 @@ public class User extends BaseEntity implements UserDetails {
     private List<Contract> contracts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Sign> signs = new ArrayList<>();
+    private List<AgreementSign> agreementSigns = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmark> bookmarks = new ArrayList<>();

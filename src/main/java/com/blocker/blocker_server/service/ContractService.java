@@ -47,8 +47,8 @@ public class ContractService {
         if (contract.getContractState().equals(ContractState.CONCLUDE)) // 체결완료된 계약서
             throw new NotAllowModifyContractException("contractId : " + contractId);
         else if (contract.getContractState().equals(ContractState.PROCEED)) { // 진행 중 계약서
-            List<Sign> signList = signRepository.findByContract(contract);
-            signList.stream()
+            List<AgreementSign> agreementSignList = signRepository.findByContract(contract);
+            agreementSignList.stream()
                     .filter(sign -> sign.getSignState().equals(SignState.Y))
                     .forEach(sign -> sign.cancel());
         }
@@ -85,11 +85,11 @@ public class ContractService {
 
     private List<Contract> getProceedOrConcludeContract(User user, ContractState state) {
 
-        List<Sign> signs = signRepository.findByUser(user);
+        List<AgreementSign> agreementSigns = signRepository.findByUser(user);
 
         List<Long> contractIds = new ArrayList<>();
 
-        signs.stream().forEach(sign -> contractIds.add(sign.getContract().getContractId()));
+        agreementSigns.stream().forEach(sign -> contractIds.add(sign.getContract().getContractId()));
 
         List<Contract> contracts = contractRepository.findByContractIdInAndContractState(contractIds, state);
 
@@ -135,15 +135,15 @@ public class ContractService {
         if (!contract.getContractState().equals(ContractState.PROCEED))
             throw new IsProceedContractException("contractId : " + contractId);
 
-        List<Sign> signs = contract.getSigns();
+        List<AgreementSign> agreementSigns = contract.getAgreementSigns();
 
         //계약 참여자가 아니면 진행 중 계약서는 볼 수 없음.
-        if (signs.stream().noneMatch(sign -> sign.getUser().getEmail().equals(me.getEmail()))) {
+        if (agreementSigns.stream().noneMatch(sign -> sign.getUser().getEmail().equals(me.getEmail()))) {
             throw new ForbiddenException("[get proceed contract] contractId, email" + contractId + ", " + me.getEmail());
         }
 
         List<ContractorAndSignState> contractorAndSignStates = new ArrayList<>();
-        signs.stream().forEach(sign -> contractorAndSignStates.add(
+        agreementSigns.stream().forEach(sign -> contractorAndSignStates.add(
                 ContractorAndSignState.builder()
                         .contractor(sign.getUser().getName())
                         .signState(sign.getSignState())

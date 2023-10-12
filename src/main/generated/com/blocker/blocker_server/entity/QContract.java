@@ -24,6 +24,8 @@ public class QContract extends EntityPathBase<Contract> {
 
     public final QBaseEntity _super = new QBaseEntity(this);
 
+    public final ListPath<AgreementSign, QAgreementSign> agreementSigns = this.<AgreementSign, QAgreementSign>createList("agreementSigns", AgreementSign.class, QAgreementSign.class, PathInits.DIRECT2);
+
     public final ListPath<Board, QBoard> board = this.<Board, QBoard>createList("board", Board.class, QBoard.class, PathInits.DIRECT2);
 
     public final StringPath content = createString("content");
@@ -37,8 +39,6 @@ public class QContract extends EntityPathBase<Contract> {
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
-
-    public final ListPath<Sign, QSign> signs = this.<Sign, QSign>createList("signs", Sign.class, QSign.class, PathInits.DIRECT2);
 
     //inherited
     public final StringPath status = _super.status;

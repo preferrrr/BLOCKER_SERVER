@@ -38,12 +38,12 @@ public class SignService {
 
         List<String> emails = request.getContractors(); // 계약에 참여할 사람들의 이메일 리스트
 
-        List<Sign> signs = new ArrayList<>(); // DB에 저장될 Sign 엔티티
+        List<AgreementSign> agreementSigns = new ArrayList<>(); // DB에 저장될 Sign 엔티티
 
-        signs.add(Sign.builder().user(me).contract(contract).build()); // 나도 계약 참여자. 나도 나중에 서명해야함.
+        agreementSigns.add(AgreementSign.builder().user(me).contract(contract).build()); // 나도 계약 참여자. 나도 나중에 서명해야함.
 
         for (String email : emails) {
-            signs.add(Sign.builder()
+            agreementSigns.add(AgreementSign.builder()
                     .user(userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("[proceed sign] email : " + email)))
                     .contract(contract)
                     .build());
@@ -54,7 +54,7 @@ public class SignService {
         // 2. 계약에 참여할 사람들을 직접 입력이 아닌, 검색 후 선택할건데 굳이 또 유저들을 조회해야할까 ?
         //    계약의 특성상 잘못되는 것이 있으면 안되기 때문에 쿼리가 나가더라도 조회하는 쪽으로.
 
-        signRepository.saveAll(signs);
+        signRepository.saveAll(agreementSigns);
 
     }
 
@@ -66,25 +66,25 @@ public class SignService {
 //        if(mySign.getSignState().equals(SignState.Y))
 //            throw new DuplicateSignException("contractId, email : " + contractId + ", " + me.getEmail());
 
-        List<Sign> signs = signRepository.findByContract(contractRepository.getReferenceById(contractId));
+        List<AgreementSign> agreementSigns = signRepository.findByContract(contractRepository.getReferenceById(contractId));
 
-        if (signs.size() < 2)
+        if (agreementSigns.size() < 2)
             throw new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId);
 
         // 계약 참여자들 모두 가져오고, 나의 Sign에 서명 후
         // Sign 모두 Y가 되면 블록체인으로 계약 체결, 계약서 상태 CONCLUDE로 바꿈.
 
-        Sign mySign = signs.stream()
+        AgreementSign myAgreementSign = agreementSigns.stream()
                 .filter(sign -> sign.getUser().getEmail().equals(me.getEmail()))
                 .findFirst().orElseThrow(() -> new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId));
 
         //이미 서명 했으면 409 응답
-        if(mySign.getSignState().equals(SignState.Y))
+        if(myAgreementSign.getSignState().equals(SignState.Y))
             throw new DuplicateSignException("contractId, email : " + contractId + ", " + me.getEmail());
 
-        mySign.sign();
+        myAgreementSign.sign();
 
-        boolean allY = signs.stream()
+        boolean allY = agreementSigns.stream()
                 .allMatch(sign -> sign.getSignState().equals(SignState.Y));
 
         if(allY) {
@@ -105,17 +105,17 @@ public class SignService {
         if(!contract.getContractState().equals(ContractState.PROCEED))
             throw new NotProceedContractException("email, contractId : " + me.getEmail() + ", " + contractId);
 
-        List<Sign> signs = signRepository.findByContract(contract);
+        List<AgreementSign> agreementSigns = signRepository.findByContract(contract);
 
         //계약 참여자가 아님.
-        boolean isContractor = signs.stream()
+        boolean isContractor = agreementSigns.stream()
                 .anyMatch(sign -> sign.getUser().getEmail().equals(me.getEmail()));
         if (!isContractor)
             throw new ForbiddenException("[break contract] email, contractId : " + me.getEmail() + ", " + contractId);
 
         contract.updateStateToNotProceed();
 
-        signRepository.deleteAll(signs);
+        signRepository.deleteAll(agreementSigns);
 
     }
 }
