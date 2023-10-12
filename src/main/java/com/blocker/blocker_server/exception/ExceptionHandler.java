@@ -102,8 +102,8 @@ public class ExceptionHandler {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 잘못된 쿼리스트링.*/
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler({ExistsProceededContractException.class})
-    public ResponseEntity<?> handleInvalidQueryStringExceptionException(final ExistsProceededContractException e) {
+    @org.springframework.web.bind.annotation.ExceptionHandler({ExistsAgreementSignException.class})
+    public ResponseEntity<?> handleInvalidQueryStringExceptionException(final ExistsAgreementSignException e) {
 
         String msg = e.getNAME() + ": [" + e.getMessage() + "]";
         log.error(msg);
@@ -174,5 +174,23 @@ public class ExceptionHandler {
         log.error(msg);
 
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 진행 중 계약서가 아님.*/
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({NotConcludeContractException.class})
+    public ResponseEntity<?> handleNotConcludeContractException(final NotConcludeContractException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 체결된 계약서가 아님.*/
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({ExistsCancelSignException.class})
+    public ResponseEntity<?> handleExistsCancelSignException(final ExistsCancelSignException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.CONFLICT); /**409, 이미 파기 계약 진행 중.*/
     }
 }

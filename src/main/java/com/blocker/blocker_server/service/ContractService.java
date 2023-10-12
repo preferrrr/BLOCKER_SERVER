@@ -8,7 +8,7 @@ import com.blocker.blocker_server.entity.*;
 import com.blocker.blocker_server.exception.*;
 import com.blocker.blocker_server.repository.BoardRepository;
 import com.blocker.blocker_server.repository.ContractRepository;
-import com.blocker.blocker_server.repository.SignRepository;
+import com.blocker.blocker_server.repository.AgreementSignRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +22,7 @@ import java.util.List;
 public class ContractService {
 
     private final ContractRepository contractRepository;
-    private final SignRepository signRepository;
+    private final AgreementSignRepository agreementSignRepository;
     private final BoardRepository boardRepository;
 
     public void saveContract(User user, SaveModifyContractRequestDto requestDto) {
@@ -47,7 +47,7 @@ public class ContractService {
         if (contract.getContractState().equals(ContractState.CONCLUDE)) // 체결완료된 계약서
             throw new NotAllowModifyContractException("contractId : " + contractId);
         else if (contract.getContractState().equals(ContractState.PROCEED)) { // 진행 중 계약서
-            List<AgreementSign> agreementSignList = signRepository.findByContract(contract);
+            List<AgreementSign> agreementSignList = agreementSignRepository.findByContract(contract);
             agreementSignList.stream()
                     .filter(sign -> sign.getSignState().equals(SignState.Y))
                     .forEach(sign -> sign.cancel());
@@ -85,7 +85,7 @@ public class ContractService {
 
     private List<Contract> getProceedOrConcludeContract(User user, ContractState state) {
 
-        List<AgreementSign> agreementSigns = signRepository.findByUser(user);
+        List<AgreementSign> agreementSigns = agreementSignRepository.findByUser(user);
 
         List<Long> contractIds = new ArrayList<>();
 

@@ -3,10 +3,10 @@ package com.blocker.blocker_server.exception;
 import lombok.Getter;
 
 @Getter
-public class ExistsProceededContractException extends RuntimeException{
+public class ExistsAgreementSignException extends RuntimeException{
     private final String NAME;
 
-    public ExistsProceededContractException(String message) {
+    public ExistsAgreementSignException(String message) {
         super(message);
         NAME = "ExistsProceededContractException";
     }

@@ -2,7 +2,7 @@ package com.blocker.blocker_server.controller;
 
 import com.blocker.blocker_server.dto.request.ProceedSignRequest;
 import com.blocker.blocker_server.entity.User;
-import com.blocker.blocker_server.service.SignService;
+import com.blocker.blocker_server.service.AgreementSignService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/signs")
-public class SignController {
+@RequestMapping("/agreement-signs")
+public class AgreementSignController {
 
-    private final SignService signService;
+    private final AgreementSignService agreementSignService;
 
     // rest api 관점에서 /signs 관련 uri로 들어가는 것이 맞을까 ?
     // 계약서의 상태를 바꾸고 계약의 엔티티를 create 함
@@ -31,7 +31,7 @@ public class SignController {
 
         request.validateFieldsNotNull();
 
-        signService.proceedContract(user, request);
+        agreementSignService.proceedContract(user, request);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -43,7 +43,7 @@ public class SignController {
     @PatchMapping("/contract/{contractId}")
     public ResponseEntity<HttpStatus> signContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long contractId) {
 
-        signService.signContract(user, contractId);
+        agreementSignService.signContract(user, contractId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -54,7 +54,7 @@ public class SignController {
     @DeleteMapping("/contract/{contractId}")
     public ResponseEntity<HttpStatus> breakContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long contractId) {
 
-        signService.breakContract(user, contractId);
+        agreementSignService.breakContract(user, contractId);
 
         return new ResponseEntity<>(HttpStatus.OK);
 

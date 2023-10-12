@@ -4,7 +4,7 @@ import com.blocker.blocker_server.dto.request.ProceedSignRequest;
 import com.blocker.blocker_server.entity.*;
 import com.blocker.blocker_server.exception.*;
 import com.blocker.blocker_server.repository.ContractRepository;
-import com.blocker.blocker_server.repository.SignRepository;
+import com.blocker.blocker_server.repository.AgreementSignRepository;
 import com.blocker.blocker_server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,9 +16,9 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class SignService {
+public class AgreementSignService {
 
-    private final SignRepository signRepository;
+    private final AgreementSignRepository agreementSignRepository;
     private final UserRepository userRepository;
     private final ContractRepository contractRepository;
 
@@ -31,8 +31,8 @@ public class SignService {
             throw new ForbiddenException("[proceed contract] contractId, email : " + contract.getContractId() + ", " + me.getEmail());
 
         //해당 계약서는 이미 계약을 진행 중이라면 409 conflict 반환
-        if (signRepository.existsByContract(contract))
-            throw new ExistsProceededContractException("contractId : " + request.getContractId());
+        if (agreementSignRepository.existsByContract(contract))
+            throw new ExistsAgreementSignException("contractId : " + request.getContractId());
 
         contract.updateStateToProceed(); // 계약서의 상태를 진행 중으로 바꿈.
 
@@ -54,7 +54,7 @@ public class SignService {
         // 2. 계약에 참여할 사람들을 직접 입력이 아닌, 검색 후 선택할건데 굳이 또 유저들을 조회해야할까 ?
         //    계약의 특성상 잘못되는 것이 있으면 안되기 때문에 쿼리가 나가더라도 조회하는 쪽으로.
 
-        signRepository.saveAll(agreementSigns);
+        agreementSignRepository.saveAll(agreementSigns);
 
     }
 
@@ -66,7 +66,7 @@ public class SignService {
 //        if(mySign.getSignState().equals(SignState.Y))
 //            throw new DuplicateSignException("contractId, email : " + contractId + ", " + me.getEmail());
 
-        List<AgreementSign> agreementSigns = signRepository.findByContract(contractRepository.getReferenceById(contractId));
+        List<AgreementSign> agreementSigns = agreementSignRepository.findByContract(contractRepository.getReferenceById(contractId));
 
         if (agreementSigns.size() < 2)
             throw new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId);
@@ -105,7 +105,7 @@ public class SignService {
         if(!contract.getContractState().equals(ContractState.PROCEED))
             throw new NotProceedContractException("email, contractId : " + me.getEmail() + ", " + contractId);
 
-        List<AgreementSign> agreementSigns = signRepository.findByContract(contract);
+        List<AgreementSign> agreementSigns = agreementSignRepository.findByContract(contract);
 
         //계약 참여자가 아님.
         boolean isContractor = agreementSigns.stream()
@@ -115,7 +115,7 @@ public class SignService {
 
         contract.updateStateToNotProceed();
 
-        signRepository.deleteAll(agreementSigns);
+        agreementSignRepository.deleteAll(agreementSigns);
 
     }
 }

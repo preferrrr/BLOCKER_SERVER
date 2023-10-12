@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface SignRepository extends JpaRepository<AgreementSign, Long> {
+public interface AgreementSignRepository extends JpaRepository<AgreementSign, Long> {
     boolean existsByContract(Contract contract);
     Optional<AgreementSign> findByContractAndUser(Contract contract, User user);
     List<AgreementSign> findByContract(Contract contract);

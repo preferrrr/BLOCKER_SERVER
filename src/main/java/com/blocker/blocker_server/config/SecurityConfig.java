@@ -70,10 +70,12 @@ public class SecurityConfig {
                     auth.requestMatchers("/contracts/proceed/*").hasAuthority("USER");
                     auth.requestMatchers("/contracts/with-boards/*").hasAuthority("USER");
 
-                    //Sign
-                    auth.requestMatchers("/signs").hasAuthority("USER");
-                    auth.requestMatchers("/signs/contract/*").hasAuthority("USER");
+                    //AgreementSign
+                    auth.requestMatchers("/agreement-signs").hasAuthority("USER");
+                    auth.requestMatchers("/agreement-signs/contract/*").hasAuthority("USER");
 
+                    //CancelSign
+                    auth.requestMatchers("/cancel-signs/contract/*").hasAuthority("USER");
 
 
                 })
