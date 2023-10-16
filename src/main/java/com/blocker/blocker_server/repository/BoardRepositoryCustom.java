@@ -13,4 +13,6 @@ public interface BoardRepositoryCustom {
     Optional<Board> getBoard(Long boardId);
 
     List<Board> getBookmarkBoards(User user, Pageable pageable);
+
+    List<Board> getMyBoards(User user, Pageable pageable);
 }

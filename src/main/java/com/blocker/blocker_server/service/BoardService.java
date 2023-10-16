@@ -176,4 +176,13 @@ public class BoardService {
         imageRepository.deleteAllById(requestDto.getDeleteImageIds()); //imageId가 존재하는지 db 조회로 검증을 해야할까 ?
 
     }
+
+    public List<GetBoardListResponseDto> getMyBoards(User me, Pageable pageable) {
+
+        List<Board> entityList = boardRepository.getMyBoards(me, pageable);
+
+        List<GetBoardListResponseDto> response = createDtos(entityList);
+
+        return response;
+    }
 }

@@ -93,4 +93,26 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
         return result;
     }
 
+    @Override
+    public List<Board> getMyBoards(User me, Pageable pageable) {
+        JPAQuery<Board> getMyBoardsQuery = jpaQueryFactory
+                .selectFrom(board)
+                .distinct()
+                .join(board.user, user).fetchJoin()
+                .join(board.contract, contract).fetchJoin()
+                .where(board.user.email.eq(me.getEmail()))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        for (Sort.Order o : pageable.getSort()) {
+            PathBuilder pathBuilder = new PathBuilder(board.getType(), board.getMetadata());
+            getMyBoardsQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC,
+                    pathBuilder.get(o.getProperty())));
+        }
+
+        List<Board> result = getMyBoardsQuery.fetch();
+
+
+        return result;    }
+
 }

@@ -92,4 +92,16 @@ public class BoardController {
 
     }
 
+    /**
+     * 내가 쓴 게시글 조회
+     * /boards/my-boards
+     * */
+    @GetMapping("/my-boards")
+    public ResponseEntity<List<GetBoardListResponseDto>> getMyBoards(@AuthenticationPrincipal User user,
+                                                                           @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        List<GetBoardListResponseDto> response = boardService.getMyBoards(user, pageable);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
