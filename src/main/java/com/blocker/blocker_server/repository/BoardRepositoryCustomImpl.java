@@ -27,6 +27,8 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
 
     QContract contract = QContract.contract;
 
+    QBookmark bookmark = QBookmark.bookmark;
+
     @Override
     public List<Board> getBoardList(Pageable pageable) {
 
@@ -66,4 +68,29 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
 
         return Optional.ofNullable(result);
     }
+
+    @Override
+    public List<Board> getBookmarkBoards(User me, Pageable pageable) {
+        JPAQuery<Board> getBookmarkBoardsQuery = jpaQueryFactory
+                .selectFrom(board)
+                .distinct()
+                .join(board.user, user).fetchJoin()
+                .join(board.contract, contract).fetchJoin()
+                .join(board.bookmarks, bookmark).fetchJoin()
+                .where(bookmark.user.email.eq(me.getEmail()))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        for (Sort.Order o : pageable.getSort()) {
+            PathBuilder pathBuilder = new PathBuilder(board.getType(), board.getMetadata());
+            getBookmarkBoardsQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC,
+                    pathBuilder.get(o.getProperty())));
+        }
+
+        List<Board> result = getBookmarkBoardsQuery.fetch();
+
+
+        return result;
+    }
+
 }
