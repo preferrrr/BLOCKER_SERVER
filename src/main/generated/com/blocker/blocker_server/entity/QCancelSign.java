@@ -50,7 +50,7 @@ public class QCancelSign extends EntityPathBase<CancelSign> {
         super(type, metadata, inits);
         this.contract = inits.isInitialized("contract") ? new QContract(forProperty("contract"), inits.get("contract")) : null;
         this.id = inits.isInitialized("id") ? new QSignId(forProperty("id")) : null;
-        this.user = inits.isInitialized("user") ? new QUser(forProperty("user"), inits.get("user")) : null;
+        this.user = inits.isInitialized("user") ? new QUser(forProperty("user")) : null;
     }
 
 }

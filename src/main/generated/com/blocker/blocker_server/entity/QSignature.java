@@ -56,7 +56,7 @@ public class QSignature extends EntityPathBase<Signature> {
     public QSignature(Class<? extends Signature> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.id = inits.isInitialized("id") ? new QSignatureId(forProperty("id")) : null;
-        this.user = inits.isInitialized("user") ? new QUser(forProperty("user"), inits.get("user")) : null;
+        this.user = inits.isInitialized("user") ? new QUser(forProperty("user")) : null;
     }
 
 }

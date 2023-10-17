@@ -56,6 +56,26 @@ public class SignatureService {
 
     }
 
+    // 이전에 했던 체결된 계약들을 위해 사인들도 저장해둬야 하지 않을까?
+    // => User와 Signature를 1:N으로 변경
+    // => 조회할 때는 가장 최신의 Signature를 보여줌.
+    // 그렇다면 전자서명 수정은 결국 새로운 전자서명을 create 하는건데, HttpMethod POST가 맞을까?
+    // 일단은 수정이니까 PATCH로 함.
+    public void modifySignature(User user, MultipartFile file) throws IOException {
+        User me = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new NotFoundException("email : " + user.getEmail()));
+
+        String signatureAddress = s3Service.saveSignature(file);
+
+        Signature signature = Signature.builder()
+                .email(me.getEmail())
+                .signatureAddress(signatureAddress)
+                .user(me)
+                .build();
+
+        signatureRepository.save(signature);
+
+    }
+
 
 
 }

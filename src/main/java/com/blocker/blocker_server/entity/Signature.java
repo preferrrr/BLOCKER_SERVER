@@ -20,7 +20,7 @@ public class Signature extends BaseEntity {
     private SignatureId id;
 
     @MapsId("email")
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

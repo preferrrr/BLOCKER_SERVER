@@ -56,6 +56,7 @@ public class SecurityConfig {
 
                     //Signature
                     auth.requestMatchers(HttpMethod.POST,"/signatures").hasAuthority("GUEST");
+                    auth.requestMatchers(HttpMethod.PATCH, "/signatures").hasAuthority("USER");
 
                     //Image
                     auth.requestMatchers(HttpMethod.POST, "/images").hasAuthority("USER");
