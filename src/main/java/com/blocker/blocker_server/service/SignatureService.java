@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.service;
 
+import com.blocker.blocker_server.dto.response.GetSignatureResponseDto;
 import com.blocker.blocker_server.entity.Signature;
 import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.exception.ExistsSignatureException;
@@ -76,6 +77,16 @@ public class SignatureService {
 
     }
 
+    public GetSignatureResponseDto getSignature(User user) {
+        //여러 개 중 가장 최근에 등록한 전자서명 조회
+        Signature mySignature = signatureRepository.findByUserOrderByCreatedAtDesc(user).orElseThrow(()-> new NotFoundException("[get signature] email : " + user.getEmail()));
+
+        GetSignatureResponseDto dto = GetSignatureResponseDto.builder()
+                .address(mySignature.getId().getSignatureAddress())
+                .build();
+
+        return dto;
+    }
 
 
 }

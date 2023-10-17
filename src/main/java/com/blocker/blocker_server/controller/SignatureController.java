@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.controller;
 
+import com.blocker.blocker_server.dto.response.GetSignatureResponseDto;
 import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.service.SignatureService;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +40,13 @@ public class SignatureController {
         signatureService.modifySignature(user, file);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("")
+    public ResponseEntity<GetSignatureResponseDto> getSignature(@AuthenticationPrincipal User user) {
+
+        GetSignatureResponseDto dto = signatureService.getSignature(user);
+
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 }
