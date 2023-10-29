@@ -73,6 +73,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/contracts/not-proceed/*").hasAuthority("USER");
                     auth.requestMatchers("/contracts/proceed/*").hasAuthority("USER");
                     auth.requestMatchers("/contracts/with-boards/*").hasAuthority("USER");
+                    auth.requestMatchers("/contracts/conclude/*").hasAuthority("USER");
 
                     //AgreementSign
                     auth.requestMatchers("/agreement-signs").hasAuthority("USER");

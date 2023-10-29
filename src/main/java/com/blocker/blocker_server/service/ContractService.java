@@ -3,7 +3,7 @@ package com.blocker.blocker_server.service;
 import com.blocker.blocker_server.dto.request.SaveModifyContractRequestDto;
 import com.blocker.blocker_server.dto.response.ContractorAndSignState;
 import com.blocker.blocker_server.dto.response.GetContractResponseDto;
-import com.blocker.blocker_server.dto.response.GetProceedContractResponseDto;
+import com.blocker.blocker_server.dto.response.GetProceedOrConcludeContractResponseDto;
 import com.blocker.blocker_server.entity.*;
 import com.blocker.blocker_server.exception.*;
 import com.blocker.blocker_server.repository.BoardRepository;
@@ -128,11 +128,25 @@ public class ContractService {
         contractRepository.deleteById(contractId);
     }
 
-    public GetProceedContractResponseDto getProceedContract(User me, Long contractId) {
+    public GetProceedOrConcludeContractResponseDto getProceedContract(User me, Long contractId) {
+
+        GetProceedOrConcludeContractResponseDto dto = getProceedOrConcludeContract(me, contractId, ContractState.PROCEED);
+
+        return dto;
+    }
+
+    public GetProceedOrConcludeContractResponseDto getConcludeContract(User me, Long contractId) {
+
+        GetProceedOrConcludeContractResponseDto dto = getProceedOrConcludeContract(me, contractId, ContractState.CONCLUDE);
+
+        return dto;
+    }
+
+    public GetProceedOrConcludeContractResponseDto getProceedOrConcludeContract(User me, Long contractId, ContractState state) {
 
         Contract contract = contractRepository.findProceedContractWithSignById(contractId).orElseThrow(() -> new NotFoundException("contractId : " + contractId));
 
-        if (!contract.getContractState().equals(ContractState.PROCEED))
+        if (!contract.getContractState().equals(state))
             throw new IsProceedContractException("contractId : " + contractId);
 
         List<AgreementSign> agreementSigns = contract.getAgreementSigns();
@@ -149,7 +163,7 @@ public class ContractService {
                         .signState(sign.getSignState())
                         .build()));
 
-        GetProceedContractResponseDto dto = GetProceedContractResponseDto.builder()
+        GetProceedOrConcludeContractResponseDto dto = GetProceedOrConcludeContractResponseDto.builder()
                 .contractId(contractId)
                 .title(contract.getTitle())
                 .content(contract.getContent())
@@ -163,12 +177,12 @@ public class ContractService {
     }
 
     public void deleteContractWithBoards(User me, Long contractId) {
-        Contract contract = contractRepository.findById(contractId).orElseThrow(()-> new NotFoundException("[delete contract with boards] contractId : " + contractId));
+        Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[delete contract with boards] contractId : " + contractId));
 
-        if(!contract.getUser().getEmail().equals(me.getEmail()))
+        if (!contract.getUser().getEmail().equals(me.getEmail()))
             throw new ForbiddenException("[delete contract with boards] contractId, email : " + contractId + ", " + me.getEmail());
 
-        if(!contract.getContractState().equals(ContractState.NOT_PROCEED))
+        if (!contract.getContractState().equals(ContractState.NOT_PROCEED))
             throw new IsNotProceedContractException("contractId : " + contractId);
 
         contractRepository.deleteById(contractId); // OntToMany의 cascade 옵션에 의해 자식들도 모두 지워짐.

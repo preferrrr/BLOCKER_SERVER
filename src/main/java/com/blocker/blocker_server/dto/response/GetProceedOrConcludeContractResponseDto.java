@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class GetProceedContractResponseDto {
+public class GetProceedOrConcludeContractResponseDto {
 
     private Long contractId;
     private String title;

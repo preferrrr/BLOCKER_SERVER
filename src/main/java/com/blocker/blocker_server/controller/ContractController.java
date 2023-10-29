@@ -2,7 +2,7 @@ package com.blocker.blocker_server.controller;
 
 import com.blocker.blocker_server.dto.request.SaveModifyContractRequestDto;
 import com.blocker.blocker_server.dto.response.GetContractResponseDto;
-import com.blocker.blocker_server.dto.response.GetProceedContractResponseDto;
+import com.blocker.blocker_server.dto.response.GetProceedOrConcludeContractResponseDto;
 import com.blocker.blocker_server.entity.ContractState;
 import com.blocker.blocker_server.entity.User;
 import com.blocker.blocker_server.exception.InvalidQueryStringException;
@@ -98,13 +98,17 @@ public class ContractController {
      * /contracts/proceed/{contractId}
      */
     @GetMapping("/proceed/{contractId}")
-    public ResponseEntity<GetProceedContractResponseDto> getProceedContract(@AuthenticationPrincipal User user,
-                                                                            @PathVariable("contractId") Long contractId) {
-        GetProceedContractResponseDto response = contractService.getProceedContract(user, contractId);
+    public ResponseEntity<GetProceedOrConcludeContractResponseDto> getProceedContract(@AuthenticationPrincipal User user,
+                                                                                      @PathVariable("contractId") Long contractId) {
+        GetProceedOrConcludeContractResponseDto response = contractService.getProceedContract(user, contractId);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * 계약서가 포함된 게시글까지 모두 delete
+     * /contracts/with-boards/{contractId}
+     */
     @DeleteMapping("/with-boards/{contractId}")
     public ResponseEntity<HttpStatus> deleteContractWithBoards(@AuthenticationPrincipal User user,
                                                                @PathVariable("contractId") Long contractId) {
@@ -112,4 +116,17 @@ public class ContractController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    /**
+     * 체결 계약서 조회
+     * /contracts/conclude/{contractId}
+     * */
+    @GetMapping("/conclude/{contractId}")
+    public ResponseEntity<GetProceedOrConcludeContractResponseDto> getConcludeContract(@AuthenticationPrincipal User user,
+                                                                                       @PathVariable("contractId") Long contractId) {
+        GetProceedOrConcludeContractResponseDto response = contractService.getConcludeContract(user, contractId);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }
