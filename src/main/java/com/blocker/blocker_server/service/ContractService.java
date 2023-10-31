@@ -63,7 +63,7 @@ public class ContractService {
         if (state.equals(ContractState.NOT_PROCEED))
             contracts = contractRepository.findNotProceedContracts(user, state);
         else
-            contracts = getProceedOrConcludeContract(user, state);
+            contracts = getProceedOrConcludeContractList(user, state);
 
         List<GetContractResponseDto> dtos = new ArrayList<>();
 
@@ -83,7 +83,7 @@ public class ContractService {
 
     }
 
-    private List<Contract> getProceedOrConcludeContract(User user, ContractState state) {
+    private List<Contract> getProceedOrConcludeContractList(User user, ContractState state) {
 
         List<AgreementSign> agreementSigns = agreementSignRepository.findByUser(user);
 
@@ -130,19 +130,19 @@ public class ContractService {
 
     public GetProceedOrConcludeContractResponseDto getProceedContract(User me, Long contractId) {
 
-        GetProceedOrConcludeContractResponseDto dto = getProceedOrConcludeContract(me, contractId, ContractState.PROCEED);
+        GetProceedOrConcludeContractResponseDto dto = getProceedOrConcludeContractList(me, contractId, ContractState.PROCEED);
 
         return dto;
     }
 
     public GetProceedOrConcludeContractResponseDto getConcludeContract(User me, Long contractId) {
 
-        GetProceedOrConcludeContractResponseDto dto = getProceedOrConcludeContract(me, contractId, ContractState.CONCLUDE);
+        GetProceedOrConcludeContractResponseDto dto = getProceedOrConcludeContractList(me, contractId, ContractState.CONCLUDE);
 
         return dto;
     }
 
-    public GetProceedOrConcludeContractResponseDto getProceedOrConcludeContract(User me, Long contractId, ContractState state) {
+    public GetProceedOrConcludeContractResponseDto getProceedOrConcludeContractList(User me, Long contractId, ContractState state) {
 
         Contract contract = contractRepository.findProceedContractWithSignById(contractId).orElseThrow(() -> new NotFoundException("contractId : " + contractId));
 

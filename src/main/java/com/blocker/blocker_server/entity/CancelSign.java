@@ -23,22 +23,24 @@ public class CancelSign {
 
     @MapsId("contractId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contract_id")
-    private Contract contract;
+    @JoinColumn(name = "cancel_contract_id")
+    private CancelContract cancelContract;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "sign_state")
     private SignState signState;
 
+
+
     @Builder
-    public CancelSign(User user, Contract contract) {
+    public CancelSign(User user, CancelContract cancelContract) {
         SignId id = SignId.builder()
-                .contractId(contract.getContractId())
+                .contractId(cancelContract.getCancelContractId())
                 .email(user.getEmail())
                 .build();
 
         this.id = id;
-        this.contract = contract;
+        this.cancelContract = cancelContract;
         this.user = user;
         this.signState = SignState.N;
     }

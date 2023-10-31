@@ -22,7 +22,7 @@ public class QCancelSign extends EntityPathBase<CancelSign> {
 
     public static final QCancelSign cancelSign = new QCancelSign("cancelSign");
 
-    public final QContract contract;
+    public final QCancelContract cancelContract;
 
     public final QSignId id;
 
@@ -48,7 +48,7 @@ public class QCancelSign extends EntityPathBase<CancelSign> {
 
     public QCancelSign(Class<? extends CancelSign> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.contract = inits.isInitialized("contract") ? new QContract(forProperty("contract"), inits.get("contract")) : null;
+        this.cancelContract = inits.isInitialized("cancelContract") ? new QCancelContract(forProperty("cancelContract"), inits.get("cancelContract")) : null;
         this.id = inits.isInitialized("id") ? new QSignId(forProperty("id")) : null;
         this.user = inits.isInitialized("user") ? new QUser(forProperty("user")) : null;
     }
