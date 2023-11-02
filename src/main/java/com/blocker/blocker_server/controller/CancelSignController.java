@@ -25,9 +25,9 @@ public class CancelSignController {
     }
 
     /**서명
-     * /cancel-signs/contract/{contractId}
+     * /cancel-signs/cancel-contract/{contractId}
      * */
-    @PatchMapping("/contract/{contractId}")
+    @PatchMapping("/cancel-contract/{contractId}")
     public ResponseEntity<HttpStatus> signContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long cancelContractId) {
 
         cancelSignService.signCancelContract(user, cancelContractId);

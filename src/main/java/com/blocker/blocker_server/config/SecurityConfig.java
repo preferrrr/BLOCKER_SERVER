@@ -81,10 +81,12 @@ public class SecurityConfig {
 
                     //CancelSign
                     auth.requestMatchers("/cancel-signs/contract/*").hasAuthority("USER");
+                    auth.requestMatchers("/cancel-signs/cancel-contract/*").hasAuthority("USER");
 
                     //CancelContract
-                    auth.requestMatchers("/cancel-contract").hasAuthority("USER");
-                    auth.requestMatchers("/cancel-contract/*").hasAuthority("USER");
+                    auth.requestMatchers("/cancel-contracts").hasAuthority("USER");
+                    auth.requestMatchers("/cancel-contracts/canceling/*").hasAuthority("USER");
+                    auth.requestMatchers("/cancel-contracts/canceled/*").hasAuthority("USER");
 
 
                 })

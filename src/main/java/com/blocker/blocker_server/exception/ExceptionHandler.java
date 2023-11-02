@@ -193,4 +193,22 @@ public class ExceptionHandler {
 
         return new ResponseEntity<>(HttpStatus.CONFLICT); /**409, 이미 파기 계약 진행 중.*/
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({NotCancelingContractException.class})
+    public ResponseEntity<?> handleNotCancelingContractException(final NotCancelingContractException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 파기 진행 중 계약서가 아님.*/
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({NotCanceledContractException.class})
+    public ResponseEntity<?> handleNotCanceledContractException(final NotCanceledContractException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /**400, 파기 체결 계약서가 아님.*/
+    }
 }

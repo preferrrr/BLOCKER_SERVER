@@ -66,7 +66,7 @@ public class CancelSignService {
             throw new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + cancelContractId);
 
         // 계약 참여자들 모두 가져오고, 나의 Sign에 서명 후
-        // Sign 모두 Y가 되면 블록체인으로 계약 체결, 계약서 상태 CONCLUDE로 바꿈.
+        // Sign 모두 Y가 되면 블록체인으로 계약 체결, 계약서 상태 CANCELED로 바꿈.
 
         CancelSign myCancelSign = cancelSigns.stream()
                 .filter(sign -> sign.getUser().getEmail().equals(me.getEmail()))
@@ -82,7 +82,7 @@ public class CancelSignService {
                 .allMatch(sign -> sign.getSignState().equals(SignState.Y));
 
         if(allY) {
-            CancelContract cancelContract = cancelContractRepository.findById(cancelContractId).orElseThrow(()->new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + cancelContractId));
+            CancelContract cancelContract = cancelContractRepository.findById(cancelContractId).orElseThrow(()->new NotFoundException("[sign cancel contract] email, contractId : " + me.getEmail() + ", " + cancelContractId));
 
             cancelContract.updateStateToCanceled();
 
