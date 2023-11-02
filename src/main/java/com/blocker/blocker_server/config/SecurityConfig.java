@@ -82,6 +82,10 @@ public class SecurityConfig {
                     //CancelSign
                     auth.requestMatchers("/cancel-signs/contract/*").hasAuthority("USER");
 
+                    //CancelContract
+                    auth.requestMatchers("/cancel-contract").hasAuthority("USER");
+                    auth.requestMatchers("/cancel-contract/*").hasAuthority("USER");
+
 
                 })
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
