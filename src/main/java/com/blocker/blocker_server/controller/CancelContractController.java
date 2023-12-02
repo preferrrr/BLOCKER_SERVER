@@ -51,7 +51,7 @@ public class CancelContractController {
 
     /**
      * 파기 체결 계약서 조회
-     * /cancel-contracts/canceled/{cancelContractid}
+     * /cancel-contracts/canceled/{cancelContractId}
      * */
     @GetMapping("/canceled/{cancelContractId}")
     public ResponseEntity<GetCancelContractResponse> getCanceledContract(@AuthenticationPrincipal User user,

@@ -88,6 +88,8 @@ public class SecurityConfig {
                     auth.requestMatchers("/cancel-contracts/canceling/*").hasAuthority("USER");
                     auth.requestMatchers("/cancel-contracts/canceled/*").hasAuthority("USER");
 
+                    auth.requestMatchers("/index.html").permitAll();
+                    auth.requestMatchers("/chat/**").permitAll();
 
                 })
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
