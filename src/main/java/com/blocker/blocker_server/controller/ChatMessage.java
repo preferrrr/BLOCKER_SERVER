@@ -4,8 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 public class ChatMessage {
     private String content;
     private String sender;
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
 }

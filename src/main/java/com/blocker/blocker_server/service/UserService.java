@@ -57,7 +57,7 @@ public class UserService {
 
             userRepository.save(newUser);
 
-            HttpHeaders headers = createHeaders(email, refreshtokenValue, roles);
+            HttpHeaders headers = createHeaders(email, newUser.getUsername(), refreshtokenValue, roles);
 
             return new ResponseEntity<>(headers, HttpStatus.CREATED); // created이면 프론트에서 전자서명등록하는 페이지로 가도록.
 
