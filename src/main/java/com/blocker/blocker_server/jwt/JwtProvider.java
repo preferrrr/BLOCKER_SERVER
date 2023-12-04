@@ -33,9 +33,10 @@ public class JwtProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createAccessToken(String email, List<String> roles) {
+    public String createAccessToken(String email, String username, List<String> roles) {
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("roles", roles);
+        claims.put("username", username);
         Date now = new Date();
         Date expiration = new Date(now.getTime() + ACCESS_TOKEN_VALID_TIME);
 
@@ -124,6 +125,10 @@ public class JwtProvider {
 
         return (String) claims.getBody().get("value");
 
+    }
+
+    public String getUsername(String token) {
+        return (String) getClaimsFromToken(token).getBody().get("username");
     }
 
 }

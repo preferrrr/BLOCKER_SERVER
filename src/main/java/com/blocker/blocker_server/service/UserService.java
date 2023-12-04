@@ -65,8 +65,9 @@ public class UserService {
         } else { // 이미 가입한 유저
             User me = findUser.get();
             roles = me.getRoles();
+            String username = me.getUsername();
 
-            HttpHeaders headers = createHeaders(email, refreshtokenValue, roles);
+            HttpHeaders headers = createHeaders(email, username, refreshtokenValue, roles);
 
             if(!me.getName().equals(requestDto.getName()))
                 me.updateName(requestDto.getName());
@@ -84,10 +85,10 @@ public class UserService {
         }
     }
 
-    public HttpHeaders createHeaders(String email, String refreshtokenValue, List<String> roles) {
+    public HttpHeaders createHeaders(String email, String username, String refreshtokenValue, List<String> roles) {
         HttpHeaders headers = new HttpHeaders();
 
-        headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(email, roles)); // access token
+        headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(email, username, roles)); // access token
 
         ResponseCookie cookie = ResponseCookie.from("refreshToken", jwtProvider.createRefreshToken(refreshtokenValue))
                 .maxAge(14 * 24 * 60 * 60)
@@ -115,7 +116,7 @@ public class UserService {
         User user = userRepository.findByRefreshtokenValue(value).orElseThrow(() -> new InvalidRefreshTokenException("[not exists value] token : " + token));
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(user.getEmail(), user.getRoles())); // access token
+        headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(user.getEmail(), user.getName(), user.getRoles())); // access token
 
         return headers;
 
