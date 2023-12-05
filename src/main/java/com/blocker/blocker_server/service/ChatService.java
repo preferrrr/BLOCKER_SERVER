@@ -1,7 +1,8 @@
 package com.blocker.blocker_server.service;
 
-import com.blocker.blocker_server.controller.ChatMessage;
+import com.blocker.blocker_server.dto.request.ChatMessage;
 import com.blocker.blocker_server.dto.request.CreateChatRoomDto;
+import com.blocker.blocker_server.dto.response.GetChatRoomsDto;
 import com.blocker.blocker_server.entity.ChatRoom;
 import com.blocker.blocker_server.entity.ChatUser;
 import com.blocker.blocker_server.entity.User;
@@ -66,5 +67,22 @@ public class ChatService {
 
         chatUserRepository.saveAll(chatUsers);
 
+    }
+
+    public List<GetChatRoomsDto> getChatRooms(User user) {
+
+        List<GetChatRoomsDto> response = new ArrayList<>();
+
+        List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByUser(user);
+
+        chatRooms.stream().forEach(chatRoom -> response.add(
+                GetChatRoomsDto.builder()
+                        .chatRoomId(chatRoom.getChatRoomID())
+                        .lastChat(chatRoom.getLastChat())
+                        .lastChatTime(chatRoom.getLastChatTime())
+                        .build()
+        ));
+
+        return response;
     }
 }

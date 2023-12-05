@@ -28,6 +28,8 @@ public class QChatRoom extends EntityPathBase<ChatRoom> {
 
     public final StringPath lastChat = createString("lastChat");
 
+    public final DateTimePath<java.time.LocalDateTime> lastChatTime = createDateTime("lastChatTime", java.time.LocalDateTime.class);
+
     public QChatRoom(String variable) {
         super(ChatRoom.class, forVariable(variable));
     }

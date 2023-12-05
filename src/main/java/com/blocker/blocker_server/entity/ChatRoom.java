@@ -26,6 +26,9 @@ public class ChatRoom {
     @Column(name = "last_chat")
     private String lastChat;
 
+    @Column(name = "last_chat_time")
+    private LocalDateTime lastChatTime;
+
     @CreatedDate
     @Column(name = "created_at")
     private LocalDateTime createdAt;

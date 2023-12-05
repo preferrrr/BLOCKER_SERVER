@@ -1,4 +1,4 @@
-package com.blocker.blocker_server.controller;
+package com.blocker.blocker_server.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
