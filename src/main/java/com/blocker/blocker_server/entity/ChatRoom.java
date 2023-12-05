@@ -1,9 +1,11 @@
 package com.blocker.blocker_server.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
@@ -14,6 +16,7 @@ import java.util.List;
 @Getter
 @Table(name = "CHAT_ROOM")
 @DynamicInsert
+@DynamicUpdate
 @NoArgsConstructor
 public class ChatRoom {
 
@@ -30,6 +33,9 @@ public class ChatRoom {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatUser> chatUsers = new ArrayList<>();
 
+    @Builder public ChatRoom(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
 
 

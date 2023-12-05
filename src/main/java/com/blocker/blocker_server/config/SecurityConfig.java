@@ -91,6 +91,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/index.html").permitAll();
                     auth.requestMatchers("/chat/**").permitAll();
 
+                    auth.requestMatchers("/chatrooms").hasAuthority("USER");
                 })
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtExceptionFilter(), JwtAuthenticationFilter.class);
