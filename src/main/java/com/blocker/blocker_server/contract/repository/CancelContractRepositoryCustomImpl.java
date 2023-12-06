@@ -1,8 +1,8 @@
 package com.blocker.blocker_server.contract.repository;
 
 import com.blocker.blocker_server.contract.domain.CancelContract;
-import com.blocker.blocker_server.entity.QCancelContract;
-import com.blocker.blocker_server.entity.QCancelSign;
+import com.blocker.blocker_server.contract.domain.QCancelContract;
+import com.blocker.blocker_server.sign.domain.QCancelSign;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

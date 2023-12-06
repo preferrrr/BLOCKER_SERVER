@@ -1,8 +1,7 @@
-package com.blocker.blocker_server.entity;
+package com.blocker.blocker_server.chat.domain;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.blocker.blocker_server.chat.domain.ChatUserId;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -16,7 +15,7 @@ import com.querydsl.core.types.Path;
 @Generated("com.querydsl.codegen.DefaultEmbeddableSerializer")
 public class QChatUserId extends BeanPath<ChatUserId> {
 
-    private static final long serialVersionUID = -1466239292L;
+    private static final long serialVersionUID = -203779305L;
 
     public static final QChatUserId chatUserId = new QChatUserId("chatUserId");
 

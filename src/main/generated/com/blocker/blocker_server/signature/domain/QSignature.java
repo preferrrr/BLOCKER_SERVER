@@ -1,8 +1,7 @@
-package com.blocker.blocker_server.entity;
+package com.blocker.blocker_server.signature.domain;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.blocker.blocker_server.signature.domain.Signature;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -17,13 +16,13 @@ import com.querydsl.core.types.dsl.PathInits;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QSignature extends EntityPathBase<Signature> {
 
-    private static final long serialVersionUID = 385283314L;
+    private static final long serialVersionUID = 46794953L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
     public static final QSignature signature = new QSignature("signature");
 
-    public final QBaseEntity _super = new QBaseEntity(this);
+    public final com.blocker.blocker_server.commons.QBaseEntity _super = new com.blocker.blocker_server.commons.QBaseEntity(this);
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
@@ -36,7 +35,7 @@ public class QSignature extends EntityPathBase<Signature> {
     //inherited
     public final StringPath status = _super.status;
 
-    public final QUser user;
+    public final com.blocker.blocker_server.user.domain.QUser user;
 
     public QSignature(String variable) {
         this(Signature.class, forVariable(variable), INITS);
@@ -57,7 +56,7 @@ public class QSignature extends EntityPathBase<Signature> {
     public QSignature(Class<? extends Signature> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.id = inits.isInitialized("id") ? new QSignatureId(forProperty("id")) : null;
-        this.user = inits.isInitialized("user") ? new QUser(forProperty("user")) : null;
+        this.user = inits.isInitialized("user") ? new com.blocker.blocker_server.user.domain.QUser(forProperty("user")) : null;
     }
 
 }

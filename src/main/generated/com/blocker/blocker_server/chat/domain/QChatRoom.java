@@ -1,9 +1,7 @@
-package com.blocker.blocker_server.entity;
+package com.blocker.blocker_server.chat.domain;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.blocker.blocker_server.chat.domain.ChatRoom;
-import com.blocker.blocker_server.chat.domain.ChatUser;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -18,7 +16,7 @@ import com.querydsl.core.types.dsl.PathInits;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QChatRoom extends EntityPathBase<ChatRoom> {
 
-    private static final long serialVersionUID = 1415139545L;
+    private static final long serialVersionUID = -1586895380L;
 
     public static final QChatRoom chatRoom = new QChatRoom("chatRoom");
 

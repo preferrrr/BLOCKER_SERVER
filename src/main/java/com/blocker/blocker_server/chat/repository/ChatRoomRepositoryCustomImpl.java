@@ -1,7 +1,9 @@
 package com.blocker.blocker_server.chat.repository;
 
 import com.blocker.blocker_server.chat.domain.ChatRoom;
-import com.blocker.blocker_server.entity.*;
+import com.blocker.blocker_server.chat.domain.QChatRoom;
+import com.blocker.blocker_server.chat.domain.QChatUser;
+import com.blocker.blocker_server.user.domain.QUser;
 import com.blocker.blocker_server.user.domain.User;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;

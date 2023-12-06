@@ -1,8 +1,7 @@
-package com.blocker.blocker_server.entity;
+package com.blocker.blocker_server.commons;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.blocker.blocker_server.commons.BaseEntity;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -16,7 +15,7 @@ import com.querydsl.core.types.Path;
 @Generated("com.querydsl.codegen.DefaultSupertypeSerializer")
 public class QBaseEntity extends EntityPathBase<BaseEntity> {
 
-    private static final long serialVersionUID = -1086529254L;
+    private static final long serialVersionUID = -142587041L;
 
     public static final QBaseEntity baseEntity = new QBaseEntity("baseEntity");
 

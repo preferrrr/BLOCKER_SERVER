@@ -1,8 +1,7 @@
-package com.blocker.blocker_server.entity;
+package com.blocker.blocker_server.board.domain;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.blocker.blocker_server.board.domain.Image;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -17,7 +16,7 @@ import com.querydsl.core.types.dsl.PathInits;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QImage extends EntityPathBase<Image> {
 
-    private static final long serialVersionUID = 154088085L;
+    private static final long serialVersionUID = 320252158L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 

@@ -1,10 +1,9 @@
 package com.blocker.blocker_server.chat.dto.request;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-public class ChatMessage {
+public class ChatMessageRequestDto {
     private String content;
     private String sender;
 

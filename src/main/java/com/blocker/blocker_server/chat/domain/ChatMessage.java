@@ -1,4 +1,4 @@
-package com.blocker.blocker_server.chat.mongo;
+package com.blocker.blocker_server.chat.domain;
 
 import jakarta.persistence.Id;
 import lombok.Builder;
@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Document(collation = "chat_message")
+@Document(collection = "chat_message")
 @Getter
 @Builder
 public class ChatMessage {

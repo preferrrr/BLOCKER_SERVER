@@ -1,8 +1,7 @@
-package com.blocker.blocker_server.entity;
+package com.blocker.blocker_server.chat.domain;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.blocker.blocker_server.chat.domain.ChatUser;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -17,7 +16,7 @@ import com.querydsl.core.types.dsl.PathInits;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QChatUser extends EntityPathBase<ChatUser> {
 
-    private static final long serialVersionUID = 1415232457L;
+    private static final long serialVersionUID = -1586802468L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
@@ -27,7 +26,7 @@ public class QChatUser extends EntityPathBase<ChatUser> {
 
     public final QChatUserId id;
 
-    public final QUser user;
+    public final com.blocker.blocker_server.user.domain.QUser user;
 
     public QChatUser(String variable) {
         this(ChatUser.class, forVariable(variable), INITS);
@@ -49,7 +48,7 @@ public class QChatUser extends EntityPathBase<ChatUser> {
         super(type, metadata, inits);
         this.chatRoom = inits.isInitialized("chatRoom") ? new QChatRoom(forProperty("chatRoom")) : null;
         this.id = inits.isInitialized("id") ? new QChatUserId(forProperty("id")) : null;
-        this.user = inits.isInitialized("user") ? new QUser(forProperty("user")) : null;
+        this.user = inits.isInitialized("user") ? new com.blocker.blocker_server.user.domain.QUser(forProperty("user")) : null;
     }
 
 }

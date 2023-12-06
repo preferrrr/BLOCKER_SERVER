@@ -1,6 +1,6 @@
 package com.blocker.blocker_server.user.repository;
 
-import com.blocker.blocker_server.entity.QUser;
+import com.blocker.blocker_server.user.domain.QUser;
 import com.blocker.blocker_server.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;

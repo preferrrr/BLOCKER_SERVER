@@ -1,8 +1,7 @@
-package com.blocker.blocker_server.entity;
+package com.blocker.blocker_server.signature.domain;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.blocker.blocker_server.signature.domain.SignatureId;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -16,7 +15,7 @@ import com.querydsl.core.types.Path;
 @Generated("com.querydsl.codegen.DefaultEmbeddableSerializer")
 public class QSignatureId extends BeanPath<SignatureId> {
 
-    private static final long serialVersionUID = 890079661L;
+    private static final long serialVersionUID = 2020279236L;
 
     public static final QSignatureId signatureId = new QSignatureId("signatureId");
 

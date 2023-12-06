@@ -1,10 +1,7 @@
-package com.blocker.blocker_server.entity;
+package com.blocker.blocker_server.contract.domain;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.blocker.blocker_server.contract.domain.CancelContract;
-import com.blocker.blocker_server.contract.domain.CancelContractState;
-import com.blocker.blocker_server.sign.domain.CancelSign;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -19,19 +16,19 @@ import com.querydsl.core.types.dsl.PathInits;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QCancelContract extends EntityPathBase<CancelContract> {
 
-    private static final long serialVersionUID = 1754382770L;
+    private static final long serialVersionUID = 1918588991L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
     public static final QCancelContract cancelContract = new QCancelContract("cancelContract");
 
-    public final QBaseEntity _super = new QBaseEntity(this);
+    public final com.blocker.blocker_server.commons.QBaseEntity _super = new com.blocker.blocker_server.commons.QBaseEntity(this);
 
     public final NumberPath<Long> cancelContractId = createNumber("cancelContractId", Long.class);
 
     public final EnumPath<CancelContractState> cancelContractState = createEnum("cancelContractState", CancelContractState.class);
 
-    public final ListPath<CancelSign, QCancelSign> cancelSigns = this.<CancelSign, QCancelSign>createList("cancelSigns", CancelSign.class, QCancelSign.class, PathInits.DIRECT2);
+    public final ListPath<com.blocker.blocker_server.sign.domain.CancelSign, com.blocker.blocker_server.sign.domain.QCancelSign> cancelSigns = this.<com.blocker.blocker_server.sign.domain.CancelSign, com.blocker.blocker_server.sign.domain.QCancelSign>createList("cancelSigns", com.blocker.blocker_server.sign.domain.CancelSign.class, com.blocker.blocker_server.sign.domain.QCancelSign.class, PathInits.DIRECT2);
 
     public final StringPath content = createString("content");
 
@@ -48,7 +45,7 @@ public class QCancelContract extends EntityPathBase<CancelContract> {
 
     public final StringPath title = createString("title");
 
-    public final QUser user;
+    public final com.blocker.blocker_server.user.domain.QUser user;
 
     public QCancelContract(String variable) {
         this(CancelContract.class, forVariable(variable), INITS);
@@ -69,7 +66,7 @@ public class QCancelContract extends EntityPathBase<CancelContract> {
     public QCancelContract(Class<? extends CancelContract> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.contract = inits.isInitialized("contract") ? new QContract(forProperty("contract"), inits.get("contract")) : null;
-        this.user = inits.isInitialized("user") ? new QUser(forProperty("user")) : null;
+        this.user = inits.isInitialized("user") ? new com.blocker.blocker_server.user.domain.QUser(forProperty("user")) : null;
     }
 
 }

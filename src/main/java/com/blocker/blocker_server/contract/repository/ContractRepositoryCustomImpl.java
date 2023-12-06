@@ -2,7 +2,9 @@ package com.blocker.blocker_server.contract.repository;
 
 import com.blocker.blocker_server.contract.domain.Contract;
 import com.blocker.blocker_server.contract.domain.ContractState;
-import com.blocker.blocker_server.entity.*;
+import com.blocker.blocker_server.contract.domain.QContract;
+import com.blocker.blocker_server.sign.domain.QAgreementSign;
+import com.blocker.blocker_server.user.domain.QUser;
 import com.blocker.blocker_server.user.domain.User;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;

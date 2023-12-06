@@ -1,10 +1,7 @@
-package com.blocker.blocker_server.entity;
+package com.blocker.blocker_server.board.domain;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.blocker.blocker_server.board.domain.Board;
-import com.blocker.blocker_server.board.domain.Image;
-import com.blocker.blocker_server.bookmark.domain.Bookmark;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -19,23 +16,23 @@ import com.querydsl.core.types.dsl.PathInits;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QBoard extends EntityPathBase<Board> {
 
-    private static final long serialVersionUID = 147683360L;
+    private static final long serialVersionUID = 313847433L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
     public static final QBoard board = new QBoard("board");
 
-    public final QBaseEntity _super = new QBaseEntity(this);
+    public final com.blocker.blocker_server.commons.QBaseEntity _super = new com.blocker.blocker_server.commons.QBaseEntity(this);
 
     public final NumberPath<Long> boardId = createNumber("boardId", Long.class);
 
     public final NumberPath<Integer> bookmarkCount = createNumber("bookmarkCount", Integer.class);
 
-    public final ListPath<Bookmark, QBookmark> bookmarks = this.<Bookmark, QBookmark>createList("bookmarks", Bookmark.class, QBookmark.class, PathInits.DIRECT2);
+    public final ListPath<com.blocker.blocker_server.bookmark.domain.Bookmark, com.blocker.blocker_server.bookmark.domain.QBookmark> bookmarks = this.<com.blocker.blocker_server.bookmark.domain.Bookmark, com.blocker.blocker_server.bookmark.domain.QBookmark>createList("bookmarks", com.blocker.blocker_server.bookmark.domain.Bookmark.class, com.blocker.blocker_server.bookmark.domain.QBookmark.class, PathInits.DIRECT2);
 
     public final StringPath content = createString("content");
 
-    public final QContract contract;
+    public final com.blocker.blocker_server.contract.domain.QContract contract;
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
@@ -54,7 +51,7 @@ public class QBoard extends EntityPathBase<Board> {
 
     public final StringPath title = createString("title");
 
-    public final QUser user;
+    public final com.blocker.blocker_server.user.domain.QUser user;
 
     public final NumberPath<Integer> view = createNumber("view", Integer.class);
 
@@ -76,8 +73,8 @@ public class QBoard extends EntityPathBase<Board> {
 
     public QBoard(Class<? extends Board> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.contract = inits.isInitialized("contract") ? new QContract(forProperty("contract"), inits.get("contract")) : null;
-        this.user = inits.isInitialized("user") ? new QUser(forProperty("user")) : null;
+        this.contract = inits.isInitialized("contract") ? new com.blocker.blocker_server.contract.domain.QContract(forProperty("contract"), inits.get("contract")) : null;
+        this.user = inits.isInitialized("user") ? new com.blocker.blocker_server.user.domain.QUser(forProperty("user")) : null;
     }
 
 }

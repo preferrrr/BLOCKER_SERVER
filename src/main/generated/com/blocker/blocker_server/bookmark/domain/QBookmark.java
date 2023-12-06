@@ -1,8 +1,7 @@
-package com.blocker.blocker_server.entity;
+package com.blocker.blocker_server.bookmark.domain;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.blocker.blocker_server.bookmark.domain.Bookmark;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -17,17 +16,17 @@ import com.querydsl.core.types.dsl.PathInits;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QBookmark extends EntityPathBase<Bookmark> {
 
-    private static final long serialVersionUID = 1983175100L;
+    private static final long serialVersionUID = 1676634669L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
     public static final QBookmark bookmark = new QBookmark("bookmark");
 
-    public final QBoard board;
+    public final com.blocker.blocker_server.board.domain.QBoard board;
 
     public final QBookmarkId id;
 
-    public final QUser user;
+    public final com.blocker.blocker_server.user.domain.QUser user;
 
     public QBookmark(String variable) {
         this(Bookmark.class, forVariable(variable), INITS);
@@ -47,9 +46,9 @@ public class QBookmark extends EntityPathBase<Bookmark> {
 
     public QBookmark(Class<? extends Bookmark> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.board = inits.isInitialized("board") ? new QBoard(forProperty("board"), inits.get("board")) : null;
+        this.board = inits.isInitialized("board") ? new com.blocker.blocker_server.board.domain.QBoard(forProperty("board"), inits.get("board")) : null;
         this.id = inits.isInitialized("id") ? new QBookmarkId(forProperty("id")) : null;
-        this.user = inits.isInitialized("user") ? new QUser(forProperty("user")) : null;
+        this.user = inits.isInitialized("user") ? new com.blocker.blocker_server.user.domain.QUser(forProperty("user")) : null;
     }
 
 }

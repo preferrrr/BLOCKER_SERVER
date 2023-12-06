@@ -1,9 +1,7 @@
-package com.blocker.blocker_server.entity;
+package com.blocker.blocker_server.sign.domain;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.blocker.blocker_server.sign.domain.CancelSign;
-import com.blocker.blocker_server.sign.domain.SignState;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -18,19 +16,19 @@ import com.querydsl.core.types.dsl.PathInits;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QCancelSign extends EntityPathBase<CancelSign> {
 
-    private static final long serialVersionUID = 2026102365L;
+    private static final long serialVersionUID = -725297707L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
     public static final QCancelSign cancelSign = new QCancelSign("cancelSign");
 
-    public final QCancelContract cancelContract;
+    public final com.blocker.blocker_server.contract.domain.QCancelContract cancelContract;
 
     public final QSignId id;
 
     public final EnumPath<SignState> signState = createEnum("signState", SignState.class);
 
-    public final QUser user;
+    public final com.blocker.blocker_server.user.domain.QUser user;
 
     public QCancelSign(String variable) {
         this(CancelSign.class, forVariable(variable), INITS);
@@ -50,9 +48,9 @@ public class QCancelSign extends EntityPathBase<CancelSign> {
 
     public QCancelSign(Class<? extends CancelSign> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.cancelContract = inits.isInitialized("cancelContract") ? new QCancelContract(forProperty("cancelContract"), inits.get("cancelContract")) : null;
+        this.cancelContract = inits.isInitialized("cancelContract") ? new com.blocker.blocker_server.contract.domain.QCancelContract(forProperty("cancelContract"), inits.get("cancelContract")) : null;
         this.id = inits.isInitialized("id") ? new QSignId(forProperty("id")) : null;
-        this.user = inits.isInitialized("user") ? new QUser(forProperty("user")) : null;
+        this.user = inits.isInitialized("user") ? new com.blocker.blocker_server.user.domain.QUser(forProperty("user")) : null;
     }
 
 }

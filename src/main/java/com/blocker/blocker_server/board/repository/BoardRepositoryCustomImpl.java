@@ -1,7 +1,11 @@
 package com.blocker.blocker_server.board.repository;
 
 import com.blocker.blocker_server.board.domain.Board;
-import com.blocker.blocker_server.entity.*;
+import com.blocker.blocker_server.board.domain.QBoard;
+import com.blocker.blocker_server.board.domain.QImage;
+import com.blocker.blocker_server.bookmark.domain.QBookmark;
+import com.blocker.blocker_server.contract.domain.QContract;
+import com.blocker.blocker_server.user.domain.QUser;
 import com.blocker.blocker_server.user.domain.User;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
