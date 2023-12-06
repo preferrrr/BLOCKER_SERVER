@@ -57,7 +57,7 @@ public class UserService {
 
             userRepository.save(newUser);
 
-            HttpHeaders headers = createHeaders(email, newUser.getUsername(), refreshtokenValue, roles);
+            HttpHeaders headers = createHeaders(email, newUser.getName(), refreshtokenValue, roles);
 
             return new ResponseEntity<>(headers, HttpStatus.CREATED); // created이면 프론트에서 전자서명등록하는 페이지로 가도록.
 
@@ -65,7 +65,7 @@ public class UserService {
         } else { // 이미 가입한 유저
             User me = findUser.get();
             roles = me.getRoles();
-            String username = me.getUsername();
+            String username = me.getName();
 
             HttpHeaders headers = createHeaders(email, username, refreshtokenValue, roles);
 

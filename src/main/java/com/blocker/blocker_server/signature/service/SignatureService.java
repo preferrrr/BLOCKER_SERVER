@@ -52,7 +52,7 @@ public class SignatureService {
         me.updateRoles(roles);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(me.getEmail(), me.getUsername(), roles)); // access token
+        headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(me.getEmail(), me.getName(), roles)); // access token
 
         return headers;
 

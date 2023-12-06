@@ -2,13 +2,15 @@ package com.blocker.blocker_server.chat.service;
 
 import com.blocker.blocker_server.chat.domain.ChatRoom;
 import com.blocker.blocker_server.chat.domain.ChatUser;
-import com.blocker.blocker_server.chat.dto.request.ChatMessageRequestDto;
+import com.blocker.blocker_server.chat.dto.request.SendMessageRequestDto;
 import com.blocker.blocker_server.chat.dto.request.CreateChatRoomRequestDto;
 import com.blocker.blocker_server.chat.dto.response.GetChatMessagesResponseDto;
 import com.blocker.blocker_server.chat.dto.response.GetChatRoomListDto;
 import com.blocker.blocker_server.chat.domain.ChatMessage;
+import com.blocker.blocker_server.chat.dto.response.SendMessageResponseDto;
 import com.blocker.blocker_server.chat.mongo.ChatMessageRepository;
 import com.blocker.blocker_server.commons.exception.ForbiddenException;
+import com.blocker.blocker_server.commons.exception.NotFoundException;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.commons.jwt.JwtProvider;
 import com.blocker.blocker_server.chat.repository.ChatRoomRepository;
@@ -37,29 +39,39 @@ public class ChatService {
     private final ChatUserRepository chatUserRepository;
     private final ChatMessageRepository chatMessageRepository;
 
-    public void sendMessage(String token, Long roomId, ChatMessageRequestDto message) {
+    public void sendMessage(String token, Long chatRoomId, SendMessageRequestDto requestDto) {
 
         String tokenValue = token.substring(7);
 
         String email = jwtProvider.getEmail(tokenValue);
+        User user = userRepository.getReferenceById(email);
 
-        //TODO: 참여자가 맞는지. ChatRoom에서 조회해야 함.
-        //TODO: DB에 저장해야함.
+        //채팅방의 참여자가 맞는지 검사 TODO: StompErrorHandler로 예외처리 해야함.
+        if (!chatUserRepository.existsByUserAndChatRoom(user, chatRoomRepository.getReferenceById(chatRoomId)))
+            throw new ForbiddenException("[send message] user, chatRoomId : " + user.getEmail() + ", " + chatRoomId);
 
+        //메세지 mongoDB에 저장
         ChatMessage chatMessage = ChatMessage.builder()
-                .chatRoomId(roomId)
+                .chatRoomId(chatRoomId)
                 .sendAt(LocalDateTime.now())
                 .sender(email)
-                .content(message.getContent())
+                .content(requestDto.getContent())
                 .build();
-
         chatMessageRepository.save(chatMessage);
 
-        String userName = jwtProvider.getUsername(tokenValue);
+        //채팅방의 마지막 채팅 업데이트
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new NotFoundException("[send message] user, chatRoomId : " + user.getEmail() + ", " + chatRoomId));
+        chatRoom.updateLastChat(chatMessage.getContent(), chatMessage.getSendAt());
 
-        message.setSender(userName);
+        //메세지의 sender는 email이 아닌 username으로 가야함.
+        //jwt 안에는 email만 있었는데 email로 DB를 조회해서 매번 가져오는거보다,
+        //jwt의 길이가 약간 길어지는 것을 감수하고 username을 포함시켜서 DB 조회를 하지 않도록 함.
+        SendMessageResponseDto message = SendMessageResponseDto.builder()
+                .sender(jwtProvider.getUsername(tokenValue))
+                .content(requestDto.getContent())
+                .build();
 
-        simpMessagingTemplate.convertAndSend("/sub/" + roomId, message);
+        simpMessagingTemplate.convertAndSend("/sub/" + chatRoomId, message);
 
     }
 

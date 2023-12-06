@@ -40,6 +40,10 @@ public class ChatRoom {
         this.createdAt = createdAt;
     }
 
+    public void updateLastChat(String lastChat, LocalDateTime lastChatTime) {
+        this.lastChat = lastChat;
+        this.lastChatTime = lastChatTime;
+    }
 
 
 }

@@ -1,9 +1,8 @@
 package com.blocker.blocker_server.chat.controller;
 
-import com.blocker.blocker_server.chat.domain.ChatMessage;
 import com.blocker.blocker_server.chat.dto.response.GetChatMessagesResponseDto;
 import com.blocker.blocker_server.chat.service.ChatService;
-import com.blocker.blocker_server.chat.dto.request.ChatMessageRequestDto;
+import com.blocker.blocker_server.chat.dto.request.SendMessageRequestDto;
 import com.blocker.blocker_server.chat.dto.request.CreateChatRoomRequestDto;
 import com.blocker.blocker_server.chat.dto.response.GetChatRoomListDto;
 import com.blocker.blocker_server.user.domain.User;
@@ -33,7 +32,7 @@ public class ChatController {
 
     /**메시지 전송*/
     @MessageMapping("/{roomId}")
-    public void sendMessage(@Header("Authorization") String token, @DestinationVariable Long roomId, ChatMessageRequestDto chatMessage) {
+    public void sendMessage(@Header("Authorization") String token, @DestinationVariable Long roomId, SendMessageRequestDto chatMessage) {
 
         chatService.sendMessage(token, roomId, chatMessage);
 
