@@ -2,6 +2,7 @@ package com.blocker.blocker_server.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
+import com.blocker.blocker_server.chat.domain.ChatUserId;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;

@@ -2,6 +2,8 @@ package com.blocker.blocker_server.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
+import com.blocker.blocker_server.sign.domain.CancelSign;
+import com.blocker.blocker_server.sign.domain.SignState;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;

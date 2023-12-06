@@ -2,6 +2,13 @@ package com.blocker.blocker_server.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
+import com.blocker.blocker_server.sign.domain.AgreementSign;
+import com.blocker.blocker_server.contract.domain.Contract;
+import com.blocker.blocker_server.board.domain.Board;
+import com.blocker.blocker_server.bookmark.domain.Bookmark;
+import com.blocker.blocker_server.chat.domain.ChatUser;
+import com.blocker.blocker_server.signature.domain.Signature;
+import com.blocker.blocker_server.user.domain.User;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
