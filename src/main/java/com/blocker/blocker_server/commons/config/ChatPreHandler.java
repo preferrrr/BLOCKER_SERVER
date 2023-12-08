@@ -31,32 +31,31 @@ public class ChatPreHandler implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
+
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
-        StompCommand command = accessor.getCommand();
+        //소켓을 사용하려면 USER 권한을 가져야함.
         String token = getToken(accessor);
 
-        //소켓 연결 허용
-        if (command.equals(StompCommand.CONNECT)) {
+        if (token == null)
+            throw new MessageDeliveryException("token is null");
 
-            if (token == null)
-                throw new MessageDeliveryException("token error");
+        //토큰 유효성 검사
+        boolean isValid = jwtProvider.isTokenValid(token);
+        boolean isUser = jwtProvider.getRoles(token).stream().anyMatch(role -> role.equals("USER"));
 
-            jwtProvider.isTokenValid(token);
+        if(!isUser || !isValid)
+            throw new MessageDeliveryException("unauthorized");
 
+        StompCommand command = accessor.getCommand();
 
-
-        } else if (command.equals(StompCommand.SEND) || command.equals(StompCommand.SUBSCRIBE)) {
-
-            if (token == null)
-                throw new MessageDeliveryException("token error");
-
-            jwtProvider.isTokenValid(token);
+        //SEND와 SUBSCRIBE은 그 방의 참여자여야 가능함.
+        if (command.equals(StompCommand.SEND) || command.equals(StompCommand.SUBSCRIBE)) {
 
             Long chatRoomId = getChatRoomId(accessor);
 
             if (chatRoomId == null)
-                throw new MessageDeliveryException("ChatRoomId error");
+                throw new MessageDeliveryException("ChatRoomId is null");
 
             ChatRoom chatRoom = chatRoomRepository.getReferenceById(chatRoomId);
             User user = userRepository.getReferenceById(jwtProvider.getEmail(token));
