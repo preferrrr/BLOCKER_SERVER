@@ -46,10 +46,6 @@ public class ChatService {
         String email = jwtProvider.getEmail(tokenValue);
         User user = userRepository.getReferenceById(email);
 
-        //채팅방의 참여자가 맞는지 검사 TODO: StompErrorHandler로 예외처리 해야함.
-        if (!chatUserRepository.existsByUserAndChatRoom(user, chatRoomRepository.getReferenceById(chatRoomId)))
-            throw new ForbiddenException("[send message] user, chatRoomId : " + user.getEmail() + ", " + chatRoomId);
-
         //메세지 mongoDB에 저장
         ChatMessage chatMessage = ChatMessage.builder()
                 .chatRoomId(chatRoomId)
@@ -59,7 +55,7 @@ public class ChatService {
                 .build();
         chatMessageRepository.save(chatMessage);
 
-        //채팅방의 마지막 채팅 업데이트
+        //채팅방의 마지막 채팅 업데이트, 이거 또한 write가 자주 일어나니까 mongoDB에 저장할까 ?
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new NotFoundException("[send message] user, chatRoomId : " + user.getEmail() + ", " + chatRoomId));
         chatRoom.updateLastChat(chatMessage.getContent(), chatMessage.getSendAt());
 
@@ -75,7 +71,7 @@ public class ChatService {
 
     }
 
-    public void createChatRoom(User user, CreateChatRoomRequestDto createChatRoomRequestDto) {
+    public void createChatRoom(User user, List<String> emails) {
 
         ChatRoom chatRoom = ChatRoom.builder().createdAt(LocalDateTime.now()).build();
 
@@ -83,7 +79,7 @@ public class ChatService {
 
         List<ChatUser> chatUsers = new ArrayList<>();
 
-        createChatRoomRequestDto.getChatUsers().stream().forEach(email ->
+        emails.stream().forEach(email ->
                 chatUsers.add(
                         ChatUser.builder()
                                 .user(userRepository.getReferenceById(email))
@@ -129,7 +125,6 @@ public class ChatService {
                         .sendAt(chatMessage.getSendAt())
                         .build())
                 .collect(Collectors.toList());
-
 
         return response;
     }

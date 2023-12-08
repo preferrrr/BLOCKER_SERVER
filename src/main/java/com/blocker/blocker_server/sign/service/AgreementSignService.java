@@ -1,5 +1,8 @@
 package com.blocker.blocker_server.sign.service;
 
+import com.blocker.blocker_server.chat.domain.ChatRoom;
+import com.blocker.blocker_server.chat.repository.ChatRoomRepository;
+import com.blocker.blocker_server.chat.service.ChatService;
 import com.blocker.blocker_server.commons.exception.*;
 import com.blocker.blocker_server.contract.domain.Contract;
 import com.blocker.blocker_server.contract.domain.ContractState;
@@ -25,6 +28,7 @@ public class AgreementSignService {
     private final AgreementSignRepository agreementSignRepository;
     private final UserRepository userRepository;
     private final ContractRepository contractRepository;
+    private final ChatService chatService;
 
     public void proceedContract(User me, ProceedSignRequestDto request) {
 
@@ -60,6 +64,8 @@ public class AgreementSignService {
 
         agreementSignRepository.saveAll(agreementSigns);
 
+        //계약 참여자들끼리 단체 채팅방 만들어줌.
+        chatService.createChatRoom(me,emails);
     }
 
     public void signContract(User me, Long contractId) {

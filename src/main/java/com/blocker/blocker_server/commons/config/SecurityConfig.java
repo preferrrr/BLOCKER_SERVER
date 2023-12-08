@@ -88,11 +88,15 @@ public class SecurityConfig {
                     auth.requestMatchers("/cancel-contracts/canceling/*").hasAuthority("USER");
                     auth.requestMatchers("/cancel-contracts/canceled/*").hasAuthority("USER");
 
-                    auth.requestMatchers("/index.html").permitAll();
+                    //Chat
                     auth.requestMatchers("/chat/**").permitAll();
+                    auth.requestMatchers("/chat").hasAuthority("USER");
 
                     auth.requestMatchers("/chatrooms").hasAuthority("USER");
                     auth.requestMatchers("/chatrooms/*").hasAuthority("USER");
+
+                    auth.requestMatchers("/index.html").permitAll();
+
                 })
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtExceptionFilter(), JwtAuthenticationFilter.class);
