@@ -11,6 +11,7 @@ import com.blocker.blocker_server.chat.dto.response.SendMessageResponseDto;
 import com.blocker.blocker_server.chat.mongo.ChatMessageRepository;
 import com.blocker.blocker_server.commons.exception.ForbiddenException;
 import com.blocker.blocker_server.commons.exception.NotFoundException;
+import com.blocker.blocker_server.commons.kafka.MessageSender;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.commons.jwt.JwtProvider;
 import com.blocker.blocker_server.chat.repository.ChatRoomRepository;
@@ -18,6 +19,7 @@ import com.blocker.blocker_server.chat.repository.ChatUserRepository;
 import com.blocker.blocker_server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +40,7 @@ public class ChatService {
     private final UserRepository userRepository;
     private final ChatUserRepository chatUserRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final MessageSender sender;
 
     public void sendMessage(String token, Long chatRoomId, SendMessageRequestDto requestDto) {
 
@@ -65,9 +68,11 @@ public class ChatService {
         SendMessageResponseDto message = SendMessageResponseDto.builder()
                 .sender(jwtProvider.getUsername(tokenValue))
                 .content(requestDto.getContent())
+                .roomId(String.valueOf(chatRoomId))
                 .build();
 
-        simpMessagingTemplate.convertAndSend("/sub/" + chatRoomId, message);
+        //simpMessagingTemplate.convertAndSend("/sub/" + chatRoomId, message);
+        sender.send("test", message);
 
     }
 
