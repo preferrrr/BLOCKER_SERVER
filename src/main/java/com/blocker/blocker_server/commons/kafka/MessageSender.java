@@ -10,9 +10,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class MessageSender {
-    private final KafkaTemplate<String, SendMessageResponseDto> kafkaTemplate;
 
-    public void send(String topic, SendMessageResponseDto message) {
+    private final KafkaTemplate<String, KafkaMessage> kafkaTemplate;
+
+    public void send(String topic, KafkaMessage message) {
         kafkaTemplate.send(topic, message);
     }
 }

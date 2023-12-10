@@ -45,7 +45,6 @@
             return;
         }
 
-        //const socket = new SockJS('http://43.202.127.236:8080/chat');
         const socket = new SockJS('http://localhost:8080/chat');
 
         stompClient = Stomp.over(socket);

@@ -11,6 +11,8 @@ import com.blocker.blocker_server.chat.dto.response.SendMessageResponseDto;
 import com.blocker.blocker_server.chat.mongo.ChatMessageRepository;
 import com.blocker.blocker_server.commons.exception.ForbiddenException;
 import com.blocker.blocker_server.commons.exception.NotFoundException;
+import com.blocker.blocker_server.commons.kafka.KafkaChatConstant;
+import com.blocker.blocker_server.commons.kafka.KafkaMessage;
 import com.blocker.blocker_server.commons.kafka.MessageSender;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.commons.jwt.JwtProvider;
@@ -65,14 +67,14 @@ public class ChatService {
         //메세지의 sender는 email이 아닌 username으로 가야함.
         //jwt 안에는 email만 있었는데 email로 DB를 조회해서 매번 가져오는거보다,
         //jwt의 길이가 약간 길어지는 것을 감수하고 username을 포함시켜서 DB 조회를 하지 않도록 함.
-        SendMessageResponseDto message = SendMessageResponseDto.builder()
+        KafkaMessage message = KafkaMessage.builder()
                 .sender(jwtProvider.getUsername(tokenValue))
                 .content(requestDto.getContent())
                 .roomId(String.valueOf(chatRoomId))
                 .build();
 
         //simpMessagingTemplate.convertAndSend("/sub/" + chatRoomId, message);
-        sender.send("test", message);
+        sender.send(KafkaChatConstant.KAFKA_TOPIC, message);
 
     }
 

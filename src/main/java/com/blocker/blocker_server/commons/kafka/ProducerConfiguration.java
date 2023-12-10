@@ -4,6 +4,7 @@ import com.blocker.blocker_server.chat.dto.request.SendMessageRequestDto;
 import com.blocker.blocker_server.chat.dto.response.SendMessageResponseDto;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -21,25 +22,25 @@ import java.util.Objects;
 @Configuration
 public class ProducerConfiguration {
 
+    @Value("${kafka.bootstrap}")
+    private String KAFKA_BOOTSTRAP;
+
     @Bean
-    public KafkaTemplate<String, SendMessageResponseDto> kafkaTemplate() {
+    public KafkaTemplate<String, KafkaMessage> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
-    // Kafka ProducerFactory를 생성하는 Bean 메서드
     @Bean
-    public ProducerFactory<String, SendMessageResponseDto> producerFactory() {
+    public ProducerFactory<String, KafkaMessage> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigurations());
     }
 
-    // Kafka Producer 구성을 위한 설정값들을 포함한 맵을 반환하는 메서드
     @Bean
     public Map<String, Object> producerConfigurations() {
         Map<String, Object> map = new HashMap<>();
-        JsonSerializer<SendMessageResponseDto> serializer = new JsonSerializer<>();
+        JsonSerializer<KafkaMessage> serializer = new JsonSerializer<>();
 
-
-        map.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        map.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BOOTSTRAP);
         map.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         map.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, serializer.getClass());
 
