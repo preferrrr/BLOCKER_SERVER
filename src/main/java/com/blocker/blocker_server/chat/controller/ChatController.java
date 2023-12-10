@@ -31,8 +31,8 @@ public class ChatController {
     private final ChatService chatService;
 
     /**메시지 전송*/
-    @MessageMapping("/message")
-    public void sendMessage(@Header("Authorization") String token, @Header("ChatRoomId") Long roomId, SendMessageRequestDto chatMessage) {
+    @MessageMapping("/message/{chatRoomId}")
+    public void sendMessage(@Header("Authorization") String token, @DestinationVariable("chatRoomId") Long roomId, SendMessageRequestDto chatMessage) {
 
         chatService.sendMessage(token, roomId, chatMessage);
 
