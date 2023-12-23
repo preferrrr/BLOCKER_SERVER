@@ -55,4 +55,19 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom{
 
         return Optional.ofNullable(contract);
     }
+
+    @Override
+    public List<Contract> findProceedOrConcludeContractList(User user, ContractState state) {
+
+        JPAQuery<Contract> getContractListQuery = jpaQueryFactory
+                .selectFrom(contract)
+                .join(contract.agreementSigns, agreementSign)
+                .where(agreementSign.user.email.eq(user.getEmail()),
+                        contract.contractState.eq(state))
+                .orderBy(contract.modifiedAt.desc());
+
+        List<Contract> result = getContractListQuery.fetch();
+
+        return result;
+    }
 }

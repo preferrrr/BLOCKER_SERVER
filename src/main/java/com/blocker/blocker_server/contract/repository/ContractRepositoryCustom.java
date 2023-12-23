@@ -13,4 +13,6 @@ public interface ContractRepositoryCustom {
 
     Optional<Contract> findProceedContractWithSignById(Long contractId);
 
+    List<Contract> findProceedOrConcludeContractList(User user, ContractState state);
+
 }

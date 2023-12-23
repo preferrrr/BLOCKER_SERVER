@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -62,42 +63,20 @@ public class ContractService {
 
     public List<GetContractResponseDto> getContracts(User user, ContractState state) {
 
-        List<Contract> contracts;
+        List<Contract> contracts = getContractEntities(user, state);
 
-        if (state.equals(ContractState.NOT_PROCEED))
-            contracts = contractRepository.findNotProceedContracts(user, state);
-        else
-            contracts = getProceedOrConcludeContractList(user, state);
+        List<GetContractResponseDto> response = contracts.stream()
+                .map(contract -> GetContractResponseDto.builder()
+                        .contractId(contract.getContractId())
+                        .title(contract.getTitle())
+                        .content(contract.getContent())
+                        .createdAt(contract.getCreatedAt())
+                        .modifiedAt(contract.getModifiedAt())
+                        .build())
+                .collect(Collectors.toList());
 
-        List<GetContractResponseDto> dtos = new ArrayList<>();
+        return response;
 
-        for (Contract contract : contracts) {
-            GetContractResponseDto dto = GetContractResponseDto.builder()
-                    .contractId(contract.getContractId())
-                    .title(contract.getTitle())
-                    .content(contract.getContent())
-                    .createdAt(contract.getCreatedAt())
-                    .modifiedAt(contract.getModifiedAt())
-                    .build();
-
-            dtos.add(dto);
-        }
-
-        return dtos;
-
-    }
-
-    private List<Contract> getProceedOrConcludeContractList(User user, ContractState state) {
-
-        List<AgreementSign> agreementSigns = agreementSignRepository.findByUser(user);
-
-        List<Long> contractIds = new ArrayList<>();
-
-        agreementSigns.stream().forEach(sign -> contractIds.add(sign.getContract().getContractId()));
-
-        List<Contract> contracts = contractRepository.findByContractIdInAndContractState(contractIds, state);
-
-        return contracts;
     }
 
     public GetContractResponseDto getContract(Long contractId) {
@@ -191,5 +170,12 @@ public class ContractService {
 
         contractRepository.deleteById(contractId); // OntToMany의 cascade 옵션에 의해 자식들도 모두 지워짐.
 
+    }
+
+    private List<Contract> getContractEntities(User user, ContractState state) {
+        if (state.equals(ContractState.NOT_PROCEED))
+            return contractRepository.findNotProceedContracts(user, state);
+        else
+            return contractRepository.findProceedOrConcludeContractList(user, state);
     }
 }
