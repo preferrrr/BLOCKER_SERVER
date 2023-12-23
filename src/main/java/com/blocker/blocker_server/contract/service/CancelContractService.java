@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -25,28 +26,32 @@ public class CancelContractService {
 
     private final CancelContractRepository cancelContractRepository;
 
+    @Transactional(readOnly = true)
     public List<GetContractResponseDto> getCancelContractList(User me, CancelContractState state) {
+
         List<CancelContract> cancelContracts = cancelContractRepository.findByUserAndCancelContractState(me, state);
 
-        List<GetContractResponseDto> dtos = new ArrayList<>();
-        cancelContracts.stream().forEach(cancelContract -> dtos.add(GetContractResponseDto.builder()
-                .contractId(cancelContract.getCancelContractId())
-                .title(cancelContract.getTitle())
-                .content(cancelContract.getContent())
-                .createdAt(cancelContract.getCreatedAt())
-                .modifiedAt(cancelContract.getModifiedAt())
-                .build()));
+        List<GetContractResponseDto> response = cancelContracts.stream()
+                .map(cancelContract -> GetContractResponseDto.builder()
+                        .contractId(cancelContract.getCancelContractId())
+                        .title(cancelContract.getTitle())
+                        .content(cancelContract.getContent())
+                        .createdAt(cancelContract.getCreatedAt())
+                        .modifiedAt(cancelContract.getModifiedAt())
+                        .build())
+                .collect(Collectors.toList());
 
-        return dtos;
+        return response;
     }
 
     private GetCancelContractResponseDto buildDto(CancelContract cancelContract) {
-        List<ContractorAndSignState> contractorAndSignStates = new ArrayList<>();
 
-        cancelContract.getCancelSigns().stream().forEach(sign -> contractorAndSignStates.add(ContractorAndSignState.builder()
-                .contractor(sign.getUser().getEmail())
-                .signState(sign.getSignState())
-                .build()));
+        List<ContractorAndSignState> contractorAndSignStates = cancelContract.getCancelSigns().stream()
+                .map(sign -> ContractorAndSignState.builder()
+                        .contractor(sign.getUser().getEmail())
+                        .signState(sign.getSignState())
+                        .build())
+                .collect(Collectors.toList());
 
         GetCancelContractResponseDto response = GetCancelContractResponseDto.builder()
                 .cancelContractId(cancelContract.getCancelContractId())
@@ -61,6 +66,7 @@ public class CancelContractService {
         return response;
     }
 
+    @Transactional(readOnly = true)
     public GetCancelContractResponseDto getCancelingContract(User me, Long cancelContractId) {
         CancelContract cancelContract = cancelContractRepository.findCancelContractWithSignsById(cancelContractId).orElseThrow(() -> new NotFoundException("[get canceling contract] cancelContractId : " + cancelContractId));
 
@@ -77,7 +83,9 @@ public class CancelContractService {
 
     }
 
+    @Transactional(readOnly = true)
     public GetCancelContractResponseDto getCanceledContract(User me, Long cancelContractId) {
+
         CancelContract cancelContract = cancelContractRepository.findCancelContractWithSignsById(cancelContractId).orElseThrow(() -> new NotFoundException("[get canceled contract] cancelContractId : " + cancelContractId));
 
         //파기 진행 중 계약서가 아니면 예외 반환

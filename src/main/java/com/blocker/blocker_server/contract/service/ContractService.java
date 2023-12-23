@@ -61,6 +61,7 @@ public class ContractService {
 
     }
 
+    @Transactional(readOnly = true)
     public List<GetContractResponseDto> getContracts(User user, ContractState state) {
 
         List<Contract> contracts = getContractEntities(user, state);
@@ -79,6 +80,7 @@ public class ContractService {
 
     }
 
+    @Transactional(readOnly = true)
     public GetContractResponseDto getContract(Long contractId) {
 
         Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[get contract] contractId : " + contractId));
@@ -111,12 +113,16 @@ public class ContractService {
         contractRepository.deleteById(contractId);
     }
 
+    @Transactional(readOnly = true)
+
     public GetProceedOrConcludeContractResponseDto getProceedContract(User me, Long contractId) {
 
         GetProceedOrConcludeContractResponseDto dto = getProceedOrConcludeContractList(me, contractId, ContractState.PROCEED);
 
         return dto;
     }
+
+    @Transactional(readOnly = true)
 
     public GetProceedOrConcludeContractResponseDto getConcludeContract(User me, Long contractId) {
 
@@ -139,12 +145,12 @@ public class ContractService {
             throw new ForbiddenException("[get proceed contract] contractId, email" + contractId + ", " + me.getEmail());
         }
 
-        List<ContractorAndSignState> contractorAndSignStates = new ArrayList<>();
-        agreementSigns.stream().forEach(sign -> contractorAndSignStates.add(
-                ContractorAndSignState.builder()
+        List<ContractorAndSignState> contractorAndSignStates = agreementSigns.stream()
+                .map(sign -> ContractorAndSignState.builder()
                         .contractor(sign.getUser().getName())
                         .signState(sign.getSignState())
-                        .build()));
+                        .build())
+                .collect(Collectors.toList());
 
         GetProceedOrConcludeContractResponseDto dto = GetProceedOrConcludeContractResponseDto.builder()
                 .contractId(contractId)
