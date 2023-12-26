@@ -72,28 +72,40 @@ public class CancelSignService {
 
         // 계약 참여자들 모두 가져오고, 나의 Sign에 서명 후
         // Sign 모두 Y가 되면 블록체인으로 계약 체결, 계약서 상태 CANCELED로 바꿈.
+        sign(cancelSigns, me.getEmail(), cancelContractId);
 
-        CancelSign myCancelSign = cancelSigns.stream()
-                .filter(sign -> sign.getUser().getEmail().equals(me.getEmail()))
-                .findFirst().orElseThrow(() -> new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + cancelContractId));
+        isAllAgree(cancelSigns, me.getEmail(), cancelContractId);
 
-        //이미 서명 했으면 409 응답
-        if(myCancelSign.getSignState().equals(SignState.Y))
-            throw new DuplicateSignException("contractId, email : " + cancelContractId + ", " + me.getEmail());
+    }
 
-        myCancelSign.sign();
-
+    private void isAllAgree(List<CancelSign> cancelSigns, String myEmail, Long cancelContractId) {
         boolean allY = cancelSigns.stream()
                 .allMatch(sign -> sign.getSignState().equals(SignState.Y));
 
-        if(allY) {
-            CancelContract cancelContract = cancelContractRepository.findById(cancelContractId).orElseThrow(()->new NotFoundException("[sign cancel contract] email, contractId : " + me.getEmail() + ", " + cancelContractId));
+        if (allY) {
+            CancelContract cancelContract = cancelContractRepository.findById(cancelContractId).orElseThrow(() -> new NotFoundException("[sign cancel contract] email, cancelContractId : " + myEmail + ", " + cancelContractId));
 
             cancelContract.updateStateToCanceled();
 
             //TODO: 블록체인으로 계약 체결되도록
 
         }
+    }
+
+    private void sign(List<CancelSign> cancelSigns, String myEmail, Long cancelContractId) {
+
+        // 계약 참여자들 모두 가져오고, 나의 Sign에 서명 후
+        // Sign 모두 Y가 되면 블록체인으로 계약 체결, 계약서 상태 CONCLUDE로 바꿈.
+
+        CancelSign myCancelSign = cancelSigns.stream() // signs 중 내 sign 찾기
+                .filter(sign -> sign.getUser().getEmail().equals(myEmail))
+                .findFirst().orElseThrow(() -> new NotFoundException("[sign contract] email, contractId : " + myEmail + ", " + cancelContractId));
+
+        //이미 서명 했으면 409 응답
+        if (myCancelSign.getSignState().equals(SignState.Y))
+            throw new DuplicateSignException("cancel contractId, email : " + cancelContractId + ", " + myEmail);
+
+        myCancelSign.sign();
 
     }
 }

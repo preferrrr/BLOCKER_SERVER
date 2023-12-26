@@ -1,7 +1,5 @@
 package com.blocker.blocker_server.sign.service;
 
-import com.blocker.blocker_server.chat.domain.ChatRoom;
-import com.blocker.blocker_server.chat.repository.ChatRoomRepository;
 import com.blocker.blocker_server.chat.service.ChatService;
 import com.blocker.blocker_server.commons.exception.*;
 import com.blocker.blocker_server.contract.domain.Contract;
@@ -19,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -44,18 +43,17 @@ public class AgreementSignService {
 
         contract.updateStateToProceed(); // 계약서의 상태를 진행 중으로 바꿈.
 
-        List<String> emails = request.getContractors(); // 계약에 참여할 사람들의 이메일 리스트
-
-        List<AgreementSign> agreementSigns = new ArrayList<>(); // DB에 저장될 Sign 엔티티
+        List<AgreementSign> agreementSigns = request.getContractors().stream() // 계약에 참여하는 사람들
+                .map(email -> userRepository.findByEmail(email)
+                        .orElseThrow(() -> new NotFoundException("[proceed sign] email : " + email)))
+                .map(user -> AgreementSign.builder()
+                        .user(user)
+                        .contract(contract)
+                        .build())
+                .collect(Collectors.toList());
 
         agreementSigns.add(AgreementSign.builder().user(me).contract(contract).build()); // 나도 계약 참여자. 나도 나중에 서명해야함.
 
-        for (String email : emails) {
-            agreementSigns.add(AgreementSign.builder()
-                    .user(userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("[proceed sign] email : " + email)))
-                    .contract(contract)
-                    .build());
-        }
         //서명 상태는 기본 N으로 되어 있음.
         // 1. 좀 더 확실하게 하려면 초대받은 사람들은, 초대를 승낙한다는 것이 있어야하지 않을까?
         //    그게 아니라면 어차피 서명을 안 하면 됨.
@@ -65,46 +63,19 @@ public class AgreementSignService {
         agreementSignRepository.saveAll(agreementSigns);
 
         //계약 참여자들끼리 단체 채팅방 만들어줌.
-        chatService.createChatRoom(me,emails);
+        chatService.createChatRoom(me, request.getContractors());
     }
 
     public void signContract(User me, Long contractId) {
-
-//        Sign mySign = signRepository.findByContractAndUser(contractRepository.getReferenceById(contractId), me)
-//                .orElseThrow(() -> new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId));
-//
-//        if(mySign.getSignState().equals(SignState.Y))
-//            throw new DuplicateSignException("contractId, email : " + contractId + ", " + me.getEmail());
 
         List<AgreementSign> agreementSigns = agreementSignRepository.findByContract(contractRepository.getReferenceById(contractId));
 
         if (agreementSigns.size() < 2)
             throw new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId);
 
-        // 계약 참여자들 모두 가져오고, 나의 Sign에 서명 후
-        // Sign 모두 Y가 되면 블록체인으로 계약 체결, 계약서 상태 CONCLUDE로 바꿈.
+        sign(agreementSigns, me.getEmail(), contractId);
 
-        AgreementSign myAgreementSign = agreementSigns.stream()
-                .filter(sign -> sign.getUser().getEmail().equals(me.getEmail()))
-                .findFirst().orElseThrow(() -> new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId));
-
-        //이미 서명 했으면 409 응답
-        if(myAgreementSign.getSignState().equals(SignState.Y))
-            throw new DuplicateSignException("contractId, email : " + contractId + ", " + me.getEmail());
-
-        myAgreementSign.sign();
-
-        boolean allY = agreementSigns.stream()
-                .allMatch(sign -> sign.getSignState().equals(SignState.Y));
-
-        if(allY) {
-            Contract contract = contractRepository.findById(contractId).orElseThrow(()->new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + contractId));
-
-            contract.updateStateToConclude();
-
-            //TODO: 블록체인으로 계약 체결되도록
-
-        }
+        isAllAgree(agreementSigns, me.getEmail(), contractId);
 
     }
 
@@ -112,20 +83,57 @@ public class AgreementSignService {
         Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[break contract] : contractId : " + contractId));
 
         //진행 중 계약서가 아님.
-        if(!contract.getContractState().equals(ContractState.PROCEED))
+        if (!contract.getContractState().equals(ContractState.PROCEED))
             throw new NotProceedContractException("email, contractId : " + me.getEmail() + ", " + contractId);
 
         List<AgreementSign> agreementSigns = agreementSignRepository.findByContract(contract);
 
-        //계약 참여자가 아님.
-        boolean isContractor = agreementSigns.stream()
-                .anyMatch(sign -> sign.getUser().getEmail().equals(me.getEmail()));
-        if (!isContractor)
-            throw new ForbiddenException("[break contract] email, contractId : " + me.getEmail() + ", " + contractId);
+        //계약 참여자가 맞는지 검사
+        isContractor(agreementSigns, me.getEmail(), contractId);
+
+        agreementSignRepository.deleteAll(agreementSigns);
 
         contract.updateStateToNotProceed();
 
-        agreementSignRepository.deleteAll(agreementSigns);
+    }
+
+    private void isAllAgree(List<AgreementSign> agreementSigns, String myEmail, Long contractId) {
+        boolean allY = agreementSigns.stream()
+                .allMatch(sign -> sign.getSignState().equals(SignState.Y));
+
+        if (allY) {
+            Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[sign contract] email, contractId : " + myEmail + ", " + contractId));
+
+            contract.updateStateToConclude();
+
+            //TODO: 블록체인으로 계약 체결되도록
+
+        }
+    }
+
+    private void sign(List<AgreementSign> agreementSigns, String myEmail, Long contractId) {
+
+        // 계약 참여자들 모두 가져오고, 나의 Sign에 서명 후
+        // Sign 모두 Y가 되면 블록체인으로 계약 체결, 계약서 상태 CONCLUDE로 바꿈.
+
+        AgreementSign myAgreementSign = agreementSigns.stream() // signs 중 내 sign 찾기
+                .filter(sign -> sign.getUser().getEmail().equals(myEmail))
+                .findFirst().orElseThrow(() -> new NotFoundException("[sign contract] email, contractId : " + myEmail + ", " + contractId));
+
+        //이미 서명 했으면 409 응답
+        if (myAgreementSign.getSignState().equals(SignState.Y))
+            throw new DuplicateSignException("contractId, email : " + contractId + ", " + myEmail);
+
+        myAgreementSign.sign();
+
+    }
+
+    private void isContractor(List<AgreementSign> agreementSigns, String myEmail, Long contractId) {
+        //계약 참여자가 아님.
+        boolean isContractor = agreementSigns.stream()
+                .anyMatch(sign -> sign.getUser().getEmail().equals(myEmail));
+        if (!isContractor)
+            throw new ForbiddenException("[break contract] email, contractId : " + myEmail + ", " + contractId);
 
     }
 }
