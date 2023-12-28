@@ -1,5 +1,7 @@
 package com.blocker.blocker_server.chat.service;
 
+import com.blocker.blocker_server.board.domain.Board;
+import com.blocker.blocker_server.board.repository.BoardRepository;
 import com.blocker.blocker_server.chat.domain.ChatRoom;
 import com.blocker.blocker_server.chat.domain.ChatUser;
 import com.blocker.blocker_server.chat.dto.request.SendMessageRequestDto;
@@ -7,6 +9,7 @@ import com.blocker.blocker_server.chat.dto.request.CreateChatRoomRequestDto;
 import com.blocker.blocker_server.chat.dto.response.GetChatMessagesResponseDto;
 import com.blocker.blocker_server.chat.dto.response.GetChatRoomListDto;
 import com.blocker.blocker_server.chat.domain.ChatMessage;
+import com.blocker.blocker_server.chat.dto.response.GetOneToOneChatRoomResponse;
 import com.blocker.blocker_server.chat.dto.response.SendMessageResponseDto;
 import com.blocker.blocker_server.chat.mongo.ChatMessageRepository;
 import com.blocker.blocker_server.commons.exception.ForbiddenException;
@@ -43,19 +46,22 @@ public class ChatService {
     private final ChatUserRepository chatUserRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final MessageSender sender;
+    private final BoardRepository boardRepository;
 
     public void sendMessage(String token, Long chatRoomId, SendMessageRequestDto requestDto) {
 
         String tokenValue = token.substring(7);
 
         String email = jwtProvider.getEmail(tokenValue);
+        String username = jwtProvider.getUsername(tokenValue);
         User user = userRepository.getReferenceById(email);
 
         //메세지 mongoDB에 저장
         ChatMessage chatMessage = ChatMessage.builder()
                 .chatRoomId(chatRoomId)
                 .sendAt(LocalDateTime.now())
-                .sender(email)
+                .sender(username)
+                .senderEmail(email)
                 .content(requestDto.getContent())
                 .build();
         chatMessageRepository.save(chatMessage);
@@ -68,7 +74,7 @@ public class ChatService {
         //jwt 안에는 email만 있었는데 email로 DB를 조회해서 매번 가져오는거보다,
         //jwt의 길이가 약간 길어지는 것을 감수하고 username을 포함시켜서 DB 조회를 하지 않도록 함.
         KafkaMessage message = KafkaMessage.builder()
-                .sender(jwtProvider.getUsername(tokenValue))
+                .sender(username)
                 .content(requestDto.getContent())
                 .roomId(String.valueOf(chatRoomId))
                 .build();
@@ -134,5 +140,41 @@ public class ChatService {
                 .collect(Collectors.toList());
 
         return response;
+    }
+
+
+    public GetOneToOneChatRoomResponse getOneToOneChatMessages(User user, Long boardId) {
+
+        User boardWriter = getBoardWriter(user.getEmail(), boardId);
+
+        Long chatRoomId = chatUserRepository.findChatRoomByUsers(user.getEmail(), boardWriter.getEmail());
+
+        if (chatRoomId == null) {
+            chatRoomId = createOneToOneChatRoom(user.getEmail(), boardWriter.getEmail());
+        }
+
+        return GetOneToOneChatRoomResponse.builder().chatRoomId(chatRoomId).build();
+    }
+
+    private User getBoardWriter(String email, Long boardId) {
+
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> new NotFoundException("[get one to one chat room] user, boardId : " + email + ", " + boardId));
+
+        return board.getUser();
+    }
+
+    private Long createOneToOneChatRoom(String me, String boardWriter) {
+
+        ChatRoom chatRoom = ChatRoom.builder().createdAt(LocalDateTime.now()).build();
+
+        chatRoomRepository.save(chatRoom);
+
+        List<ChatUser> chatUsers = new ArrayList<>();
+        chatUsers.add(ChatUser.builder().chatRoom(chatRoom).user(userRepository.getReferenceById(me)).build());
+        chatUsers.add(ChatUser.builder().chatRoom(chatRoom).user(userRepository.getReferenceById(boardWriter)).build());
+
+        chatUserRepository.saveAll(chatUsers);
+
+        return chatRoom.getChatRoomID();
     }
 }
