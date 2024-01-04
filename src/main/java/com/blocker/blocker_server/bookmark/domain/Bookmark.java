@@ -29,7 +29,7 @@ public class Bookmark {
     private Board board;
 
     @Builder
-    public Bookmark(User user, Board board) {
+    private Bookmark(User user, Board board) {
         BookmarkId id = BookmarkId.builder()
                 .boardId(board.getBoardId())
                 .email(user.getEmail())
@@ -38,6 +38,13 @@ public class Bookmark {
         this.id = id;
         this.board = board;
         this.user = user;
+    }
+
+    public static Bookmark create(User user, Board board) {
+        return Bookmark.builder()
+                .user(user)
+                .board(board)
+                .build();
     }
 
 }

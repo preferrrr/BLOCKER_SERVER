@@ -23,9 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BoardService {
 
@@ -39,145 +40,94 @@ public class BoardService {
 
         List<Board> entityList = boardRepository.getBoardList(pageable);
 
-        List<GetBoardListResponseDto> response = createDtos(entityList);
-
-        return response;
+        return createDtos(entityList);
     }
 
     public List<GetBoardListResponseDto> createDtos(List<Board> entityList) {
 
-        List<GetBoardListResponseDto> dtos = new ArrayList<>();
-
-        for(Board board : entityList) {
-            GetBoardListResponseDto dto = GetBoardListResponseDto.builder()
-                    .boardId(board.getBoardId())
-                    .createdAt(board.getCreatedAt())
-                    .modifiedAt(board.getModifiedAt())
-                    .title(board.getTitle())
-                    .content(board.getContent())
-                    .name(board.getUser().getName())
-                    .view(board.getView())
-                    .bookmarkCount(board.getBookmarkCount())
-                    .representImage(board.getRepresentImage())
-                    .contractState(board.getContract().getContractState())
-                    .build();
-
-            dtos.add(dto);
-        }
-
-        return dtos;
+        return entityList.stream()
+                .map(board -> GetBoardListResponseDto.of(board))
+                .collect(Collectors.toList());
     }
 
     public GetBoardResponseDto getBoard(User me, Long boardId) {
-        Board board = boardRepository.getBoard(boardId).orElseThrow(()->new NotFoundException("[get board] boardId : " + boardId));
+        Board board = boardRepository.getBoardWithImages(boardId).orElseThrow(() -> new NotFoundException("[get board] boardId : " + boardId));
 
         boolean isWriter = board.getUser().getEmail().equals(me.getEmail());
         boolean isBookmark = bookmarkRepository.existsByUserAndBoard(me, board);
 
-        List<ImageDto> imageAddresses = new ArrayList<>();
-        for(Image image : board.getImages()) {
+        List<ImageDto> imageAddresses = board.getImages().stream()
+                .map(image -> ImageDto.of(image))
+                .collect(Collectors.toList());
 
-            ImageDto imageDto = ImageDto.builder()
-                    .imageId(image.getImageId())
-                    .imageAddress(image.getImageAddress())
-                    .build();
-
-            imageAddresses.add(imageDto);
-        }
-
-        GetBoardResponseDto response = GetBoardResponseDto.builder()
-                .boardId(board.getBoardId())
-                .title(board.getTitle())
-                .name(board.getUser().getName())
-                .content(board.getContent())
-                .representImage(board.getRepresentImage())
-                .view(board.getView())
-                .bookmarkCount(board.getBookmarkCount())
-                .createdAt(board.getCreatedAt())
-                .modifiedAt(board.getModifiedAt())
-                .images(imageAddresses)
-                .info(board.getInfo())
-                .contractId(board.getContract().getContractId())
-                .isWriter(isWriter)
-                .isBookmark(isBookmark)
-                .build();
-
-        return response;
+        return GetBoardResponseDto.of(board, imageAddresses, isWriter, isBookmark);
 
     }
 
+    @Transactional
     public void saveBoard(User user, SaveBoardRequestDto requestDto) {
 
         User me = userRepository.getReferenceById(user.getEmail());
 
-        Contract contract = contractRepository.findById(requestDto.getContractId()).orElseThrow(()-> new NotFoundException("[modify board] contractId : " + requestDto.getContractId()));
-        if(!contract.getUser().getEmail().equals(me.getEmail()))
+        Contract contract = contractRepository.findById(requestDto.getContractId()).orElseThrow(() -> new NotFoundException("[modify board] contractId : " + requestDto.getContractId()));
+        if (!contract.getUser().getEmail().equals(me.getEmail()))
             throw new ForbiddenException("[save board] contractId, email : " + contract.getContractId() + ", " + me.getEmail());
 
+        Board newBoard = Board.create(me, requestDto.getTitle(), requestDto.getContent(), requestDto.getInfo(), requestDto.getRepresentImage(), contract);
 
-        Board newBoard = Board.builder()
-                .user(me)
-                .title(requestDto.getTitle())
-                .content(requestDto.getContent())
-                .info(requestDto.getInfo())
-                .representImage(requestDto.getRepresentImage())
-                .contract(contract)
-                .build();
+        List<Image> images = requestDto.getImages().stream()
+                .map(imageAddress -> Image.of(newBoard, imageAddress))
+                .collect(Collectors.toList());
 
-        List<Image> images = new ArrayList<>();
-
-        for(String imageAddress : requestDto.getImages()) {
-            Image newImage = Image.builder()
-                    .board(newBoard)
-                    .imageAddress(imageAddress)
-                    .build();
-            images.add(newImage);
-        }
         boardRepository.save(newBoard);
         imageRepository.saveAll(images);
 
     }
 
+    @Transactional
     public void deleteBoard(User me, Long boardId) {
-        Board board = boardRepository.findById(boardId).orElseThrow(()->new NotFoundException("[delete board] boardId : " + boardId));
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> new NotFoundException("[delete board] boardId : " + boardId));
 
-        if(!board.getUser().getEmail().equals(me.getEmail()))
+        if (!board.getUser().getEmail().equals(me.getEmail()))
             throw new ForbiddenException("[delete board] boardId, email : " + boardId + ", " + me.getEmail());
 
         boardRepository.deleteById(boardId);
     }
 
+    @Transactional
     public void modifyBoard(User me, Long boardId, ModifyBoardRequestDto requestDto) {
-        Board board = boardRepository.findById(boardId).orElseThrow(()->new NotFoundException("[modify board] boardId : " + boardId));
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> new NotFoundException("[modify board] boardId : " + boardId));
 
-        if(!board.getUser().getEmail().equals(me.getEmail()))
+        if (!board.getUser().getEmail().equals(me.getEmail()))
             throw new ForbiddenException("[modify board] boardId, email : " + boardId + ", " + me.getEmail());
 
-        Contract contract;
-        //게시글에 포함된 계약서가 달라졌다면, 새로운 계약서 조회해서 나의 계약서가 맞는지 체크. 같다면 확인해줄 필요 없음
-        if(!board.getContract().getContractId().equals(requestDto.getContractId())) {
-            contract = contractRepository.findById(requestDto.getContractId()).orElseThrow(()-> new NotFoundException("[modify board] contractId : " + requestDto.getContractId()));
+        Contract contract = modifyContractBelongingToBoard(me, board, requestDto.getContractId());
 
-            if(!contract.getUser().getEmail().equals(me.getEmail()))
-                throw new ForbiddenException("[modify board] contractId, email : " + contract.getContractId() + ", " + me.getEmail());
-
-        } else
-            contract = contractRepository.getReferenceById(requestDto.getContractId());
         //Dynamic insert로 바뀐 값만 업데이트 됨.
         board.updateBoard(requestDto.getTitle(), requestDto.getContent(), requestDto.getInfo(), requestDto.getRepresentImage(), contract);
 
-        List<Image> addImages = new ArrayList<>();
-        for(String imageAddress : requestDto.getAddImageAddresses()) {
-            Image image = Image.builder()
-                    .board(board)
-                    .imageAddress(imageAddress)
-                    .build();
-            addImages.add(image);
-        }
+        List<Image> addImages = requestDto.getAddImageAddresses().stream()
+                .map(imageAddress -> Image.of(board, imageAddress))
+                .collect(Collectors.toList());
 
         imageRepository.saveAll(addImages);
         imageRepository.deleteAllById(requestDto.getDeleteImageIds()); //imageId가 존재하는지 db 조회로 검증을 해야할까 ?
 
+    }
+
+    private Contract modifyContractBelongingToBoard(User user, Board board, Long modifyContractId) {
+
+        //계약서가 달라졌으면 조회 후 나의 계약서가 맞는지 확인
+        if (!board.getContract().getContractId().equals(modifyContractId)) {
+            Contract contract = contractRepository.findById(modifyContractId).orElseThrow(() -> new NotFoundException("[modify board] contractId : " + modifyContractId));
+
+            if (!contract.getUser().getEmail().equals(board.getUser().getEmail()))
+                throw new ForbiddenException("[modify board] contractId, email : " + contract.getContractId() + ", " + user.getEmail());
+
+            return contract;
+        }
+
+        return contractRepository.getReferenceById(modifyContractId);
     }
 
     public List<GetBoardListResponseDto> getMyBoards(User me, Pageable pageable) {

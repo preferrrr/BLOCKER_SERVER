@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface BoardRepositoryCustom {
     List<Board> getBoardList(Pageable pageable);
 
-    Optional<Board> getBoard(Long boardId);
+    Optional<Board> getBoardWithImages(Long boardId);
 
     List<Board> getBookmarkBoards(User user, Pageable pageable);
 

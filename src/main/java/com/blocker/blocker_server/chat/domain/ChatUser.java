@@ -28,7 +28,7 @@ public class ChatUser {
     private ChatRoom chatRoom;
 
     @Builder
-    public ChatUser(User user, ChatRoom chatRoom) {
+    private ChatUser(User user, ChatRoom chatRoom) {
         ChatUserId id = ChatUserId.builder()
                 .chatRoomId(chatRoom.getChatRoomID())
                 .email(user.getEmail())
@@ -37,6 +37,13 @@ public class ChatUser {
         this.id = id;
         this.chatRoom = chatRoom;
         this.user = user;
+    }
+
+    public static ChatUser create(User user, ChatRoom chatRoom) {
+        return ChatUser.builder()
+                .user(user)
+                .chatRoom(chatRoom)
+                .build();
     }
 
 

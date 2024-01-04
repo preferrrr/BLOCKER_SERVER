@@ -44,11 +44,19 @@ public class Contract extends BaseEntity {
     private List<AgreementSign> agreementSigns = new ArrayList<>();
 
     @Builder
-    public Contract(User user, String title, String content) {
+    private Contract(User user, String title, String content) {
         this.user = user;
         this.title = title;
         this.content = content;
         this.contractState = ContractState.NOT_PROCEED;
+    }
+
+    public static Contract create(User user, String title, String content) {
+        return Contract.builder()
+                .user(user)
+                .title(title)
+                .content(content)
+                .build();
     }
 
     public void modifyContract(String title, String content) {

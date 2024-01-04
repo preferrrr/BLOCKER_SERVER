@@ -35,7 +35,7 @@ public class CancelSign {
 
 
     @Builder
-    public CancelSign(User user, CancelContract cancelContract) {
+    private CancelSign(User user, CancelContract cancelContract) {
         SignId id = SignId.builder()
                 .contractId(cancelContract.getCancelContractId())
                 .email(user.getEmail())
@@ -45,6 +45,13 @@ public class CancelSign {
         this.cancelContract = cancelContract;
         this.user = user;
         this.signState = SignState.N;
+    }
+
+    public static CancelSign create(User user, CancelContract cancelContract) {
+        return CancelSign.builder()
+                .user(user)
+                .cancelContract(cancelContract)
+                .build();
     }
 
     public void sign() {

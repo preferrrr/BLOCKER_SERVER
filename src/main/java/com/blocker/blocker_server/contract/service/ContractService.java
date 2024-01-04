@@ -23,23 +23,22 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class ContractService {
 
     private final ContractRepository contractRepository;
     private final AgreementSignRepository agreementSignRepository;
     private final BoardRepository boardRepository;
 
+    @Transactional
     public void saveContract(User user, SaveOrModifyContractRequestDto requestDto) {
-        Contract contract = Contract.builder()
-                .user(user)
-                .title(requestDto.getTitle())
-                .content(requestDto.getContent())
-                .build();
+
+        Contract contract = Contract.create(user, requestDto.getTitle(), requestDto.getContent());
 
         contractRepository.save(contract);
     }
 
+    @Transactional
     public void modifyContract(User user, Long contractId, SaveOrModifyContractRequestDto requestDto) {
         Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[modify contract] contractId : " + contractId));
 
@@ -61,26 +60,18 @@ public class ContractService {
 
     }
 
-    @Transactional(readOnly = true)
     public List<GetContractResponseDto> getContracts(User user, ContractState state) {
 
         List<Contract> contracts = getContractEntities(user, state);
 
         List<GetContractResponseDto> response = contracts.stream()
-                .map(contract -> GetContractResponseDto.builder()
-                        .contractId(contract.getContractId())
-                        .title(contract.getTitle())
-                        .content(contract.getContent())
-                        .createdAt(contract.getCreatedAt())
-                        .modifiedAt(contract.getModifiedAt())
-                        .build())
+                .map(contract -> GetContractResponseDto.of(contract))
                 .collect(Collectors.toList());
 
         return response;
 
     }
 
-    @Transactional(readOnly = true)
     public GetContractResponseDto getContract(Long contractId) {
 
         Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[get contract] contractId : " + contractId));
@@ -88,17 +79,10 @@ public class ContractService {
         if (!contract.getContractState().equals(ContractState.NOT_PROCEED))
             throw new IsNotProceedContractException("contractId : " + contractId);
 
-        GetContractResponseDto dto = GetContractResponseDto.builder()
-                .contractId(contractId)
-                .title(contract.getTitle())
-                .content(contract.getContent())
-                .createdAt(contract.getCreatedAt())
-                .modifiedAt(contract.getModifiedAt())
-                .build();
-
-        return dto;
+        return GetContractResponseDto.of(contract);
     }
 
+    @Transactional
     public void deleteContract(User user, Long contractId) {
         Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[delete contract] contractId : " + contractId));
 
@@ -113,25 +97,17 @@ public class ContractService {
         contractRepository.deleteById(contractId);
     }
 
-    @Transactional(readOnly = true)
-
     public GetProceedOrConcludeContractResponseDto getProceedContract(User me, Long contractId) {
 
-        GetProceedOrConcludeContractResponseDto dto = getProceedOrConcludeContractList(me, contractId, ContractState.PROCEED);
-
-        return dto;
+        return  getProceedOrConcludeContractList(me, contractId, ContractState.PROCEED);
     }
-
-    @Transactional(readOnly = true)
 
     public GetProceedOrConcludeContractResponseDto getConcludeContract(User me, Long contractId) {
 
-        GetProceedOrConcludeContractResponseDto dto = getProceedOrConcludeContractList(me, contractId, ContractState.CONCLUDE);
-
-        return dto;
+        return getProceedOrConcludeContractList(me, contractId, ContractState.CONCLUDE);
     }
 
-    public GetProceedOrConcludeContractResponseDto getProceedOrConcludeContractList(User me, Long contractId, ContractState state) {
+    private GetProceedOrConcludeContractResponseDto getProceedOrConcludeContractList(User me, Long contractId, ContractState state) {
 
         Contract contract = contractRepository.findProceedContractWithSignById(contractId).orElseThrow(() -> new NotFoundException("contractId : " + contractId));
 
@@ -146,25 +122,14 @@ public class ContractService {
         }
 
         List<ContractorAndSignState> contractorAndSignStates = agreementSigns.stream()
-                .map(sign -> ContractorAndSignState.builder()
-                        .contractor(sign.getUser().getName())
-                        .signState(sign.getSignState())
-                        .build())
+                .map(sign -> ContractorAndSignState.of(sign.getUser().getName(), sign.getSignState()))
                 .collect(Collectors.toList());
 
-        GetProceedOrConcludeContractResponseDto dto = GetProceedOrConcludeContractResponseDto.builder()
-                .contractId(contractId)
-                .title(contract.getTitle())
-                .content(contract.getContent())
-                .createdAt(contract.getCreatedAt())
-                .modifiedAt(contract.getModifiedAt())
-                .contractorAndSignStates(contractorAndSignStates)
-                .build();
-
-        return dto;
+        return GetProceedOrConcludeContractResponseDto.of(contract, contractorAndSignStates);
 
     }
 
+    @Transactional
     public void deleteContractWithBoards(User me, Long contractId) {
         Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[delete contract with boards] contractId : " + contractId));
 

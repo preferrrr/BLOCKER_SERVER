@@ -20,7 +20,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class SignatureService {
     private final UserRepository userRepository;
     private final SignatureRepository signatureRepository;
@@ -28,6 +28,7 @@ public class SignatureService {
     private final S3Service s3Service;
 
 
+    @Transactional
     public HttpHeaders setSignature(User user, MultipartFile file) throws IOException {
 
         User me = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new NotFoundException("email : " + user.getEmail()));
@@ -37,25 +38,26 @@ public class SignatureService {
 
         String signatureAddress = s3Service.saveSignature(file);
 
-        Signature signature = Signature.builder()
-                .email(me.getEmail())
-                .signatureAddress(signatureAddress)
-                .user(me)
-                .build();
-
+        Signature signature = Signature.create(me, signatureAddress);
 
         signatureRepository.save(signature);
 
-        //TODO : delete, insert * 2번 쿼리 생김.
-        List<String> roles = me.getRoles();
-        roles.add("USER"); //GUEST에서 USER 권한 추가.
-        me.updateRoles(roles);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(me.getEmail(), me.getName(), roles)); // access token
+        HttpHeaders headers = updateAuthority(me);
 
         return headers;
 
+    }
+
+    private HttpHeaders updateAuthority(User user) {
+        //TODO : delete, insert * 2번 쿼리 생김.
+        List<String> roles = user.getRoles();
+        roles.add("USER"); //GUEST에서 USER 권한 추가.
+        user.updateRoles(roles);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(user.getEmail(), user.getName(), roles)); // access token
+
+        return headers;
     }
 
     // 이전에 했던 체결된 계약들을 위해 사인들도 저장해둬야 하지 않을까?
@@ -63,16 +65,13 @@ public class SignatureService {
     // => 조회할 때는 가장 최신의 Signature를 보여줌.
     // 그렇다면 전자서명 수정은 결국 새로운 전자서명을 create 하는건데, HttpMethod POST가 맞을까?
     // 일단은 수정이니까 PATCH로 함.
+    @Transactional
     public void modifySignature(User user, MultipartFile file) throws IOException {
         User me = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new NotFoundException("email : " + user.getEmail()));
 
         String signatureAddress = s3Service.saveSignature(file);
 
-        Signature signature = Signature.builder()
-                .email(me.getEmail())
-                .signatureAddress(signatureAddress)
-                .user(me)
-                .build();
+        Signature signature = Signature.create(me, signatureAddress);
 
         signatureRepository.save(signature);
 
@@ -82,11 +81,7 @@ public class SignatureService {
         //여러 개 중 가장 최근에 등록한 전자서명 조회
         Signature mySignature = signatureRepository.findByUserOrderByCreatedAtDesc(user).orElseThrow(()-> new NotFoundException("[get signature] email : " + user.getEmail()));
 
-        GetSignatureResponseDto dto = GetSignatureResponseDto.builder()
-                .address(mySignature.getId().getSignatureAddress())
-                .build();
-
-        return dto;
+        return GetSignatureResponseDto.of(mySignature.getId().getSignatureAddress());
     }
 
 

@@ -34,7 +34,7 @@ public class AgreementSign extends BaseEntity {
     private SignState signState;
 
     @Builder
-    public AgreementSign(User user, Contract contract) {
+    private AgreementSign(User user, Contract contract) {
         SignId id = SignId.builder()
                 .contractId(contract.getContractId())
                 .email(user.getEmail())
@@ -44,6 +44,13 @@ public class AgreementSign extends BaseEntity {
         this.contract = contract;
         this.user = user;
         this.signState = SignState.N;
+    }
+
+    public static AgreementSign create(User user, Contract contract) {
+        return AgreementSign.builder()
+                .user(user)
+                .contract(contract)
+                .build();
     }
 
     public void sign() {

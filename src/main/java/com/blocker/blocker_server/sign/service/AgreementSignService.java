@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AgreementSignService {
 
@@ -29,6 +29,7 @@ public class AgreementSignService {
     private final ContractRepository contractRepository;
     private final ChatService chatService;
 
+    @Transactional
     public void proceedContract(User me, ProceedSignRequestDto request) {
 
         Contract contract = contractRepository.findById(request.getContractId()).orElseThrow(() -> new NotFoundException("[proceed sign] contractId : " + request.getContractId()));
@@ -46,13 +47,10 @@ public class AgreementSignService {
         List<AgreementSign> agreementSigns = request.getContractors().stream() // 계약에 참여하는 사람들
                 .map(email -> userRepository.findByEmail(email)
                         .orElseThrow(() -> new NotFoundException("[proceed sign] email : " + email)))
-                .map(user -> AgreementSign.builder()
-                        .user(user)
-                        .contract(contract)
-                        .build())
+                .map(user -> AgreementSign.create(user, contract))
                 .collect(Collectors.toList());
 
-        agreementSigns.add(AgreementSign.builder().user(me).contract(contract).build()); // 나도 계약 참여자. 나도 나중에 서명해야함.
+        agreementSigns.add(AgreementSign.create(me, contract)); // 나도 계약 참여자. 나도 나중에 서명해야함.
 
         //서명 상태는 기본 N으로 되어 있음.
         // 1. 좀 더 확실하게 하려면 초대받은 사람들은, 초대를 승낙한다는 것이 있어야하지 않을까?
@@ -66,6 +64,7 @@ public class AgreementSignService {
         chatService.createChatRoom(me, request.getContractors());
     }
 
+    @Transactional
     public void signContract(User me, Long contractId) {
 
         List<AgreementSign> agreementSigns = agreementSignRepository.findByContract(contractRepository.getReferenceById(contractId));
@@ -79,6 +78,7 @@ public class AgreementSignService {
 
     }
 
+    @Transactional
     public void breakContract(User me, Long contractId) {
         Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[break contract] : contractId : " + contractId));
 
@@ -111,6 +111,7 @@ public class AgreementSignService {
         }
     }
 
+    @Transactional
     private void sign(List<AgreementSign> agreementSigns, String myEmail, Long contractId) {
 
         // 계약 참여자들 모두 가져오고, 나의 Sign에 서명 후

@@ -16,9 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserService {
 
@@ -26,6 +27,7 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final SignatureRepository signatureRepository;
 
+    @Transactional
     public ResponseEntity<HttpHeaders> login(LoginRequestDto requestDto) {
 
         //이메일로 조회해서
@@ -47,13 +49,7 @@ public class UserService {
             roles = new ArrayList<>();
             roles.add("GUEST");
 
-            User newUser = User.builder()
-                    .email(email)
-                    .picture(requestDto.getPicture())
-                    .name(requestDto.getName())
-                    .roles(roles)
-                    .refreshtokenValue(refreshtokenValue)
-                    .build();
+            User newUser = User.create(email, requestDto.getName(), requestDto.getPicture(),refreshtokenValue,roles);
 
             userRepository.save(newUser);
 
@@ -126,16 +122,9 @@ public class UserService {
 
         List<User> userList = userRepository.searchUsers(keyword);
 
-        List<SearchUserResponse> result = new ArrayList<>();
-
-        for (User user : userList) {
-            SearchUserResponse response = SearchUserResponse.builder()
-                    .email(user.getEmail())
-                    .name(user.getName())
-                    .picture(user.getPicture())
-                    .build();
-            result.add(response);
-        }
+        List<SearchUserResponse> result = userList.stream()
+                .map(user -> SearchUserResponse.of(user.getEmail(), user.getName(), user.getPicture()))
+                .collect(Collectors.toList());
 
         return result;
 

@@ -6,13 +6,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class KafkaMessage {
 
     private String roomId;
     private String sender;
     private String content;
 
+    @Builder
+    private KafkaMessage(String roomId, String sender, String content) {
+        this.roomId = roomId;
+        this.sender = sender;
+        this.content = content;
+    }
+
+    public static KafkaMessage create(String roomId, String sender, String content) {
+        return KafkaMessage.builder()
+                .roomId(roomId)
+                .sender(sender)
+                .content(content)
+                .build();
+    }
 }

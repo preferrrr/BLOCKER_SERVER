@@ -45,7 +45,7 @@ public class CancelContract extends BaseEntity {
     private List<CancelSign> cancelSigns = new ArrayList<>();
 
     @Builder
-    public CancelContract(User user, Contract contract, String title, String content) {
+    private CancelContract(User user, Contract contract, String title, String content) {
         this.user = user;
         this.contract = contract;
         this.title = title + "의 파기계약서";
@@ -53,6 +53,14 @@ public class CancelContract extends BaseEntity {
         this.cancelContractState = CancelContractState.CANCELING;
     }
 
+    public static CancelContract create(User user, Contract contract, String title, String content) {
+        return CancelContract.builder()
+                .user(user)
+                .contract(contract)
+                .title(title)
+                .content(content)
+                .build();
+    }
 
     public void updateStateToCanceled() {
         this.cancelContractState = CancelContractState.CANCELED;

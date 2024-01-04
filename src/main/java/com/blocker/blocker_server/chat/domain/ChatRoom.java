@@ -36,8 +36,14 @@ public class ChatRoom {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatUser> chatUsers = new ArrayList<>();
 
-    @Builder public ChatRoom(LocalDateTime createdAt) {
+    @Builder private ChatRoom(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public static ChatRoom create(LocalDateTime createdAt) {
+        return ChatRoom.builder()
+                .createdAt(createdAt)
+                .build();
     }
 
     public void updateLastChat(String lastChat, LocalDateTime lastChatTime) {

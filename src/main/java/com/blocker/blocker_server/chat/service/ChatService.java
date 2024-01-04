@@ -5,12 +5,10 @@ import com.blocker.blocker_server.board.repository.BoardRepository;
 import com.blocker.blocker_server.chat.domain.ChatRoom;
 import com.blocker.blocker_server.chat.domain.ChatUser;
 import com.blocker.blocker_server.chat.dto.request.SendMessageRequestDto;
-import com.blocker.blocker_server.chat.dto.request.CreateChatRoomRequestDto;
 import com.blocker.blocker_server.chat.dto.response.GetChatMessagesResponseDto;
 import com.blocker.blocker_server.chat.dto.response.GetChatRoomListDto;
 import com.blocker.blocker_server.chat.domain.ChatMessage;
 import com.blocker.blocker_server.chat.dto.response.GetOneToOneChatRoomResponse;
-import com.blocker.blocker_server.chat.dto.response.SendMessageResponseDto;
 import com.blocker.blocker_server.chat.mongo.ChatMessageRepository;
 import com.blocker.blocker_server.commons.exception.ForbiddenException;
 import com.blocker.blocker_server.commons.exception.NotFoundException;
@@ -24,17 +22,15 @@ import com.blocker.blocker_server.chat.repository.ChatUserRepository;
 import com.blocker.blocker_server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Transactional
+@Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -48,6 +44,7 @@ public class ChatService {
     private final MessageSender sender;
     private final BoardRepository boardRepository;
 
+    @Transactional
     public void sendMessage(String token, Long chatRoomId, SendMessageRequestDto requestDto) {
 
         String tokenValue = token.substring(7);
@@ -57,13 +54,8 @@ public class ChatService {
         User user = userRepository.getReferenceById(email);
 
         //메세지 mongoDB에 저장
-        ChatMessage chatMessage = ChatMessage.builder()
-                .chatRoomId(chatRoomId)
-                .sendAt(LocalDateTime.now())
-                .sender(username)
-                .senderEmail(email)
-                .content(requestDto.getContent())
-                .build();
+        ChatMessage chatMessage = ChatMessage.create(chatRoomId, username, email, requestDto.getContent(), LocalDateTime.now());
+
         chatMessageRepository.save(chatMessage);
 
         //채팅방의 마지막 채팅 업데이트, 이거 또한 write가 자주 일어나니까 mongoDB에 저장할까 ?
@@ -73,31 +65,23 @@ public class ChatService {
         //메세지의 sender는 email이 아닌 username으로 가야함.
         //jwt 안에는 email만 있었는데 email로 DB를 조회해서 매번 가져오는거보다,
         //jwt의 길이가 약간 길어지는 것을 감수하고 username을 포함시켜서 DB 조회를 하지 않도록 함.
-        KafkaMessage message = KafkaMessage.builder()
-                .sender(username)
-                .content(requestDto.getContent())
-                .roomId(String.valueOf(chatRoomId))
-                .build();
+        KafkaMessage message = KafkaMessage.create(String.valueOf(chatRoomId), username, requestDto.getContent());
 
         //simpMessagingTemplate.convertAndSend("/sub/" + chatRoomId, message);
         sender.send(KafkaChatConstant.KAFKA_TOPIC, message);
 
     }
 
+    @Transactional
     public void createChatRoom(User user, List<String> emails) {
 
-        ChatRoom chatRoom = ChatRoom.builder().createdAt(LocalDateTime.now()).build();
+        ChatRoom chatRoom = ChatRoom.create(LocalDateTime.now());
 
         chatRoomRepository.save(chatRoom);
 
-        List<ChatUser> chatUsers = new ArrayList<>();
-
-        emails.stream().forEach(email ->
-                chatUsers.add(
-                        ChatUser.builder()
-                                .user(userRepository.getReferenceById(email))
-                                .chatRoom(chatRoom)
-                                .build()));
+        List<ChatUser> chatUsers = emails.stream()
+                .map(email -> ChatUser.create(userRepository.getReferenceById(email), chatRoom))
+                .collect(Collectors.toList());
 
         chatUsers.add(ChatUser.builder().user(user).chatRoom(chatRoom).build());
 
@@ -107,17 +91,11 @@ public class ChatService {
 
     public List<GetChatRoomListDto> getChatRooms(User user) {
 
-        List<GetChatRoomListDto> response = new ArrayList<>();
-
         List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByUser(user);
 
-        chatRooms.stream().forEach(chatRoom -> response.add(
-                GetChatRoomListDto.builder()
-                        .chatRoomId(chatRoom.getChatRoomID())
-                        .lastChat(chatRoom.getLastChat())
-                        .lastChatTime(chatRoom.getLastChatTime())
-                        .build()
-        ));
+        List<GetChatRoomListDto> response = chatRooms.stream()
+                .map(chatRoom -> GetChatRoomListDto.of(chatRoom.getChatRoomID(), chatRoom.getLastChat(), chatRoom.getLastChatTime()))
+                .collect(Collectors.toList());
 
         return response;
     }
@@ -132,18 +110,15 @@ public class ChatService {
         List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomId(chatRoomId, pageable);
 
         List<GetChatMessagesResponseDto> response = chatMessages.stream()
-                .map(chatMessage -> GetChatMessagesResponseDto.builder()
-                        .sender(chatMessage.getSender())
-                        .content(chatMessage.getContent())
-                        .sendAt(chatMessage.getSendAt())
-                        .build())
+                .map(chatMessage -> GetChatMessagesResponseDto.of(chatMessage.getSender(), chatMessage.getContent(), chatMessage.getSendAt()))
                 .collect(Collectors.toList());
 
         return response;
     }
 
 
-    public GetOneToOneChatRoomResponse getOneToOneChatMessages(User user, Long boardId) {
+    @Transactional
+    public GetOneToOneChatRoomResponse getOneToOneChatRoomId(User user, Long boardId) {
 
         User boardWriter = getBoardWriter(user.getEmail(), boardId);
 
@@ -153,7 +128,7 @@ public class ChatService {
             chatRoomId = createOneToOneChatRoom(user.getEmail(), boardWriter.getEmail());
         }
 
-        return GetOneToOneChatRoomResponse.builder().chatRoomId(chatRoomId).build();
+        return GetOneToOneChatRoomResponse.of(chatRoomId);
     }
 
     private User getBoardWriter(String email, Long boardId) {
@@ -169,9 +144,10 @@ public class ChatService {
 
         chatRoomRepository.save(chatRoom);
 
-        List<ChatUser> chatUsers = new ArrayList<>();
-        chatUsers.add(ChatUser.builder().chatRoom(chatRoom).user(userRepository.getReferenceById(me)).build());
-        chatUsers.add(ChatUser.builder().chatRoom(chatRoom).user(userRepository.getReferenceById(boardWriter)).build());
+        List<ChatUser> chatUsers = List.of(
+                ChatUser.create(userRepository.getReferenceById(me), chatRoom),
+                ChatUser.create(userRepository.getReferenceById(boardWriter), chatRoom)
+        );
 
         chatUserRepository.saveAll(chatUsers);
 

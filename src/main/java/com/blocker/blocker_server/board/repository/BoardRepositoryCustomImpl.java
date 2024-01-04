@@ -60,7 +60,7 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
     }
 
     @Override
-    public Optional<Board> getBoard(Long boardId) {
+    public Optional<Board> getBoardWithImages(Long boardId) {
 
         JPAQuery<Board> getBoardQuery = jpaQueryFactory
                 .selectFrom(board)

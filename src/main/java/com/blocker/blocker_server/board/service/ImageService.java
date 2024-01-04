@@ -18,11 +18,8 @@ public class ImageService {
     public SaveImageResponseDto saveImage(MultipartFile image) throws IOException {
 
         String address = s3Service.saveImage(image);
-        SaveImageResponseDto response = SaveImageResponseDto.builder()
-                .address(address)
-                .build();
 
-        return response;
+        return SaveImageResponseDto.of(address);
 
     }
 }

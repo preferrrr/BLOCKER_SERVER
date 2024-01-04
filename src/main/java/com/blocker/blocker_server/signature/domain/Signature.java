@@ -26,13 +26,20 @@ public class Signature extends BaseEntity {
     private User user;
 
     @Builder
-    public Signature(String email, String signatureAddress, User user) {
+    private Signature(User user, String signatureAddress) {
         SignatureId id = SignatureId.builder()
-                .email(email)
+                .email(user.getEmail())
                 .signatureAddress(signatureAddress)
                 .build();
         this.id = id;
         this.user = user;
+    }
+
+    public static Signature create(User user, String signatureAddress) {
+        return Signature.builder()
+                .user(user)
+                .signatureAddress(signatureAddress)
+                .build();
     }
 
 }

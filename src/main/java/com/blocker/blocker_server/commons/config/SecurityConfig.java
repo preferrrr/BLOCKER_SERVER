@@ -94,6 +94,7 @@ public class SecurityConfig {
 
                     auth.requestMatchers("/chatrooms").hasAuthority("USER");
                     auth.requestMatchers("/chatrooms/*").hasAuthority("USER");
+                    auth.requestMatchers("/chatrooms/boards/*").hasAuthority("USER");
 
                     auth.requestMatchers("/index.html").permitAll();
 

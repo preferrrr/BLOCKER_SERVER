@@ -17,9 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CancelSignService {
 
@@ -28,6 +29,7 @@ public class CancelSignService {
     private final AgreementSignRepository agreementSignRepository;
     private final CancelContractRepository cancelContractRepository;
 
+    @Transactional
     public void cancelContract(User me, Long contractId) {
 
         Contract contract = contractRepository.findById(contractId).orElseThrow(()->new NotFoundException("[cancel contract] contractId : " + contractId));
@@ -45,24 +47,17 @@ public class CancelSignService {
         if(cancelContractRepository.existsByContract(contract))
             throw new ExistsCancelSignException("email, contractId : " + me.getEmail() + ", " + contractId);
 
-        CancelContract cancelContract = CancelContract.builder()
-                .title(contract.getTitle())
-                .content(contract.getTitle())
-                .user(me)
-                .contract(contract)
-                .build();
+        CancelContract cancelContract = CancelContract.create(me, contract, contract.getTitle(), contract.getContent());
 
-        List<CancelSign> cancelSigns = new ArrayList<>();
-        agreementSigns.stream().forEach(
-                agreementSign -> cancelSigns.add(CancelSign.builder()
-                        .user(agreementSign.getUser())
-                        .cancelContract(cancelContract)
-                        .build()));
+        List<CancelSign> cancelSigns = agreementSigns.stream()
+                .map(agreementSign -> CancelSign.create(agreementSign.getUser(), cancelContract))
+                .collect(Collectors.toList());
 
         cancelContractRepository.save(cancelContract);
         cancelSignRepository.saveAll(cancelSigns);
     }
 
+    @Transactional
     public void signCancelContract(User me, Long cancelContractId) {
 
         List<CancelSign> cancelSigns = cancelSignRepository.findByCancelContract(cancelContractRepository.getReferenceById(cancelContractId));

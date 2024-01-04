@@ -21,8 +21,15 @@ public class Image {
     private String imageAddress;
 
     @Builder
-    public Image(Board board, String imageAddress) {
+    private Image(Board board, String imageAddress) {
         this.board = board;
         this.imageAddress = imageAddress;
+    }
+
+    public static Image of(Board board, String imageAddress) {
+        return Image.builder()
+                .board(board)
+                .imageAddress(imageAddress)
+                .build();
     }
 }

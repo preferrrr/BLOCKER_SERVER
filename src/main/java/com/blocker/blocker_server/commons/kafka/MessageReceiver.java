@@ -17,10 +17,7 @@ public class MessageReceiver {
     @KafkaListener(topics = KafkaChatConstant.KAFKA_TOPIC, groupId = KafkaChatConstant.KAFKA_GROUP)
     public void receiveMessage(KafkaMessage message) {
 
-        SendMessageResponseDto dto = SendMessageResponseDto.builder()
-                .content(message.getContent())
-                .sender(message.getSender())
-                .build();
+        SendMessageResponseDto dto = SendMessageResponseDto.of(message.getContent(), message.getSender());
 
         template.convertAndSend("/sub/" + message.getRoomId(), dto);
 

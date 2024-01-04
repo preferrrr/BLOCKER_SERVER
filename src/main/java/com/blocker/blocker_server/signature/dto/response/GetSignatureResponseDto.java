@@ -4,7 +4,18 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
 public class GetSignatureResponseDto {
     private String address;
+
+    @Builder
+    private GetSignatureResponseDto(String address) {
+        this.address = address;
+    }
+
+    public static GetSignatureResponseDto of(String signatureAddress) {
+        return GetSignatureResponseDto.builder()
+                .address(signatureAddress)
+                .build();
+
+    }
 }

@@ -82,7 +82,7 @@ public class ChatController {
     @GetMapping("/chatrooms/boards/{boardId}")
     public ResponseEntity<GetOneToOneChatRoomResponse> getOneToOneChatRoom(@AuthenticationPrincipal User user, @PathVariable("boardId") Long boardId) {
 
-        GetOneToOneChatRoomResponse response = chatService.getOneToOneChatMessages(user, boardId);
+        GetOneToOneChatRoomResponse response = chatService.getOneToOneChatRoomId(user, boardId);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

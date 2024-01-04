@@ -66,12 +66,22 @@ public class User extends BaseEntity implements UserDetails {
     private List<ChatUser> chatUsers = new ArrayList<>();
 
     @Builder
-    public User(String email, String name, String picture, String refreshtokenValue,List<String> roles) {
+    private User(String email, String name, String picture, String refreshtokenValue,List<String> roles) {
         this.email = email;
         this.name = name;
         this.picture = picture;
         this.refreshtokenValue = refreshtokenValue;
         this.roles = roles;
+    }
+
+    public static User create(String email, String name, String picture, String refreshtokenValue,List<String> roles) {
+        return User.builder()
+                .email(email)
+                .name(name)
+                .picture(picture)
+                .refreshtokenValue(refreshtokenValue)
+                .roles(roles)
+                .build();
     }
 
     public void updateName(String name) {

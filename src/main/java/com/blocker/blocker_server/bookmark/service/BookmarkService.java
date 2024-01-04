@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BookmarkService {
 
@@ -26,16 +26,14 @@ public class BookmarkService {
     private final BoardRepository boardRepository;
     private final BoardService boardService;
 
+    @Transactional
     public void saveBookmark(User user, SaveBookmarkRequestDto requestDto) {
         Board board = boardRepository.findById(requestDto.getBoardId()).orElseThrow(() -> new NotFoundException("[save bookmark] boardId : " + requestDto.getBoardId()));
 
         if (bookmarkRepository.existsByUserAndBoard(user, board))
             throw new DuplicateBookmarkException("email : " + user.getEmail() + ", boardId: " + board.getBoardId());
 
-        Bookmark bookmark = Bookmark.builder()
-                .board(board)
-                .user(user)
-                .build();
+        Bookmark bookmark = Bookmark.create(user, board);
 
         bookmarkRepository.save(bookmark);
 
@@ -43,6 +41,7 @@ public class BookmarkService {
 
     }
 
+    @Transactional
     public void deleteBookmark(User user, Long boardId) {
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new NotFoundException("[delete bookmark] boardId : " + boardId));
 
