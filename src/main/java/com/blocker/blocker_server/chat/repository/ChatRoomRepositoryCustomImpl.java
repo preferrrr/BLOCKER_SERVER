@@ -5,6 +5,7 @@ import com.blocker.blocker_server.chat.domain.QChatRoom;
 import com.blocker.blocker_server.chat.domain.QChatUser;
 import com.blocker.blocker_server.user.domain.QUser;
 import com.blocker.blocker_server.user.domain.User;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,26 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
         List<ChatRoom> result = getChatRoomListQuery.fetch();
 
         return result;
+    }
+
+    @Override
+    public Long findOneToOneChatRoomByUsers(String userA, String userB) {
+
+        JPAQuery<Long> getChatRoomIdQuery = jpaQueryFactory
+                .select(chatRoom.chatRoomID)
+                .from(chatUser)
+                .where(chatUser.user.email.in(userA, userB))
+                .groupBy(chatUser.chatRoom.chatRoomID)
+                .having(chatUser.user.email.countDistinct().eq(2L)
+                        .and(chatUser.chatRoom.chatRoomID.notIn(
+                                JPAExpressions.select(chatUser.chatRoom.chatRoomID)
+                                        .from(chatUser)
+                                        .where(chatUser.user.email.notIn(userA, userB))
+                                        .groupBy(chatUser.chatRoom.chatRoomID)
+                        )));
+
+        Long chatRoomId = getChatRoomIdQuery.fetchFirst();
+
+        return chatRoomId;
     }
 }

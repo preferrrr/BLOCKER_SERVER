@@ -122,7 +122,7 @@ public class ChatService {
 
         User boardWriter = getBoardWriter(user.getEmail(), boardId);
 
-        Long chatRoomId = chatUserRepository.findChatRoomByUsers(user.getEmail(), boardWriter.getEmail());
+        Long chatRoomId = chatRoomRepository.findOneToOneChatRoomByUsers(user.getEmail(), boardWriter.getEmail());
 
         if (chatRoomId == null) {
             chatRoomId = createOneToOneChatRoom(user.getEmail(), boardWriter.getEmail());

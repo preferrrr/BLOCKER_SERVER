@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface ChatRoomRepositoryCustom {
     List<ChatRoom> findChatRoomsByUser(User user);
+
+    Long findOneToOneChatRoomByUsers(String userA, String userB);
+
 }
