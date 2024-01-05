@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.chat.service;
 
+import com.blocker.blocker_server.IntegrationTestSupport;
 import com.blocker.blocker_server.board.domain.Board;
 import com.blocker.blocker_server.board.repository.BoardRepository;
 import com.blocker.blocker_server.chat.domain.ChatRoom;
@@ -23,9 +24,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
 @Transactional
-class ChatServiceTest {
+class ChatServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private ChatService chatService;

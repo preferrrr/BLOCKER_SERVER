@@ -13,4 +13,6 @@ public interface CancelContractRepository extends JpaRepository<CancelContract, 
 
     List<CancelContract> findByUserAndCancelContractState(User user, CancelContractState state);
 
+    CancelContract findByContract(Contract contract);
+
 }

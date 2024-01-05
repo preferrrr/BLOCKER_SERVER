@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.chat.repository;
 
+import com.blocker.blocker_server.IntegrationTestSupport;
 import com.blocker.blocker_server.board.domain.Board;
 import com.blocker.blocker_server.board.repository.BoardRepository;
 import com.blocker.blocker_server.chat.domain.ChatRoom;
@@ -22,9 +23,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
-@SpringBootTest
 @Transactional
-class ChatRoomRepositoryCustomTest {
+class ChatRoomRepositoryCustomTest extends IntegrationTestSupport {
 
     @Autowired
     private ChatRoomRepository chatRoomRepository;
