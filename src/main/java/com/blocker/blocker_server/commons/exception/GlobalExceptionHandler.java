@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.commons.exception;
 
+import com.blocker.blocker_server.bookmark.exception.IsAlreadyBookmarkedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,8 +77,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT); /**204, 이미지 파일 안 보냄.*/
     }
 
-    @ExceptionHandler({DuplicateBookmarkException.class})
-    public ResponseEntity<?> handleDuplicateBookmarkException(final DuplicateBookmarkException e) {
+    @ExceptionHandler({IsAlreadyBookmarkedException.class})
+    public ResponseEntity<?> handleDuplicateBookmarkException(final IsAlreadyBookmarkedException e) {
 
         String msg = e.getNAME() + ": [" + e.getMessage() + "]";
         log.error(msg);
