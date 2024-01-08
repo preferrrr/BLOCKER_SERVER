@@ -1,4 +1,4 @@
-package com.blocker.blocker_server.board.dto.response;
+package com.blocker.blocker_server.Image.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

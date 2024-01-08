@@ -1,8 +1,8 @@
 package com.blocker.blocker_server.board.repository;
 
+import com.blocker.blocker_server.Image.domain.QImage;
 import com.blocker.blocker_server.board.domain.Board;
 import com.blocker.blocker_server.board.domain.QBoard;
-import com.blocker.blocker_server.board.domain.QImage;
 import com.blocker.blocker_server.bookmark.domain.QBookmark;
 import com.blocker.blocker_server.contract.domain.QContract;
 import com.blocker.blocker_server.user.domain.QUser;
@@ -64,7 +64,6 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
 
         JPAQuery<Board> getBoardQuery = jpaQueryFactory
                 .selectFrom(board)
-                .distinct()
                 .leftJoin(board.images, image).fetchJoin()
                 .join(board.user, user)
                 //user를 fetch join하면 필요하지 않은 oneToOne 관계인 signature까지 가져와짐.
@@ -100,13 +99,13 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
     }
 
     @Override
-    public List<Board> getMyBoards(User me, Pageable pageable) {
+    public List<Board> getMyBoards(String me, Pageable pageable) {
         JPAQuery<Board> getMyBoardsQuery = jpaQueryFactory
                 .selectFrom(board)
                 .distinct()
                 .join(board.user, user).fetchJoin()
                 .join(board.contract, contract).fetchJoin()
-                .where(board.user.email.eq(me.getEmail()))
+                .where(board.user.email.eq(me))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 

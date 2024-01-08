@@ -1,5 +1,6 @@
-package com.blocker.blocker_server.board.domain;
+package com.blocker.blocker_server.Image.domain;
 
+import com.blocker.blocker_server.board.domain.Board;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +27,7 @@ public class Image {
         this.imageAddress = imageAddress;
     }
 
-    public static Image of(Board board, String imageAddress) {
+    public static Image create(Board board, String imageAddress) {
         return Image.builder()
                 .board(board)
                 .imageAddress(imageAddress)

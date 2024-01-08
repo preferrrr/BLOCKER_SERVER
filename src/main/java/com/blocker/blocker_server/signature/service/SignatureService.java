@@ -1,7 +1,7 @@
 package com.blocker.blocker_server.signature.service;
 
 import com.blocker.blocker_server.signature.dto.response.GetSignatureResponseDto;
-import com.blocker.blocker_server.board.service.S3Service;
+import com.blocker.blocker_server.Image.service.S3Service;
 import com.blocker.blocker_server.signature.domain.Signature;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.commons.exception.ExistsSignatureException;

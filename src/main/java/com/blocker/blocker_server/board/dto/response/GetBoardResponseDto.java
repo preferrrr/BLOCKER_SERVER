@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.board.dto.response;
 
+import com.blocker.blocker_server.Image.dto.response.ImageDto;
 import com.blocker.blocker_server.board.domain.Board;
 import lombok.*;
 

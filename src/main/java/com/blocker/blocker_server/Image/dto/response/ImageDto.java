@@ -1,9 +1,8 @@
-package com.blocker.blocker_server.board.dto.response;
+package com.blocker.blocker_server.Image.dto.response;
 
-import com.blocker.blocker_server.board.domain.Image;
+import com.blocker.blocker_server.Image.domain.Image;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public class ImageDto {

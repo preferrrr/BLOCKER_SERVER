@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.board.domain;
 
+import com.blocker.blocker_server.Image.domain.Image;
 import com.blocker.blocker_server.contract.domain.Contract;
 import com.blocker.blocker_server.bookmark.domain.Bookmark;
 import com.blocker.blocker_server.commons.BaseEntity;
@@ -96,5 +97,9 @@ public class Board extends BaseEntity {
 
     public void subBookmarkCount() {
         this.bookmarkCount -= 1;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 }

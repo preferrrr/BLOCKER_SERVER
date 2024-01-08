@@ -1,141 +1,147 @@
 package com.blocker.blocker_server.board.service;
 
+import com.blocker.blocker_server.Image.service.ImageServiceSupport;
 import com.blocker.blocker_server.board.domain.Board;
-import com.blocker.blocker_server.board.domain.Image;
+import com.blocker.blocker_server.Image.domain.Image;
 import com.blocker.blocker_server.board.dto.request.ModifyBoardRequestDto;
 import com.blocker.blocker_server.board.dto.request.SaveBoardRequestDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardResponseDto;
-import com.blocker.blocker_server.board.dto.response.ImageDto;
-import com.blocker.blocker_server.board.repository.BoardRepository;
-import com.blocker.blocker_server.board.repository.ImageRepository;
-import com.blocker.blocker_server.bookmark.repository.BookmarkRepository;
+import com.blocker.blocker_server.Image.dto.response.ImageDto;
 import com.blocker.blocker_server.contract.domain.Contract;
-import com.blocker.blocker_server.contract.repository.ContractRepository;
+import com.blocker.blocker_server.contract.service.ContractServiceSupport;
 import com.blocker.blocker_server.user.domain.User;
-import com.blocker.blocker_server.commons.exception.ForbiddenException;
-import com.blocker.blocker_server.commons.exception.NotFoundException;
-import com.blocker.blocker_server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BoardService {
 
-    private final BoardRepository boardRepository;
-    private final BookmarkRepository bookmarkRepository;
-    private final ImageRepository imageRepository;
-    private final UserRepository userRepository;
-    private final ContractRepository contractRepository;
+    private final ImageServiceSupport imageServiceSupport;
+    private final BoardServiceSupport boardServiceSupport;
+    private final ContractServiceSupport contractServiceSupport;
 
     public List<GetBoardListResponseDto> getBoards(Pageable pageable) {
 
-        List<Board> entityList = boardRepository.getBoardList(pageable);
+        List<Board> entityList = boardServiceSupport.getBoardList(pageable);
 
-        return createDtos(entityList);
+        return boardServiceSupport.createBoardListResponseDto(entityList);
     }
 
-    public List<GetBoardListResponseDto> createDtos(List<Board> entityList) {
-
-        return entityList.stream()
-                .map(board -> GetBoardListResponseDto.of(board))
-                .collect(Collectors.toList());
-    }
 
     public GetBoardResponseDto getBoard(User me, Long boardId) {
-        Board board = boardRepository.getBoardWithImages(boardId).orElseThrow(() -> new NotFoundException("[get board] boardId : " + boardId));
 
-        boolean isWriter = board.getUser().getEmail().equals(me.getEmail());
-        boolean isBookmark = bookmarkRepository.existsByUserAndBoard(me, board);
+        //image fetch join한 게시글
+        Board board = boardServiceSupport.getBoardWithImages(boardId);
 
-        List<ImageDto> imageAddresses = board.getImages().stream()
-                .map(image -> ImageDto.of(image))
-                .collect(Collectors.toList());
+        //내가 작성자인지
+        boolean isWriter = boardServiceSupport.checkIsWriter(me.getEmail(), board.getUser().getEmail());
+
+        //내가 북마크한 게시글인지
+        boolean isBookmark = boardServiceSupport.checkIsBookmarked(me, board);
+
+        //이미지 주소
+        List<ImageDto> imageAddresses = imageServiceSupport.entityListToDtoList(board.getImages());
 
         return GetBoardResponseDto.of(board, imageAddresses, isWriter, isBookmark);
-
     }
 
+
+
+
     @Transactional
-    public void saveBoard(User user, SaveBoardRequestDto requestDto) {
+    public void saveBoard(User me, SaveBoardRequestDto requestDto) {
 
-        User me = userRepository.getReferenceById(user.getEmail());
+        //게시글에 포함시킬 계약서
+        Contract contract = contractServiceSupport.getContractById(me.getEmail(), requestDto.getContractId());
 
-        Contract contract = contractRepository.findById(requestDto.getContractId()).orElseThrow(() -> new NotFoundException("[modify board] contractId : " + requestDto.getContractId()));
-        if (!contract.getUser().getEmail().equals(me.getEmail()))
-            throw new ForbiddenException("[save board] contractId, email : " + contract.getContractId() + ", " + me.getEmail());
+        //자신의 계약서가 맞는지 검사
+        contractServiceSupport.checkIsContractWriter(me.getEmail(), contract);
 
-        Board newBoard = Board.create(me, requestDto.getTitle(), requestDto.getContent(), requestDto.getInfo(), requestDto.getRepresentImage(), contract);
+        //저장할 게시글
+        Board newBoard = Board.create(
+                me,
+                requestDto.getTitle(),
+                requestDto.getContent(),
+                requestDto.getInfo(),
+                requestDto.getRepresentImage(),
+                contract);
 
-        List<Image> images = requestDto.getImages().stream()
-                .map(imageAddress -> Image.of(newBoard, imageAddress))
-                .collect(Collectors.toList());
+        //게시글의 이미지들
+        List<Image> images = imageServiceSupport.createImageEntities(requestDto.getImages(), newBoard);
 
-        boardRepository.save(newBoard);
-        imageRepository.saveAll(images);
+        //게시글 저장
+        boardServiceSupport.save(newBoard);
+        //이미지 저장
+        imageServiceSupport.saveImages(images);
 
     }
 
     @Transactional
     public void deleteBoard(User me, Long boardId) {
-        Board board = boardRepository.findById(boardId).orElseThrow(() -> new NotFoundException("[delete board] boardId : " + boardId));
 
-        if (!board.getUser().getEmail().equals(me.getEmail()))
-            throw new ForbiddenException("[delete board] boardId, email : " + boardId + ", " + me.getEmail());
+        //삭제할 게시글
+        Board board = boardServiceSupport.getBoardById(boardId);
 
-        boardRepository.deleteById(boardId);
+        //게시글 작성자가 맞는지 검사
+        boardServiceSupport.checkDeleteAuthority(me.getEmail(), board.getUser().getEmail());
+
+        //게시글 삭제
+        boardServiceSupport.deleteBoardById(boardId);
     }
 
     @Transactional
     public void modifyBoard(User me, Long boardId, ModifyBoardRequestDto requestDto) {
-        Board board = boardRepository.findById(boardId).orElseThrow(() -> new NotFoundException("[modify board] boardId : " + boardId));
 
-        if (!board.getUser().getEmail().equals(me.getEmail()))
-            throw new ForbiddenException("[modify board] boardId, email : " + boardId + ", " + me.getEmail());
+        //수정할 게시글
+        Board board = boardServiceSupport.getBoardById(boardId);
 
-        Contract contract = modifyContractBelongingToBoard(me, board, requestDto.getContractId());
+        //게시글 작성자가 맞는지 검사
+        boardServiceSupport.checkModifyAuthority(me.getEmail(), board.getUser().getEmail());
+
+        //게시글에 포함된 계약서 수정
+        Contract contract = boardServiceSupport.modifyContractBelongingToBoard(me.getEmail(), board, requestDto.getContractId());
 
         //Dynamic insert로 바뀐 값만 업데이트 됨.
-        board.updateBoard(requestDto.getTitle(), requestDto.getContent(), requestDto.getInfo(), requestDto.getRepresentImage(), contract);
+        board.updateBoard(
+                requestDto.getTitle(),
+                requestDto.getContent(),
+                requestDto.getInfo(),
+                requestDto.getRepresentImage(),
+                contract);
 
-        List<Image> addImages = requestDto.getAddImageAddresses().stream()
-                .map(imageAddress -> Image.of(board, imageAddress))
-                .collect(Collectors.toList());
+        //추가된 이미지 저장
+        List<Image> addImages = imageServiceSupport.createImageEntities(requestDto.getAddImageAddresses(), board);
+        imageServiceSupport.saveImages(addImages);
 
-        imageRepository.saveAll(addImages);
-        imageRepository.deleteAllById(requestDto.getDeleteImageIds()); //imageId가 존재하는지 db 조회로 검증을 해야할까 ?
+        //없앨 이미지 삭제
+        imageServiceSupport.deleteImagesByIds(requestDto.getDeleteImageIds()); //imageId가 존재하는지 db 조회로 검증을 해야할까 ?
 
     }
 
-    private Contract modifyContractBelongingToBoard(User user, Board board, Long modifyContractId) {
-
-        //계약서가 달라졌으면 조회 후 나의 계약서가 맞는지 확인
-        if (!board.getContract().getContractId().equals(modifyContractId)) {
-            Contract contract = contractRepository.findById(modifyContractId).orElseThrow(() -> new NotFoundException("[modify board] contractId : " + modifyContractId));
-
-            if (!contract.getUser().getEmail().equals(board.getUser().getEmail()))
-                throw new ForbiddenException("[modify board] contractId, email : " + contract.getContractId() + ", " + user.getEmail());
-
-            return contract;
-        }
-
-        return contractRepository.getReferenceById(modifyContractId);
-    }
 
     public List<GetBoardListResponseDto> getMyBoards(User me, Pageable pageable) {
 
-        List<Board> entityList = boardRepository.getMyBoards(me, pageable);
+        List<Board> entityList = boardServiceSupport.getMyBoards(me.getEmail(), pageable);
 
-        List<GetBoardListResponseDto> response = createDtos(entityList);
+        List<GetBoardListResponseDto> response = boardServiceSupport.createBoardListResponseDto(entityList);
 
         return response;
     }
+
+
+
+
+
+
+
+
 }
+
+

@@ -1,7 +1,7 @@
-package com.blocker.blocker_server.board.controller;
+package com.blocker.blocker_server.Image.controller;
 
-import com.blocker.blocker_server.board.service.ImageService;
-import com.blocker.blocker_server.board.dto.response.SaveImageResponseDto;
+import com.blocker.blocker_server.Image.service.ImageService;
+import com.blocker.blocker_server.Image.dto.response.SaveImageResponseDto;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.commons.exception.InvalidImageException;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +24,12 @@ public class ImageController {
     private final ImageService imageService;
 
     @PostMapping("")
-    public ResponseEntity<SaveImageResponseDto> saveImage(@AuthenticationPrincipal User user, @RequestPart("image") MultipartFile image) throws IOException {
+    public ResponseEntity<SaveImageResponseDto> s3SaveImage(@AuthenticationPrincipal User user, @RequestPart("image") MultipartFile image) throws IOException {
 
         if(image.isEmpty())
             throw new InvalidImageException("email : " + user.getEmail());
 
-        SaveImageResponseDto response = imageService.saveImage(image);
+        SaveImageResponseDto response = imageService.s3SaveImage(image);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

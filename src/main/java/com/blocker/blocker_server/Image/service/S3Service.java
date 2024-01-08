@@ -1,4 +1,4 @@
-package com.blocker.blocker_server.board.service;
+package com.blocker.blocker_server.Image.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
