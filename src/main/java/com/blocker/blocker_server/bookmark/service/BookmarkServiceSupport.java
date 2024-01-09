@@ -3,6 +3,7 @@ package com.blocker.blocker_server.bookmark.service;
 import com.blocker.blocker_server.board.domain.Board;
 import com.blocker.blocker_server.board.repository.BoardRepository;
 import com.blocker.blocker_server.bookmark.domain.Bookmark;
+import com.blocker.blocker_server.bookmark.exception.IsNotBookmarkedException;
 import com.blocker.blocker_server.bookmark.repository.BookmarkRepository;
 import com.blocker.blocker_server.bookmark.exception.IsAlreadyBookmarkedException;
 import com.blocker.blocker_server.user.domain.User;
@@ -21,6 +22,7 @@ public class BookmarkServiceSupport {
     private final BookmarkRepository bookmarkRepository;
     private final BoardRepository boardRepository;
 
+    @Transactional
     public void save(Bookmark bookmark) {
         bookmarkRepository.save(bookmark);
     }
@@ -31,10 +33,11 @@ public class BookmarkServiceSupport {
     }
 
     public void checkIsNotBookmarked(User user, Board board) {
-        if(bookmarkRepository.existsByUserAndBoard(user, board))
-            throw new IsAlreadyBookmarkedException("email : " + user.getEmail() + ", boardId : " + board.getBoardId());
+        if(!bookmarkRepository.existsByUserAndBoard(user, board))
+            throw new IsNotBookmarkedException("email : " + user.getEmail() + ", boardId : " + board.getBoardId());
     }
 
+    @Transactional
     public void deleteBookmark(User user, Board board) {
         bookmarkRepository.deleteByUserAndBoard(user, board);
     }
