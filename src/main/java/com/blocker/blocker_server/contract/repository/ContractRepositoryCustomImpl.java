@@ -27,11 +27,11 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom{
     QUser user = QUser.user;
 
     @Override
-    public List<Contract> findNotProceedContracts(User user, ContractState state) {
+    public List<Contract> findNotProceedContractsByUserEmailAndContractState(String email, ContractState state) {
 
         JPAQuery<Contract> getContractListQuery = jpaQueryFactory
                 .selectFrom(contract)
-                .where(contract.user.email.eq(user.getEmail()),
+                .where(contract.user.email.eq(email),
                         contract.contractState.eq(state))
                 .orderBy(contract.modifiedAt.desc());
 
@@ -57,12 +57,12 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom{
     }
 
     @Override
-    public List<Contract> findProceedOrConcludeContractList(User user, ContractState state) {
+    public List<Contract> findProceedOrConcludeContractListByUserEmailAndContractState(String email, ContractState state) {
 
         JPAQuery<Contract> getContractListQuery = jpaQueryFactory
                 .selectFrom(contract)
                 .join(contract.agreementSigns, agreementSign)
-                .where(agreementSign.user.email.eq(user.getEmail()),
+                .where(agreementSign.user.email.eq(email),
                         contract.contractState.eq(state))
                 .orderBy(contract.modifiedAt.desc());
 

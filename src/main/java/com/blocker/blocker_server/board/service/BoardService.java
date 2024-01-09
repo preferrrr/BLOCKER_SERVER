@@ -59,7 +59,7 @@ public class BoardService {
     public void saveBoard(User me, SaveBoardRequestDto requestDto) {
 
         //게시글에 포함시킬 계약서
-        Contract contract = contractServiceSupport.getContractById(me.getEmail(), requestDto.getContractId());
+        Contract contract = contractServiceSupport.getContractById(requestDto.getContractId());
 
         //자신의 계약서가 맞는지 검사
         contractServiceSupport.checkIsContractWriter(me.getEmail(), contract);

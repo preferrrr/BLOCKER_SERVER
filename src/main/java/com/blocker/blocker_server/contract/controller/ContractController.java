@@ -1,10 +1,12 @@
 package com.blocker.blocker_server.contract.controller;
 
+import com.blocker.blocker_server.contract.dto.request.ModifyContractRequestDto;
+import com.blocker.blocker_server.contract.dto.response.GetConcludeContractResponseDto;
 import com.blocker.blocker_server.contract.service.ContractService;
 import com.blocker.blocker_server.contract.domain.ContractState;
-import com.blocker.blocker_server.contract.dto.request.SaveOrModifyContractRequestDto;
+import com.blocker.blocker_server.contract.dto.request.SaveContractRequestDto;
 import com.blocker.blocker_server.contract.dto.response.GetContractResponseDto;
-import com.blocker.blocker_server.contract.dto.response.GetProceedOrConcludeContractResponseDto;
+import com.blocker.blocker_server.contract.dto.response.GetProceedContractResponseDto;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.commons.exception.InvalidQueryStringException;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +30,7 @@ public class ContractController {
      */
     @PostMapping("")
     public ResponseEntity<HttpStatus> saveContract(@AuthenticationPrincipal User user,
-                                                   @RequestBody SaveOrModifyContractRequestDto requestDto) {
+                                                   @RequestBody SaveContractRequestDto requestDto) {
 
         requestDto.validateFieldsNotNull();
 
@@ -43,7 +45,7 @@ public class ContractController {
      */
     @PatchMapping("/{contractId}")
     public ResponseEntity<HttpStatus> modifyContract(@AuthenticationPrincipal User user,
-                                                     @RequestBody SaveOrModifyContractRequestDto requestDto,
+                                                     @RequestBody ModifyContractRequestDto requestDto,
                                                      @PathVariable Long contractId) {
         requestDto.validateFieldsNotNull();
 
@@ -76,7 +78,7 @@ public class ContractController {
     @GetMapping("/not-proceed/{contractId}")
     public ResponseEntity<GetContractResponseDto> getContract(@PathVariable("contractId") Long contractId) {
 
-        GetContractResponseDto response = contractService.getContract(contractId);
+        GetContractResponseDto response = contractService.getNotProceedContract(contractId);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -98,9 +100,9 @@ public class ContractController {
      * /contracts/proceed/{contractId}
      */
     @GetMapping("/proceed/{contractId}")
-    public ResponseEntity<GetProceedOrConcludeContractResponseDto> getProceedContract(@AuthenticationPrincipal User user,
-                                                                                      @PathVariable("contractId") Long contractId) {
-        GetProceedOrConcludeContractResponseDto response = contractService.getProceedContract(user, contractId);
+    public ResponseEntity<GetProceedContractResponseDto> getProceedContract(@AuthenticationPrincipal User user,
+                                                                            @PathVariable("contractId") Long contractId) {
+        GetProceedContractResponseDto response = contractService.getProceedContract(user, contractId);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -122,9 +124,9 @@ public class ContractController {
      * /contracts/conclude/{contractId}
      * */
     @GetMapping("/conclude/{contractId}")
-    public ResponseEntity<GetProceedOrConcludeContractResponseDto> getConcludeContract(@AuthenticationPrincipal User user,
-                                                                                       @PathVariable("contractId") Long contractId) {
-        GetProceedOrConcludeContractResponseDto response = contractService.getConcludeContract(user, contractId);
+    public ResponseEntity<GetConcludeContractResponseDto> getConcludeContract(@AuthenticationPrincipal User user,
+                                                                              @PathVariable("contractId") Long contractId) {
+        GetConcludeContractResponseDto response = contractService.getConcludeContract(user, contractId);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

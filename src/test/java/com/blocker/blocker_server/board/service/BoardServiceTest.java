@@ -112,7 +112,7 @@ class BoardServiceTest {
 
         /** given */
 
-        given(contractServiceSupport.getContractById(anyString(), anyLong())).willReturn(mock(Contract.class));
+        given(contractServiceSupport.getContractById(anyLong())).willReturn(mock(Contract.class));
         willDoNothing().given(contractServiceSupport).checkIsContractWriter(anyString(), any(Contract.class));
         given(imageServiceSupport.createImageEntities(any(List.class), any(Board.class))).willReturn(List.of(image1, image2, image3));
 
@@ -131,7 +131,7 @@ class BoardServiceTest {
 
         /** then */
 
-        verify(contractServiceSupport, times(1)).getContractById(anyString(), anyLong());
+        verify(contractServiceSupport, times(1)).getContractById(anyLong());
         verify(contractServiceSupport, times(1)).checkIsContractWriter(anyString(), any(Contract.class));
         verify(imageServiceSupport, times(1)).createImageEntities(any(List.class), any(Board.class));
         verify(boardServiceSupport, times(1)).save(any(Board.class));

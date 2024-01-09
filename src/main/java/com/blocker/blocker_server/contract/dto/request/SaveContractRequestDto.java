@@ -1,12 +1,21 @@
 package com.blocker.blocker_server.contract.dto.request;
 
 import com.blocker.blocker_server.commons.exception.InvalidRequestParameterException;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class SaveOrModifyContractRequestDto {
+public class SaveContractRequestDto {
+
     private String title;
     private String content;
+
+
+    @Builder
+    public SaveContractRequestDto(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 
     public void validateFieldsNotNull() {
         if(title == null || title.isEmpty() || title.isBlank())

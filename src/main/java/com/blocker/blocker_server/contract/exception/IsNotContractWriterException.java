@@ -1,0 +1,13 @@
+package com.blocker.blocker_server.contract.exception;
+
+import lombok.Getter;
+
+@Getter
+public class IsNotContractWriterException extends RuntimeException{
+    private final String NAME;
+
+    public IsNotContractWriterException(String message) {
+        super(message);
+        NAME = "IsNotContractWriterException";
+    }
+}

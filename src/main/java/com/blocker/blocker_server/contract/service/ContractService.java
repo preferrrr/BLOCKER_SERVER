@@ -1,152 +1,136 @@
 package com.blocker.blocker_server.contract.service;
 
-import com.blocker.blocker_server.commons.exception.*;
 import com.blocker.blocker_server.contract.domain.Contract;
 import com.blocker.blocker_server.contract.domain.ContractState;
-import com.blocker.blocker_server.contract.dto.request.SaveOrModifyContractRequestDto;
+import com.blocker.blocker_server.contract.dto.request.ModifyContractRequestDto;
+import com.blocker.blocker_server.contract.dto.request.SaveContractRequestDto;
 import com.blocker.blocker_server.contract.dto.response.ContractorAndSignState;
+import com.blocker.blocker_server.contract.dto.response.GetConcludeContractResponseDto;
 import com.blocker.blocker_server.contract.dto.response.GetContractResponseDto;
-import com.blocker.blocker_server.contract.dto.response.GetProceedOrConcludeContractResponseDto;
-import com.blocker.blocker_server.board.repository.BoardRepository;
-import com.blocker.blocker_server.contract.repository.ContractRepository;
-import com.blocker.blocker_server.sign.repository.AgreementSignRepository;
-import com.blocker.blocker_server.sign.domain.AgreementSign;
-import com.blocker.blocker_server.sign.domain.SignState;
+import com.blocker.blocker_server.contract.dto.response.GetProceedContractResponseDto;
 import com.blocker.blocker_server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
 public class ContractService {
 
-    private final ContractRepository contractRepository;
-    private final AgreementSignRepository agreementSignRepository;
-    private final BoardRepository boardRepository;
+    private final ContractServiceSupport contractServiceSupport;
 
     @Transactional
-    public void saveContract(User user, SaveOrModifyContractRequestDto requestDto) {
+    public void saveContract(User user, SaveContractRequestDto requestDto) {
 
         Contract contract = Contract.create(user, requestDto.getTitle(), requestDto.getContent());
 
-        contractRepository.save(contract);
+        contractServiceSupport.saveContract(contract);
     }
 
     @Transactional
-    public void modifyContract(User user, Long contractId, SaveOrModifyContractRequestDto requestDto) {
-        Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[modify contract] contractId : " + contractId));
+    public void modifyContract(User user, Long contractId, ModifyContractRequestDto requestDto) {
 
-        if (!contract.getUser().getEmail().equals(user.getEmail())) // 내가 적은 계약서가 아님.
-            throw new ForbiddenException("[modify contract] contractId, email : " + contractId + ", " + user.getEmail());
+        //수정할 계약서
+        Contract contract = contractServiceSupport.getContractById(contractId);
 
-        //계약서 미체결, 진행 중일 때는 수정 가능. 계약이 체결됐을 때는 수정할 수 없다.
-        //미체결일 경우 그냥 수정만 하면 돼.
-        //진행 중일 경우에는 참여자들의 서명을 모두 취소해야함.
-        if (contract.getContractState().equals(ContractState.CONCLUDE)) // 체결완료된 계약서
-            throw new NotAllowModifyContractException("contractId : " + contractId);
-        else if (contract.getContractState().equals(ContractState.PROCEED)) { // 진행 중 계약서
-            List<AgreementSign> agreementSignList = agreementSignRepository.findByContract(contract);
-            agreementSignList.stream()
-                    .filter(sign -> sign.getSignState().equals(SignState.Y))
-                    .forEach(sign -> sign.cancel());
-        }
+        //체결 완료된 계약서는 수정하지 못함
+        contractServiceSupport.checkIsConcludeContractForModify(user.getEmail(), contract);
+
+        //계약 진행 중인 계약서를 수정하면 서명들 다시 N으로 바뀜
+        contractServiceSupport.checkIsProceedContractForModify(contract);
+
         contract.modifyContract(requestDto.getTitle(), requestDto.getContent());
 
     }
 
     public List<GetContractResponseDto> getContracts(User user, ContractState state) {
 
-        List<Contract> contracts = getContractEntities(user, state);
+        List<Contract> contracts = contractServiceSupport.getContractsByUserAndState(user.getEmail(), state);
 
-        List<GetContractResponseDto> response = contracts.stream()
-                .map(contract -> GetContractResponseDto.of(contract))
-                .collect(Collectors.toList());
-
-        return response;
+        return contractServiceSupport.entityListToDtoList(contracts);
 
     }
 
-    public GetContractResponseDto getContract(Long contractId) {
+    public GetContractResponseDto getNotProceedContract(Long contractId) {
 
-        Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[get contract] contractId : " + contractId));
+        //조회할 계약서
+        Contract contract = contractServiceSupport.getContractById(contractId);
 
-        if (!contract.getContractState().equals(ContractState.NOT_PROCEED))
-            throw new IsNotProceedContractException("contractId : " + contractId);
+        //NOT PROCEED가 맞는지 검사
+        contractServiceSupport.checkIsNotProceedContract(contract);
 
         return GetContractResponseDto.of(contract);
     }
 
     @Transactional
     public void deleteContract(User user, Long contractId) {
-        Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[delete contract] contractId : " + contractId));
 
-        //미체결 계약서 삭제이기 때문에
-        //계약서의 작성자이어야 하고, 진행 중 다음이라면 삭제하지 못함.
-        if (!user.getEmail().equals(contract.getUser().getEmail()) || !contract.getContractState().equals(ContractState.NOT_PROCEED))
-            throw new ForbiddenException("[delete contract] contractId, email : " + contractId + ", " + user.getEmail());
+        //삭제할 계약서
+        Contract contract = contractServiceSupport.getContractById(contractId);
 
-        if (boardRepository.existsByContract(contract))
-            throw new NotAllowDeleteContractException("[delete contract] contractId : " + contractId);
+        //계약서의 작성자인지 검사
+        contractServiceSupport.checkIsContractWriter(user.getEmail(), contract);
 
-        contractRepository.deleteById(contractId);
-    }
+        //미체결 계약서인지 검사
+        contractServiceSupport.checkIsNotProceedContract(contract);
 
-    public GetProceedOrConcludeContractResponseDto getProceedContract(User me, Long contractId) {
+        //계약서가 포함된 게시글이 있는지 검사
+        contractServiceSupport.checkExistsBoardBelongingToContract(contract);
 
-        return  getProceedOrConcludeContractList(me, contractId, ContractState.PROCEED);
-    }
-
-    public GetProceedOrConcludeContractResponseDto getConcludeContract(User me, Long contractId) {
-
-        return getProceedOrConcludeContractList(me, contractId, ContractState.CONCLUDE);
-    }
-
-    private GetProceedOrConcludeContractResponseDto getProceedOrConcludeContractList(User me, Long contractId, ContractState state) {
-
-        Contract contract = contractRepository.findProceedContractWithSignById(contractId).orElseThrow(() -> new NotFoundException("contractId : " + contractId));
-
-        if (!contract.getContractState().equals(state))
-            throw new IsProceedContractException("contractId : " + contractId);
-
-        List<AgreementSign> agreementSigns = contract.getAgreementSigns();
-
-        //계약 참여자가 아니면 진행 중 계약서는 볼 수 없음.
-        if (agreementSigns.stream().noneMatch(sign -> sign.getUser().getEmail().equals(me.getEmail()))) {
-            throw new ForbiddenException("[get proceed contract] contractId, email" + contractId + ", " + me.getEmail());
-        }
-
-        List<ContractorAndSignState> contractorAndSignStates = agreementSigns.stream()
-                .map(sign -> ContractorAndSignState.of(sign.getUser().getName(), sign.getSignState()))
-                .collect(Collectors.toList());
-
-        return GetProceedOrConcludeContractResponseDto.of(contract, contractorAndSignStates);
+        //삭제
+        contractServiceSupport.deleteContractById(contract.getContractId());
 
     }
 
     @Transactional
     public void deleteContractWithBoards(User me, Long contractId) {
-        Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new NotFoundException("[delete contract with boards] contractId : " + contractId));
+        //삭제할 계약서
+        Contract contract = contractServiceSupport.getContractById(contractId);
 
-        if (!contract.getUser().getEmail().equals(me.getEmail()))
-            throw new ForbiddenException("[delete contract with boards] contractId, email : " + contractId + ", " + me.getEmail());
+        //계약서의 작성자인지 검사
+        contractServiceSupport.checkIsContractWriter(me.getEmail(), contract);
 
-        if (!contract.getContractState().equals(ContractState.NOT_PROCEED))
-            throw new IsNotProceedContractException("contractId : " + contractId);
+        //미체결 계약서인지 검사
+        contractServiceSupport.checkIsNotProceedContract(contract);
 
-        contractRepository.deleteById(contractId); // OntToMany의 cascade 옵션에 의해 자식들도 모두 지워짐.
-
+        //cascade 옵션으로 게시글까지 모두 지움
+        contractServiceSupport.deleteContractById(contractId);
     }
 
-    private List<Contract> getContractEntities(User user, ContractState state) {
-        if (state.equals(ContractState.NOT_PROCEED))
-            return contractRepository.findNotProceedContracts(user, state);
-        else
-            return contractRepository.findProceedOrConcludeContractList(user, state);
+
+    public GetProceedContractResponseDto getProceedContract(User me, Long contractId) {
+
+        //계약서 참가자들 서명과 함께 조회
+        Contract contract = contractServiceSupport.getContractWIthSignsById(contractId);
+
+        //진행 중 계약인지 검사
+        contractServiceSupport.checkIsProceedContract(contract);
+
+        //계약 참가자인지 검사
+        contractServiceSupport.checkIsParticipant(me, contract);
+
+        //참가자들 서명 상태 반환
+        List<ContractorAndSignState> signs = contractServiceSupport.getContractorAndSignState(contract.getAgreementSigns());
+
+        return  GetProceedContractResponseDto.of(contract, signs);
+    }
+
+    public GetConcludeContractResponseDto getConcludeContract(User me, Long contractId) {
+
+        //계약서 참가자들 서명과 함께 조회
+        Contract contract = contractServiceSupport.getContractWIthSignsById(contractId);
+
+        //체결된 계약인지 검사
+        contractServiceSupport.checkIsConcludeContract(contract);
+
+        //계약 참가자인지 검사
+        contractServiceSupport.checkIsParticipant(me, contract);
+
+        List<ContractorAndSignState> signs = contractServiceSupport.getContractorAndSignState(contract.getAgreementSigns());
+
+        return  GetConcludeContractResponseDto.of(contract, signs);
     }
 }

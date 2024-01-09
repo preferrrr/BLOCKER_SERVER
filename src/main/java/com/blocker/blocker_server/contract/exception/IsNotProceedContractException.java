@@ -1,4 +1,4 @@
-package com.blocker.blocker_server.commons.exception;
+package com.blocker.blocker_server.contract.exception;
 
 import lombok.Getter;
 

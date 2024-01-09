@@ -1,7 +1,6 @@
 package com.blocker.blocker_server.contract.dto.response;
 
 import com.blocker.blocker_server.contract.domain.Contract;
-import com.blocker.blocker_server.contract.dto.response.ContractorAndSignState;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-public class GetProceedOrConcludeContractResponseDto {
+public class GetProceedContractResponseDto {
 
     private Long contractId;
     private String title;
@@ -19,7 +18,7 @@ public class GetProceedOrConcludeContractResponseDto {
     private List<ContractorAndSignState> contractorAndSignStates;
 
     @Builder
-    private GetProceedOrConcludeContractResponseDto(Long contractId, String title, String content, LocalDateTime createdAt, LocalDateTime modifiedAt, List<ContractorAndSignState> contractorAndSignStates) {
+    private GetProceedContractResponseDto(Long contractId, String title, String content, LocalDateTime createdAt, LocalDateTime modifiedAt, List<ContractorAndSignState> contractorAndSignStates) {
         this.contractId = contractId;
         this.title = title;
         this.content = content;
@@ -28,8 +27,8 @@ public class GetProceedOrConcludeContractResponseDto {
         this.contractorAndSignStates = contractorAndSignStates;
     }
 
-    public static GetProceedOrConcludeContractResponseDto of(Contract contract, List<ContractorAndSignState> contractorAndSignStates) {
-        return GetProceedOrConcludeContractResponseDto.builder()
+    public static GetProceedContractResponseDto of(Contract contract, List<ContractorAndSignState> contractorAndSignStates) {
+        return GetProceedContractResponseDto.builder()
                 .contractId(contract.getContractId())
                 .title(contract.getTitle())
                 .content(contract.getContent())
