@@ -90,7 +90,7 @@ public class ContractServiceSupport {
 
     public void checkIsParticipant(User user, Contract contract) {
         if (!agreementSignRepository.existsByUserAndContract(user, contract))
-            throw new IsNotParticipantException("contract id: " + contract.getContractId() + ", user: " + user.getEmail());
+            throw new IsNotContractParticipantException("contract id: " + contract.getContractId() + ", user: " + user.getEmail());
     }
 
     public Contract getContractWIthSignsById(Long contractId) {

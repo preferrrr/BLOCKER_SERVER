@@ -2,6 +2,7 @@ package com.blocker.blocker_server.contract.service;
 
 import com.blocker.blocker_server.contract.domain.CancelContract;
 import com.blocker.blocker_server.contract.domain.CancelContractState;
+import com.blocker.blocker_server.contract.dto.response.CancelContractorAndSignState;
 import com.blocker.blocker_server.contract.dto.response.ContractorAndSignState;
 import com.blocker.blocker_server.contract.dto.response.GetCancelContractResponseDto;
 import com.blocker.blocker_server.contract.dto.response.GetCancelContractWithSignStateResponseDto;
@@ -23,56 +24,49 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CancelContractService {
 
-    private final CancelContractRepository cancelContractRepository;
+    private final CancelContractServiceSupport contractServiceSupport;
 
     public List<GetCancelContractResponseDto> getCancelContractList(User me, CancelContractState state) {
 
-        List<CancelContract> cancelContracts = cancelContractRepository.findByUserAndCancelContractState(me, state);
+        //파기 계약서 리스트 조회
+        List<CancelContract> cancelContracts = contractServiceSupport.getCancelContractsByUserAndState(me, state);
 
-        List<GetCancelContractResponseDto> response = cancelContracts.stream()
-                .map(cancelContract -> GetCancelContractResponseDto.of(cancelContract))
-                .collect(Collectors.toList());
-
-        return response;
+        //dto로 변환해서 반환
+        return contractServiceSupport.entityListToDtoList(cancelContracts);
     }
 
-    private GetCancelContractWithSignStateResponseDto buildDto(CancelContract cancelContract) {
 
-        List<ContractorAndSignState> contractorAndSignStates = cancelContract.getCancelSigns().stream()
-                .map(sign -> ContractorAndSignState.of(sign.getUser().getEmail(), sign.getSignState()))
-                .collect(Collectors.toList());
-
-        GetCancelContractWithSignStateResponseDto response = GetCancelContractWithSignStateResponseDto.of(cancelContract, contractorAndSignStates);
-
-        return response;
-    }
 
     public GetCancelContractWithSignStateResponseDto getCancelingContract(User me, Long cancelContractId) {
-        CancelContract cancelContract = cancelContractRepository.findCancelContractWithSignsById(cancelContractId).orElseThrow(() -> new NotFoundException("[get canceling contract] cancelContractId : " + cancelContractId));
 
-        //파기 진행 중 계약서가 아니면 예외 반환
-        if (!cancelContract.getCancelContractState().equals(CancelContractState.CANCELING))
-            throw new NotCancelingContractException("cancelContractId : " + cancelContractId);
+        //조회할 계약서
+        CancelContract cancelContract = contractServiceSupport.getCancelContractWithSignsById(cancelContractId);
 
-        if (!cancelContract.getUser().getEmail().equals(me.getEmail()))
-            throw new ForbiddenException("[get canceling contract] cancelContractId, email: " + cancelContractId + ", " + me.getEmail());
+        //파기 진행 중 계약서인지 검사
+        contractServiceSupport.checkIsCancelingCancelContract(cancelContract);
 
-        return buildDto(cancelContract);
+        //파기 계약 참여자인지 검사
+        contractServiceSupport.checkIsCancelContractParticipant(me, cancelContract);
 
+        //참여자 서명들
+        List<CancelContractorAndSignState> contractorAndSignStates = contractServiceSupport.getCancelContractorAndSignState(cancelContract.getCancelSigns());
+
+        return GetCancelContractWithSignStateResponseDto.of(cancelContract, contractorAndSignStates);
     }
 
     public GetCancelContractWithSignStateResponseDto getCanceledContract(User me, Long cancelContractId) {
 
-        CancelContract cancelContract = cancelContractRepository.findCancelContractWithSignsById(cancelContractId).orElseThrow(() -> new NotFoundException("[get canceled contract] cancelContractId : " + cancelContractId));
+        CancelContract cancelContract = contractServiceSupport.getCancelContractWithSignsById(cancelContractId);
 
-        //파기 진행 중 계약서가 아니면 예외 반환
-        if (!cancelContract.getCancelContractState().equals(CancelContractState.CANCELED))
-            throw new NotCanceledContractException("cancelContractId : " + cancelContractId);
+        //파기 체결된 계약서가 아니면 예외 반환
+        contractServiceSupport.checkIsCanceledCancelContract(cancelContract);
 
-        if (!cancelContract.getUser().getEmail().equals(me.getEmail()))
-            throw new ForbiddenException("[get canceled contract] cancelContractId, email: " + cancelContractId + ", " + me.getEmail());
+        //파기 계약 참여자인지 검사
+        contractServiceSupport.checkIsCancelContractParticipant(me, cancelContract);
 
-        return buildDto(cancelContract);
+        //참여자 서명들
+        List<CancelContractorAndSignState> contractorAndSignStates = contractServiceSupport.getCancelContractorAndSignState(cancelContract.getCancelSigns());
 
+        return GetCancelContractWithSignStateResponseDto.of(cancelContract, contractorAndSignStates);
     }
 }

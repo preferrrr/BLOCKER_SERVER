@@ -16,10 +16,10 @@ public class GetCancelContractWithSignStateResponseDto {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-    private List<ContractorAndSignState> contractorAndSignStates;
+    private List<CancelContractorAndSignState> contractorAndSignStates;
 
     @Builder
-    private GetCancelContractWithSignStateResponseDto(Long cancelContractId, Long contractId, String title, String content, LocalDateTime createdAt, LocalDateTime modifiedAt, List<ContractorAndSignState> contractorAndSignStates) {
+    private GetCancelContractWithSignStateResponseDto(Long cancelContractId, Long contractId, String title, String content, LocalDateTime createdAt, LocalDateTime modifiedAt, List<CancelContractorAndSignState> contractorAndSignStates) {
         this.cancelContractId = cancelContractId;
         this.contractId = contractId;
         this.title = title;
@@ -29,7 +29,7 @@ public class GetCancelContractWithSignStateResponseDto {
         this.contractorAndSignStates = contractorAndSignStates;
     }
 
-    public static GetCancelContractWithSignStateResponseDto of(CancelContract cancelContract, List<ContractorAndSignState> contractorAndSignStates) {
+    public static GetCancelContractWithSignStateResponseDto of(CancelContract cancelContract, List<CancelContractorAndSignState> contractorAndSignStates) {
         return GetCancelContractWithSignStateResponseDto.builder()
                 .cancelContractId(cancelContract.getCancelContractId())
                 .contractId(cancelContract.getContract().getContractId())

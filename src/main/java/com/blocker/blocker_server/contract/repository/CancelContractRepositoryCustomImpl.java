@@ -1,13 +1,17 @@
 package com.blocker.blocker_server.contract.repository;
 
 import com.blocker.blocker_server.contract.domain.CancelContract;
+import com.blocker.blocker_server.contract.domain.CancelContractState;
 import com.blocker.blocker_server.contract.domain.QCancelContract;
 import com.blocker.blocker_server.sign.domain.QCancelSign;
+import com.blocker.blocker_server.user.domain.QUser;
+import com.blocker.blocker_server.user.domain.User;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,6 +22,7 @@ public class CancelContractRepositoryCustomImpl implements CancelContractReposit
 
     QCancelContract cancelContract = QCancelContract.cancelContract;
     QCancelSign cancelSign = QCancelSign.cancelSign;
+    QUser user = QUser.user;
 
     @Override
     public Optional<CancelContract> findCancelContractWithSignsById(Long cancelContractId) {
@@ -25,10 +30,26 @@ public class CancelContractRepositoryCustomImpl implements CancelContractReposit
         JPAQuery<CancelContract> getCancelContractQuery = jpaQueryFactory
                 .selectFrom(cancelContract)
                 .join(cancelContract.cancelSigns, cancelSign).fetchJoin()
+                .join(cancelSign.user, user).fetchJoin()
                 .where(cancelContract.cancelContractId.eq(cancelContractId));
 
         CancelContract result = getCancelContractQuery.fetchOne();
 
         return Optional.ofNullable(result);
+    }
+
+    @Override
+    public List<CancelContract> findCancelContractsByUserAndState(User user, CancelContractState state) {
+
+        JPAQuery<CancelContract> getCancelContractsQuery = jpaQueryFactory
+                .selectFrom(cancelContract)
+                .distinct()
+                .join(cancelContract.cancelSigns, cancelSign)
+                .where(cancelSign.user.email.eq(user.getEmail()),
+                        cancelContract.cancelContractState.eq(state));
+
+        List<CancelContract> result = getCancelContractsQuery.fetch();
+
+        return result;
     }
 }

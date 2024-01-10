@@ -56,8 +56,8 @@ public class ContractExceptionHandler {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /** 진행 중 계약서가 아님.*/
     }
 
-    @ExceptionHandler(IsNotParticipantException.class)
-    public ResponseEntity<?> handleIsNotParticipantException(final IsNotParticipantException e) {
+    @ExceptionHandler(IsNotContractParticipantException.class)
+    public ResponseEntity<?> handleIsNotParticipantException(final IsNotContractParticipantException e) {
 
         String msg = e.getNAME() + ": [" + e.getMessage() + "]";
         log.error(msg);
@@ -74,4 +74,39 @@ public class ContractExceptionHandler {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /** 체결된 계약서가 아님.*/
     }
 
+    @ExceptionHandler(CancelContractNotFoundException.class)
+    public ResponseEntity<?> handleCancelContractNotFoundException(final CancelContractNotFoundException e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND); /** 파기 계약서 찾을 수 없음.*/
+    }
+
+    @ExceptionHandler(IsNotCancelingCancelContract.class)
+    public ResponseEntity<?> handleIsNotCancelingCancelContract(final IsNotCancelingCancelContract e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /** 파기 진행 중 계약서가 아님.*/
+    }
+
+    @ExceptionHandler(IsNotCancelContractParticipant.class)
+    public ResponseEntity<?> handleIsNotCancelContractParticipant(final IsNotCancelContractParticipant e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN); /** 파기 계약 참여자가 아님.*/
+    }
+
+    @ExceptionHandler(IsNotCanceledCancelContract.class)
+    public ResponseEntity<?> handleIsNotCanceledCancelContract(final IsNotCanceledCancelContract e) {
+
+        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
+        log.error(msg);
+
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST); /** 파기 체결된 계약서가 아님.*/
+    }
 }

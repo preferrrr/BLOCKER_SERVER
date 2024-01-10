@@ -4,15 +4,12 @@ import com.blocker.blocker_server.IntegrationTestSupport;
 import com.blocker.blocker_server.board.domain.Board;
 import com.blocker.blocker_server.board.repository.BoardRepository;
 import com.blocker.blocker_server.contract.domain.Contract;
-import com.blocker.blocker_server.contract.domain.ContractState;
-import com.blocker.blocker_server.contract.dto.response.ContractorAndSignState;
 import com.blocker.blocker_server.contract.dto.response.GetContractResponseDto;
 import com.blocker.blocker_server.contract.exception.*;
 import com.blocker.blocker_server.contract.repository.ContractRepository;
 import com.blocker.blocker_server.sign.domain.AgreementSign;
 import com.blocker.blocker_server.sign.domain.SignState;
 import com.blocker.blocker_server.sign.repository.AgreementSignRepository;
-import com.blocker.blocker_server.sign.service.AgreementSignServiceSupport;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.user.repository.UserRepository;
 import org.hibernate.Hibernate;
@@ -21,10 +18,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -301,7 +296,7 @@ class ContractServiceSupportTest extends IntegrationTestSupport {
         /** when then */
 
         assertThatThrownBy(() -> contractServiceSupport.checkIsParticipant(user3, contract))
-                .isInstanceOf(IsNotParticipantException.class);
+                .isInstanceOf(IsNotContractParticipantException.class);
 
     }
 
