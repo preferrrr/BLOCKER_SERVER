@@ -13,4 +13,6 @@ public interface AgreementSignRepository extends JpaRepository<AgreementSign, Lo
     Optional<AgreementSign> findByContractAndUser(Contract contract, User user);
     List<AgreementSign> findByContract(Contract contract);
     List<AgreementSign> findByUser(User user);
+
+    boolean existsByUserAndContract(User user, Contract contract);
 }
