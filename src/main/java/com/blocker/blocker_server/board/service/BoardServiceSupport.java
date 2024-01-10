@@ -82,14 +82,14 @@ public class BoardServiceSupport {
 
         //계약서가 달라졌으면 조회 후 나의 계약서가 맞는지 확인
         if (!board.getContract().getContractId().equals(modifyContractId)) {
-            Contract contract = contractServiceSupport.getContractById(me, modifyContractId);
+            Contract contract = contractServiceSupport.getContractById(modifyContractId);
 
             contractServiceSupport.checkIsContractWriter(me, contract);
 
             return contract;
         }
 
-        return contractServiceSupport.getContractById(me, modifyContractId);
+        return contractServiceSupport.getContractById(modifyContractId);
     }
 
     public List<Board> getMyBoards(String me, Pageable pageable) {

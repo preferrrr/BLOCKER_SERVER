@@ -69,10 +69,11 @@ public class ContractServiceSupport {
     }
 
     public void checkIsNotProceedContract(Contract contract) {
-        if (contract.getContractState().equals(ContractState.NOT_PROCEED))
+        if (!contract.getContractState().equals(ContractState.NOT_PROCEED))
             throw new IsNotNotProceedContractException("contract id: " + contract.getContractId());
     }
 
+    @Transactional
     public void deleteContractById(Long contractId) {
         contractRepository.deleteById(contractId);
     }
