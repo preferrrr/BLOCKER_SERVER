@@ -13,4 +13,6 @@ public interface CancelSignRepository extends JpaRepository<CancelSign, Long> {
     List<CancelSign> findByCancelContract(CancelContract cancelContract);
 
     CancelSign findByUserAndCancelContract(User user, CancelContract cancelContract);
+
+    boolean existsByUserAndCancelContract(User user, CancelContract cancelContract);
 }

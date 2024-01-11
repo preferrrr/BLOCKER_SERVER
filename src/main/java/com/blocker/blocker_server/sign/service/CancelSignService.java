@@ -1,106 +1,71 @@
 package com.blocker.blocker_server.sign.service;
 
 import com.blocker.blocker_server.contract.domain.CancelContract;
-import com.blocker.blocker_server.sign.domain.AgreementSign;
+import com.blocker.blocker_server.contract.service.CancelContractServiceSupport;
+import com.blocker.blocker_server.contract.service.ContractServiceSupport;
 import com.blocker.blocker_server.contract.domain.Contract;
-import com.blocker.blocker_server.contract.domain.ContractState;
-import com.blocker.blocker_server.commons.exception.*;import com.blocker.blocker_server.sign.repository.AgreementSignRepository;
-import com.blocker.blocker_server.contract.repository.CancelContractRepository;
-import com.blocker.blocker_server.sign.repository.CancelSignRepository;
-import com.blocker.blocker_server.contract.repository.ContractRepository;
 import com.blocker.blocker_server.sign.domain.CancelSign;
-import com.blocker.blocker_server.sign.domain.SignState;
 import com.blocker.blocker_server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CancelSignService {
 
-    private final CancelSignRepository cancelSignRepository;
-    private final ContractRepository contractRepository;
-    private final AgreementSignRepository agreementSignRepository;
-    private final CancelContractRepository cancelContractRepository;
+    private final CancelSignServiceSupport cancelSignServiceSupport;
+    private final ContractServiceSupport contractServiceSupport;
+    private final CancelContractServiceSupport cancelContractServiceSupport;
 
     @Transactional
     public void cancelContract(User me, Long contractId) {
 
-        Contract contract = contractRepository.findById(contractId).orElseThrow(()->new NotFoundException("[cancel contract] contractId : " + contractId));
+        //파기를 진행할 계약서
+        Contract contract = contractServiceSupport.getContractWIthSignsById(contractId);
 
-        //계약서의 상태가 체결이 아니면 반환
-        if(!contract.getContractState().equals(ContractState.CONCLUDE))
-            throw new NotConcludeContractException("email, contractId : " + me.getEmail() + ", " + contractId);
+        //계약서의 상태가 체결인지 검사
+        cancelSignServiceSupport.checkIsConcludeContract(contract);
 
-        List<AgreementSign> agreementSigns = agreementSignRepository.findByContract(contract);
-        //계약의 참여자가 아니면 403 반환
-        if(agreementSigns.stream().noneMatch(agreementSign -> agreementSign.getUser().getEmail().equals(me.getEmail())))
-            throw new ForbiddenException("[cancel contract] email, contractId : " + me.getEmail() + ", " + contractId);
+        //계약 참여자인지 검사
+        cancelSignServiceSupport.checkIsParticipantForCancel(me, contract);
 
-        //이미 파기 계약 진행 중이라면 409 반환
-        if(cancelContractRepository.existsByContract(contract))
-            throw new ExistsCancelSignException("email, contractId : " + me.getEmail() + ", " + contractId);
+        //이미 파기 진행 중인지 검사
+        cancelSignServiceSupport.checkIsCancelingContract(contract);
 
+        //파기 계약서
         CancelContract cancelContract = CancelContract.create(me, contract, contract.getTitle(), contract.getContent());
 
-        List<CancelSign> cancelSigns = agreementSigns.stream()
-                .map(agreementSign -> CancelSign.create(agreementSign.getUser(), cancelContract))
-                .collect(Collectors.toList());
+        //파기 서명들
+        List<CancelSign> cancelSigns = cancelSignServiceSupport.createCancelSigns(cancelContract, contract.getAgreementSigns());
 
-        cancelContractRepository.save(cancelContract);
-        cancelSignRepository.saveAll(cancelSigns);
+        //파기 계약서와 파기 서명 저장
+        cancelSignServiceSupport.saveCancelContract(cancelContract);
+        cancelSignServiceSupport.saveCancelSigns(cancelSigns);
+
     }
 
     @Transactional
     public void signCancelContract(User me, Long cancelContractId) {
 
-        List<CancelSign> cancelSigns = cancelSignRepository.findByCancelContract(cancelContractRepository.getReferenceById(cancelContractId));
+        //계약서 서명과 함께 조회
+        CancelContract cancelContract = cancelContractServiceSupport.getCancelContractWithSignsById(cancelContractId);
 
-        if (cancelSigns.size() < 2)
-            throw new NotFoundException("[sign contract] email, contractId : " + me.getEmail() + ", " + cancelContractId);
+        //내 서명
+        CancelSign myCancelSign = cancelSignServiceSupport.getMyCancelSign(me.getEmail(), cancelContract.getCancelSigns());
 
-        // 계약 참여자들 모두 가져오고, 나의 Sign에 서명 후
-        // Sign 모두 Y가 되면 블록체인으로 계약 체결, 계약서 상태 CANCELED로 바꿈.
-        sign(cancelSigns, me.getEmail(), cancelContractId);
+        //이미 서명 했는지 검사
+        cancelSignServiceSupport.checkMySignStateIsN(myCancelSign);
 
-        isAllAgree(cancelSigns, me.getEmail(), cancelContractId);
-
-    }
-
-    private void isAllAgree(List<CancelSign> cancelSigns, String myEmail, Long cancelContractId) {
-        boolean allY = cancelSigns.stream()
-                .allMatch(sign -> sign.getSignState().equals(SignState.Y));
-
-        if (allY) {
-            CancelContract cancelContract = cancelContractRepository.findById(cancelContractId).orElseThrow(() -> new NotFoundException("[sign cancel contract] email, cancelContractId : " + myEmail + ", " + cancelContractId));
-
-            cancelContract.updateStateToCanceled();
-
-            //TODO: 블록체인으로 계약 체결되도록
-
-        }
-    }
-
-    private void sign(List<CancelSign> cancelSigns, String myEmail, Long cancelContractId) {
-
-        // 계약 참여자들 모두 가져오고, 나의 Sign에 서명 후
-        // Sign 모두 Y가 되면 블록체인으로 계약 체결, 계약서 상태 CONCLUDE로 바꿈.
-
-        CancelSign myCancelSign = cancelSigns.stream() // signs 중 내 sign 찾기
-                .filter(sign -> sign.getUser().getEmail().equals(myEmail))
-                .findFirst().orElseThrow(() -> new NotFoundException("[sign contract] email, contractId : " + myEmail + ", " + cancelContractId));
-
-        //이미 서명 했으면 409 응답
-        if (myCancelSign.getSignState().equals(SignState.Y))
-            throw new DuplicateSignException("cancel contractId, email : " + cancelContractId + ", " + myEmail);
-
+        //서명
         myCancelSign.sign();
 
+        //계약 참여자들이 모두 서명했는지 검사
+        //모두 서명했다면 계약서는 체결로 바뀌고, 블록체인에 저장됨
+        cancelSignServiceSupport.checkIsAllAgree(cancelContract);
     }
+
 }
