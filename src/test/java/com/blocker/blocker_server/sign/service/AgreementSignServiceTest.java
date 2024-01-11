@@ -1,136 +1,141 @@
 package com.blocker.blocker_server.sign.service;
 
-import com.blocker.blocker_server.IntegrationTestSupport;
+import com.blocker.blocker_server.chat.service.ChatService;
 import com.blocker.blocker_server.contract.domain.Contract;
 import com.blocker.blocker_server.contract.domain.ContractState;
-import com.blocker.blocker_server.contract.repository.ContractRepository;
+import com.blocker.blocker_server.contract.service.ContractServiceSupport;
 import com.blocker.blocker_server.sign.domain.AgreementSign;
 import com.blocker.blocker_server.sign.domain.SignState;
 import com.blocker.blocker_server.sign.dto.request.ProceedSignRequestDto;
-import com.blocker.blocker_server.sign.repository.AgreementSignRepository;
 import com.blocker.blocker_server.user.domain.User;
-import com.blocker.blocker_server.user.repository.UserRepository;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.*;
 
-@Transactional
-class AgreementSignServiceTest extends IntegrationTestSupport {
+@ExtendWith(MockitoExtension.class)
+class AgreementSignServiceTest {
 
-    @Autowired
+    @InjectMocks
     private AgreementSignService agreementSignService;
 
-    @Autowired
-    private ContractRepository contractRepository;
+    @Mock
+    private AgreementSignServiceSupport agreementSignServiceSupport;
+    @Mock
+    private ContractServiceSupport contractServiceSupport;
+    @Mock
+    private ChatService chatService;
 
-    @Autowired
-    private UserRepository userRepository;
+    private User user;
+    private Contract contract;
+    private AgreementSign agreementSign;
+    @BeforeEach
+    void setUp() {
+        user = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
+        contract = Contract.create(user, "testTitle", "testContent");
+        agreementSign = AgreementSign.create(user, contract);
+    }
 
-    @Autowired
-    private AgreementSignRepository agreementSignRepository;
-
-    @DisplayName("계약을 진행하면, 계약서의 상태가 PROCEED로 바뀌고 AgreementSign이 저장되며 SignState는 모두 N이다.")
+    @DisplayName("계약을 진행하고 ContractState가 PROCEED로 바뀐다.")
     @Test
     void proceedContract() {
 
         /** given */
+        given(contractServiceSupport.getContractById(anyLong())).willReturn(contract);
+        willDoNothing().given(contractServiceSupport).checkIsContractWriter(anyString(), any(Contract.class));
+        willDoNothing().given(agreementSignServiceSupport).checkIsNotProceedContract(any(Contract.class));
+        willDoNothing().given(agreementSignServiceSupport).checkIsEmptyContractor(anyList());
+        given(agreementSignServiceSupport.createAgreementSigns(any(Contract.class), any(User.class), anyList())).willReturn(mock(List.class));
+        willDoNothing().given(agreementSignServiceSupport).saveAgreementSigns(anyList());
+        willDoNothing().given(chatService).createChatRoom(any(User.class), anyList());
 
-        User user1 = User.create("testEmail1", "testName1", "testPicture", "testValue1", List.of("USER"));
-        User user2 = User.create("testEmail2", "testName2", "testPicture", "testValue2", List.of("USER"));
-        User user3 = User.create("testEmail3", "testName3", "testPicture", "testValue3", List.of("USER"));
-        userRepository.saveAll(List.of(user1, user2, user3));
-
-        Contract contract = Contract.create(user1, "testTitle", "testContent");
-        contractRepository.save(contract);
-
-        ProceedSignRequestDto dto = ProceedSignRequestDto.builder()
-                .contractId(contract.getContractId())
-                .contractors(List.of(user2.getEmail(), user3.getEmail()))
+        ProceedSignRequestDto request = ProceedSignRequestDto.builder()
+                .contractId(1l)
+                .contractors(List.of("testEmail2", "testEmail3"))
                 .build();
-
 
         /** when */
 
-        agreementSignService.proceedContract(user1, dto);
+        agreementSignService.proceedContract(user, request);
 
         /** then */
 
+        verify(contractServiceSupport, times(1)).getContractById(anyLong());
+        verify(contractServiceSupport, times(1)).checkIsContractWriter(anyString(), any(Contract.class));
+        verify(agreementSignServiceSupport, times(1)).checkIsNotProceedContract(any(Contract.class));
+        verify(agreementSignServiceSupport, times(1)).checkIsEmptyContractor(anyList());
+        verify(agreementSignServiceSupport, times(1)).createAgreementSigns(any(Contract.class), any(User.class), anyList());
+        verify(agreementSignServiceSupport, times(1)).saveAgreementSigns(anyList());
+        verify(chatService, times(1)).createChatRoom(any(User.class), anyList());
         assertThat(contract.getContractState()).isEqualTo(ContractState.PROCEED);
-
-        List<AgreementSign> agreementSigns = agreementSignRepository.findByContract(contract);
-        assertThat(agreementSigns).hasSize(3);
-        assertThat(agreementSigns).allMatch(agreementSign -> agreementSign.getSignState().equals(SignState.N));
-
     }
 
-    @DisplayName("계약서에 서명하면 AgreementSign의 SignState가 Y로 바뀐다.")
+    @DisplayName("계약서의 내 AgreementSign에 서명하고 SignState가 Y로 바뀐다.")
     @Test
     void signContract() {
 
         /** given */
-        User user1 = User.create("testEmail1", "testName1", "testPicture", "testValue1", List.of("USER"));
-        User user2 = User.create("testEmail2", "testName2", "testPicture", "testValue2", List.of("USER"));
-        User user3 = User.create("testEmail3", "testName3", "testPicture", "testValue3", List.of("USER"));
-        userRepository.saveAll(List.of(user1, user2, user3));
 
-        Contract contract = Contract.create(user1, "testTitle", "testContent");
-        contract.updateStateToProceed();
-        contractRepository.save(contract);
-
-        AgreementSign agreementSign1 = AgreementSign.create(user1, contract);
-        AgreementSign agreementSign2 = AgreementSign.create(user2, contract);
-        AgreementSign agreementSign3 = AgreementSign.create(user3, contract);
-        agreementSignRepository.saveAll(List.of(agreementSign1, agreementSign2, agreementSign3));
-
+        given(contractServiceSupport.getContractWIthSignsById(anyLong())).willReturn(contract);
+        given(agreementSignServiceSupport.getMyAgreementSign(anyString(), anyList())).willReturn(agreementSign);
+        willDoNothing().given(agreementSignServiceSupport).checkMySignStateIsN(any(AgreementSign.class));
+        willDoNothing().given(agreementSignServiceSupport).checkIsAllAgree(any(Contract.class));
 
         /** when */
 
-        agreementSignService.signContract(user1, contract.getContractId());
+        agreementSignService.signContract(user, 1l);
 
         /** then */
 
-        AgreementSign mySign = agreementSignRepository.findByContractAndUser(contract, user1).get();
-        assertThat(mySign.getSignState()).isEqualTo(SignState.Y);
+        verify(contractServiceSupport, times(1)).getContractWIthSignsById(anyLong());
+        verify(agreementSignServiceSupport, times(1)).getMyAgreementSign(anyString(), anyList());
+        verify(agreementSignServiceSupport, times(1)).checkMySignStateIsN(any(AgreementSign.class));
+        verify(agreementSignServiceSupport, times(1)).checkIsAllAgree(any(Contract.class));
 
+        assertThat(agreementSign.getSignState()).isEqualTo(SignState.Y);
 
     }
 
-    @DisplayName("진행 중 계약서를 취소하면, AgreementSign은 모두 지워지고 ContractState는 NOT_PROCEED로 바뀐다.")
+
+    @DisplayName("계약 진행을 취소하고, 계약서 상태를 NOT_PROCEED로 바꾸며 참여자들의 AgreementSign들을 삭제한다.")
     @Test
-    void test() {
+    void breakContract() {
 
         /** given */
-        User user1 = User.create("testEmail1", "testName1", "testPicture", "testValue1", List.of("USER"));
-        User user2 = User.create("testEmail2", "testName2", "testPicture", "testValue2", List.of("USER"));
-        User user3 = User.create("testEmail3", "testName3", "testPicture", "testValue3", List.of("USER"));
-        userRepository.saveAll(List.of(user1, user2, user3));
 
-        Contract contract = Contract.create(user1, "testTitle", "testContent");
-        contract.updateStateToProceed();
-        contractRepository.save(contract);
-
-        AgreementSign agreementSign1 = AgreementSign.create(user1, contract);
-        AgreementSign agreementSign2 = AgreementSign.create(user2, contract);
-        AgreementSign agreementSign3 = AgreementSign.create(user3, contract);
-        agreementSignRepository.saveAll(List.of(agreementSign1, agreementSign2, agreementSign3));
+        given(contractServiceSupport.getContractWIthSignsById(anyLong())).willReturn(contract);
+        willDoNothing().given(contractServiceSupport).checkIsParticipant(any(User.class), any(Contract.class));
+        willDoNothing().given(contractServiceSupport).checkIsProceedContract(any(Contract.class));
+        willDoNothing().given(agreementSignServiceSupport).deleteAgreementSigns(anyList());
 
         /** when */
 
-        agreementSignService.breakContract(user1, contract.getContractId());
+        agreementSignService.breakContract(user, 1l);
 
         /** then */
+
+        verify(contractServiceSupport, times(1)).getContractWIthSignsById(anyLong());
+        verify(contractServiceSupport, times(1)).checkIsParticipant(any(User.class), any(Contract.class));
+        verify(contractServiceSupport, times(1)).checkIsProceedContract(any(Contract.class));
+        verify(agreementSignServiceSupport, times(1)).deleteAgreementSigns(anyList());
 
         assertThat(contract.getContractState()).isEqualTo(ContractState.NOT_PROCEED);
 
-        List<AgreementSign> agreementSigns = agreementSignRepository.findByContract(contract);
-        assertThat(agreementSigns).isEmpty();
+
+
     }
+
 }

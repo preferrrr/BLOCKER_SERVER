@@ -92,6 +92,7 @@ public class AgreementSignServiceSupport {
         }
     }
 
+    @Transactional
     public void deleteAgreementSigns(List<AgreementSign> agreementSigns) {
         agreementSignRepository.deleteAllInBatch(agreementSigns);
     }
