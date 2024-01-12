@@ -9,6 +9,7 @@ import com.blocker.blocker_server.commons.exception.NotFoundException;
 import com.blocker.blocker_server.commons.jwt.JwtProvider;
 import com.blocker.blocker_server.signature.repository.SignatureRepository;
 import com.blocker.blocker_server.user.repository.UserRepository;
+import com.blocker.blocker_server.user.service.UserServiceSupport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -22,42 +23,30 @@ import java.util.List;
 @Service
 @Transactional(readOnly = true)
 public class SignatureService {
-    private final UserRepository userRepository;
-    private final SignatureRepository signatureRepository;
-    private final JwtProvider jwtProvider;
+
+    private final SignatureServiceSupport signatureServiceSupport;
+    private final UserServiceSupport userServiceSupport;
     private final S3Service s3Service;
 
 
     @Transactional
     public HttpHeaders setSignature(User user, MultipartFile file) throws IOException {
 
-        User me = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new NotFoundException("email : " + user.getEmail()));
-        // pk인 email로 조회했는데 없다면? 401 vs 404 고민했지만, 401은 jwt의 토큰 만료 response와 겹치기 때문에 404로 결정.
-        if(signatureRepository.existsByUser(user))
-            throw new ExistsSignatureException("email : " + user.getEmail());
+        User me = userServiceSupport.findUserByEmail(user.getEmail());
 
+        //전자서명 이미 가지고 있는지 검사
+        signatureServiceSupport.checkAlreadyHaveSignature(me);
+
+        //S3에 전자서명 저장 후 주소
         String signatureAddress = s3Service.saveSignature(file);
 
         Signature signature = Signature.create(me, signatureAddress);
 
-        signatureRepository.save(signature);
+        //전자서명 저장
+        signatureServiceSupport.saveSignature(signature);
 
-        HttpHeaders headers = updateAuthority(me);
-
-        return headers;
-
-    }
-
-    private HttpHeaders updateAuthority(User user) {
-        //TODO : delete, insert * 2번 쿼리 생김.
-        List<String> roles = user.getRoles();
-        roles.add("USER"); //GUEST에서 USER 권한 추가.
-        user.updateRoles(roles);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(user.getEmail(), user.getName(), roles)); // access token
-
-        return headers;
+        //JWT에 USER 권한 추가해서 반환
+        return signatureServiceSupport.updateToUserAuthority(me);
     }
 
     // 이전에 했던 체결된 계약들을 위해 사인들도 저장해둬야 하지 않을까?
@@ -67,19 +56,21 @@ public class SignatureService {
     // 일단은 수정이니까 PATCH로 함.
     @Transactional
     public void modifySignature(User user, MultipartFile file) throws IOException {
-        User me = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new NotFoundException("email : " + user.getEmail()));
 
+        User me = userServiceSupport.findUserByEmail(user.getEmail());
+
+        //새로운 전자서명 S3에 저장
         String signatureAddress = s3Service.saveSignature(file);
 
         Signature signature = Signature.create(me, signatureAddress);
 
-        signatureRepository.save(signature);
-
+        //새로운 전자서명 DB에 저장
+        signatureServiceSupport.saveSignature(signature);
     }
 
     public GetSignatureResponseDto getSignature(User user) {
         //여러 개 중 가장 최근에 등록한 전자서명 조회
-        Signature mySignature = signatureRepository.findByUserOrderByCreatedAtDesc(user).orElseThrow(()-> new NotFoundException("[get signature] email : " + user.getEmail()));
+        Signature mySignature = signatureServiceSupport.getMySignature(user);
 
         return GetSignatureResponseDto.of(mySignature.getId().getSignatureAddress());
     }
