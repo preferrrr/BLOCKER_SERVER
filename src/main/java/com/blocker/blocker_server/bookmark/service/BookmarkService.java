@@ -6,7 +6,6 @@ import com.blocker.blocker_server.bookmark.dto.request.SaveBookmarkRequestDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.board.domain.Board;
 import com.blocker.blocker_server.user.domain.User;
-import com.blocker.blocker_server.commons.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

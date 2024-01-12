@@ -1,14 +1,11 @@
 package com.blocker.blocker_server.signature.service;
 
-import com.blocker.blocker_server.commons.exception.ExistsSignatureException;
-import com.blocker.blocker_server.commons.exception.NotFoundException;
 import com.blocker.blocker_server.commons.jwt.JwtProvider;
 import com.blocker.blocker_server.signature.domain.Signature;
 import com.blocker.blocker_server.signature.exception.AlreadyHaveSignatureException;
 import com.blocker.blocker_server.signature.exception.SignatureNotFoundException;
 import com.blocker.blocker_server.signature.repository.SignatureRepository;
 import com.blocker.blocker_server.user.domain.User;
-import com.blocker.blocker_server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;

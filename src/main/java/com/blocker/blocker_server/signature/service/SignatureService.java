@@ -4,11 +4,6 @@ import com.blocker.blocker_server.signature.dto.response.GetSignatureResponseDto
 import com.blocker.blocker_server.Image.service.S3Service;
 import com.blocker.blocker_server.signature.domain.Signature;
 import com.blocker.blocker_server.user.domain.User;
-import com.blocker.blocker_server.commons.exception.ExistsSignatureException;
-import com.blocker.blocker_server.commons.exception.NotFoundException;
-import com.blocker.blocker_server.commons.jwt.JwtProvider;
-import com.blocker.blocker_server.signature.repository.SignatureRepository;
-import com.blocker.blocker_server.user.repository.UserRepository;
 import com.blocker.blocker_server.user.service.UserServiceSupport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;

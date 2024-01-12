@@ -7,8 +7,6 @@ import com.blocker.blocker_server.board.exception.UnauthorizedDeleteBoardExcepti
 import com.blocker.blocker_server.board.exception.UnauthorizedModifyBoardException;
 import com.blocker.blocker_server.board.repository.BoardRepository;
 import com.blocker.blocker_server.bookmark.repository.BookmarkRepository;
-import com.blocker.blocker_server.commons.exception.ForbiddenException;
-import com.blocker.blocker_server.commons.exception.NotFoundException;
 import com.blocker.blocker_server.contract.domain.Contract;
 import com.blocker.blocker_server.contract.service.ContractServiceSupport;
 import com.blocker.blocker_server.user.domain.User;

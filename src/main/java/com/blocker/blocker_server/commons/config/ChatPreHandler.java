@@ -7,7 +7,6 @@ import com.blocker.blocker_server.commons.exception.ForbiddenException;
 import com.blocker.blocker_server.commons.jwt.JwtProvider;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.user.repository.UserRepository;
-import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -18,7 +17,6 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
 
 
 @Component
