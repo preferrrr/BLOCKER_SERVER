@@ -4,6 +4,7 @@ import com.blocker.blocker_server.commons.exception.ExistsSignatureException;
 import com.blocker.blocker_server.commons.exception.NotFoundException;
 import com.blocker.blocker_server.commons.jwt.JwtProvider;
 import com.blocker.blocker_server.signature.domain.Signature;
+import com.blocker.blocker_server.signature.exception.AlreadyHaveSignatureException;
 import com.blocker.blocker_server.signature.exception.SignatureNotFoundException;
 import com.blocker.blocker_server.signature.repository.SignatureRepository;
 import com.blocker.blocker_server.user.domain.User;
@@ -25,7 +26,7 @@ public class SignatureServiceSupport {
 
     public void checkAlreadyHaveSignature(User user) {
         if(signatureRepository.existsByUser(user))
-            throw new ExistsSignatureException("email : " + user.getEmail());
+            throw new AlreadyHaveSignatureException("email : " + user.getEmail());
     }
 
     @Transactional
@@ -35,8 +36,8 @@ public class SignatureServiceSupport {
 
     @Transactional
     public HttpHeaders updateToUserAuthority(User user) {
-        List<String> roles = user.getRoles();
-        roles.add("USER"); //GUEST에서 USER 권한 추가.
+        List<String> roles = List.of("USER");
+        //roles.add("USER"); //GUEST에서 USER 권한 추가.
         user.updateRoles(roles);
 
         HttpHeaders headers = new HttpHeaders();
