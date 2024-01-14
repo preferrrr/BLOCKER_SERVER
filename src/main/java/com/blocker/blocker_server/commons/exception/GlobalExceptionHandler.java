@@ -20,15 +20,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @ExceptionHandler({InvalidRefreshTokenException.class})
-    public ResponseEntity<?> handleInvalidRefreshTokenException(final InvalidRefreshTokenException e) {
-
-        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
-        log.error(msg);
-
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); /**401, 유효하지 않은 리프레스 토큰.*/
-    }
-
     @ExceptionHandler({ForbiddenException.class})
     public ResponseEntity<?> handleForbiddenException(final ForbiddenException e) {
 

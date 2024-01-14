@@ -45,7 +45,8 @@
             return;
         }
 
-        const socket = new SockJS('http://localhost:8080/chat');
+        const socket = new SockJS('http://43.202.127.236:8080/chat');
+        //const socket = new SockJS('http://localhost:8080/chat');
 
         stompClient = Stomp.over(socket);
 
@@ -82,7 +83,7 @@
 
         const headers = {
             Authorization: authToken,
-            ChatRoomId: currentRoomId
+            //ChatRoomId: currentRoomId
         };
 
         stompClient.subscribe(`/sub/${currentRoomId}`, (message) => {
@@ -114,14 +115,14 @@
 
         const headers = {
             Authorization: authToken,
-            ChatRoomId: currentRoomId
+            //ChatRoomId: currentRoomId
         };
 
         const chatMessage = {
             content: message
         };
 
-        stompClient.send(`/pub/message`, headers, JSON.stringify(chatMessage));
+        stompClient.send(`/pub/message/${currentRoomId}`, headers, JSON.stringify(chatMessage));
         messageInput.value = '';
     }
 

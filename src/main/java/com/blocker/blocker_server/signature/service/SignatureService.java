@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -27,7 +26,7 @@ public class SignatureService {
     @Transactional
     public HttpHeaders setSignature(User user, MultipartFile file) throws IOException {
 
-        User me = userServiceSupport.findUserByEmail(user.getEmail());
+        User me = userServiceSupport.getUserByEmail(user.getEmail());
 
         //전자서명 이미 가지고 있는지 검사
         signatureServiceSupport.checkAlreadyHaveSignature(me);
@@ -52,7 +51,7 @@ public class SignatureService {
     @Transactional
     public void modifySignature(User user, MultipartFile file) throws IOException {
 
-        User me = userServiceSupport.findUserByEmail(user.getEmail());
+        User me = userServiceSupport.getUserByEmail(user.getEmail());
 
         //새로운 전자서명 S3에 저장
         String signatureAddress = s3Service.saveSignature(file);

@@ -2,29 +2,25 @@ package com.blocker.blocker_server.user.service;
 
 import com.blocker.blocker_server.user.dto.request.LoginRequestDto;
 import com.blocker.blocker_server.user.dto.response.SearchUserResponse;
-import com.blocker.blocker_server.commons.exception.InvalidRefreshTokenException;
-import com.blocker.blocker_server.commons.jwt.JwtProvider;
 import com.blocker.blocker_server.signature.repository.SignatureRepository;
 import com.blocker.blocker_server.user.repository.UserRepository;
 import com.blocker.blocker_server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserService {
 
+    private final UserServiceSupport userServiceSupport;
     private final UserRepository userRepository;
-    private final JwtProvider jwtProvider;
     private final SignatureRepository signatureRepository;
 
     @Transactional
@@ -53,7 +49,7 @@ public class UserService {
 
             userRepository.save(newUser);
 
-            HttpHeaders headers = createHeaders(email, newUser.getName(), refreshtokenValue, roles);
+            HttpHeaders headers = userServiceSupport.createHeadersWithJwt(email, newUser.getName(), refreshtokenValue, roles);
 
             return new ResponseEntity<>(headers, HttpStatus.CREATED); // created이면 프론트에서 전자서명등록하는 페이지로 가도록.
 
@@ -63,7 +59,7 @@ public class UserService {
             roles = me.getRoles();
             String username = me.getName();
 
-            HttpHeaders headers = createHeaders(email, username, refreshtokenValue, roles);
+            HttpHeaders headers = userServiceSupport.createHeadersWithJwt(email, username, refreshtokenValue, roles);
 
             if(!me.getName().equals(requestDto.getName()))
                 me.updateName(requestDto.getName());
@@ -81,52 +77,32 @@ public class UserService {
         }
     }
 
-    public HttpHeaders createHeaders(String email, String username, String refreshtokenValue, List<String> roles) {
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(email, username, roles)); // access token
-
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", jwtProvider.createRefreshToken(refreshtokenValue))
-                .maxAge(14 * 24 * 60 * 60)
-                .path("/")
-                .secure(true)
-                .sameSite("None")
-                .httpOnly(true)
-                .build();
-        headers.add(HttpHeaders.COOKIE, cookie.toString()); // refresh token
-
-        return headers;
-    }
-
-
-
 
     public HttpHeaders reissueToken(String cookie) {
 
-        String token = cookie.substring(13, cookie.indexOf(";"));
+        String token = userServiceSupport.getRefreshTokenFromCookie(cookie);
 
-        String value = jwtProvider.getRefreshTokenValue(token); // 토큰 유효성 검사까지 함.
+        //value(unique key)로 유저 찾음
+        User user = userServiceSupport.getUserByRefreshTokenValue(token);
 
-        //value로 유저 찾고, 그 유저 이메일로 엑세스 토큰 재발급.
+        //새로운 리프레시 토큰 value
+        String newRefreshTokenValue = userServiceSupport.getNewRefreshTokenValue();
 
-        User user = userRepository.findByRefreshtokenValue(value).orElseThrow(() -> new InvalidRefreshTokenException("[not exists value] token : " + token));
+        //리프레시 토큰도 재발급
+        user.setRefreshtokenValue(newRefreshTokenValue);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + jwtProvider.createAccessToken(user.getEmail(), user.getName(), user.getRoles())); // access token
-
-        return headers;
+        //새로운 Jwt가 포함된 헤더 반환
+        return userServiceSupport.createHeadersWithJwt(user.getEmail(),user.getName(),newRefreshTokenValue,user.getRoles());
 
     }
 
     public List<SearchUserResponse> searchUsers(String keyword) {
 
-        List<User> userList = userRepository.searchUsers(keyword);
+        //keyword가 포함된 이메일 또는 닉네임을 가진 유저 리스트
+        List<User> userList = userServiceSupport.searchUsers(keyword);
 
-        List<SearchUserResponse> result = userList.stream()
-                .map(user -> SearchUserResponse.of(user.getEmail(), user.getName(), user.getPicture()))
-                .collect(Collectors.toList());
-
-        return result;
+        //dto로 변환해서 반환
+        return userServiceSupport.createSearchUserResponse(userList);
 
     }
 }

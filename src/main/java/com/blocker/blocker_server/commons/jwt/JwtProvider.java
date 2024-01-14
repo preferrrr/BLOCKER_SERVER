@@ -1,6 +1,6 @@
 package com.blocker.blocker_server.commons.jwt;
 
-import com.blocker.blocker_server.commons.exception.InvalidRefreshTokenException;
+import com.blocker.blocker_server.user.exception.InvalidRefreshTokenException;
 import com.blocker.blocker_server.user.domain.User;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;

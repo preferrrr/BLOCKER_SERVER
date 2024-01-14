@@ -2,25 +2,21 @@ package com.blocker.blocker_server.signature.service;
 
 import com.blocker.blocker_server.Image.service.S3Service;
 import com.blocker.blocker_server.signature.domain.Signature;
-import com.blocker.blocker_server.signature.dto.response.GetSignatureResponseDto;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.user.service.UserServiceSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,7 +46,7 @@ class SignatureServiceTest {
 
         /** given */
 
-        given(userServiceSupport.findUserByEmail(anyString())).willReturn(user);
+        given(userServiceSupport.getUserByEmail(anyString())).willReturn(user);
         willDoNothing().given(signatureServiceSupport).checkAlreadyHaveSignature(any(User.class));
         given(s3Service.saveSignature(any(MultipartFile.class))).willReturn("testAddress");
         willDoNothing().given(signatureServiceSupport).saveSignature(any(Signature.class));
@@ -62,7 +58,7 @@ class SignatureServiceTest {
 
         /** then */
 
-        verify(userServiceSupport, timeout(1)).findUserByEmail(anyString());
+        verify(userServiceSupport, timeout(1)).getUserByEmail(anyString());
         verify(signatureServiceSupport, times(1)).checkAlreadyHaveSignature(any(User.class));
         verify(s3Service, times(1)).saveSignature(any(MultipartFile.class));
         verify(signatureServiceSupport, times(1)).saveSignature(any(Signature.class));
@@ -76,7 +72,7 @@ class SignatureServiceTest {
 
         /** given */
 
-        given(userServiceSupport.findUserByEmail(anyString())).willReturn(user);
+        given(userServiceSupport.getUserByEmail(anyString())).willReturn(user);
         given(s3Service.saveSignature(any(MultipartFile.class))).willReturn("testAddress");
         willDoNothing().given(signatureServiceSupport).saveSignature(any(Signature.class));
 
@@ -86,7 +82,7 @@ class SignatureServiceTest {
 
         /** then */
 
-        verify(userServiceSupport, timeout(1)).findUserByEmail(anyString());
+        verify(userServiceSupport, timeout(1)).getUserByEmail(anyString());
         verify(s3Service, times(1)).saveSignature(any(MultipartFile.class));
         verify(signatureServiceSupport, times(1)).saveSignature(any(Signature.class));
 
