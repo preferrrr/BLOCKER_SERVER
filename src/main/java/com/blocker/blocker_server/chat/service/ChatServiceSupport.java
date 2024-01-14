@@ -35,6 +35,7 @@ public class ChatServiceSupport {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatUserRepository chatUserRepository;
 
+    @Transactional
     public void saveChatMessage(ChatMessage chatMessage) {
         chatMessageRepository.save(chatMessage);
     }
@@ -44,6 +45,7 @@ public class ChatServiceSupport {
                 .orElseThrow(() -> new ChatRoomNotFoundException("chat room id: " + chatRoomId));
     }
 
+    @Transactional
     public void saveChatRoom(ChatRoom chatRoom) {
         chatRoomRepository.save(chatRoom);
     }
@@ -60,6 +62,7 @@ public class ChatServiceSupport {
         return chatUsers;
     }
 
+    @Transactional
     public void saveChatUsers(List<ChatUser> chatUsers) {
         chatUserRepository.saveAll(chatUsers);
     }
@@ -89,12 +92,12 @@ public class ChatServiceSupport {
                 .collect(Collectors.toList());
     }
 
-    public User getBoardWriter(String email, Long boardId) {
+    public User getBoardWriter(Long boardId) {
         Board board = boardServiceSupport.getBoardById(boardId);
 
         return board.getUser();
     }
-
+    @Transactional
     public Long getOneToOneChatRoomByUsers(String me, String boardWriter) {
         Long chatRoomId = chatRoomRepository.findOneToOneChatRoomByUsers(me, boardWriter);
 

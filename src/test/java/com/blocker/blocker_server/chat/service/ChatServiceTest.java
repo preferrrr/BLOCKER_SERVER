@@ -1,107 +1,170 @@
 package com.blocker.blocker_server.chat.service;
 
-import com.blocker.blocker_server.IntegrationTestSupport;
-import com.blocker.blocker_server.board.domain.Board;
-import com.blocker.blocker_server.board.repository.BoardRepository;
+
+import com.blocker.blocker_server.chat.domain.ChatMessage;
 import com.blocker.blocker_server.chat.domain.ChatRoom;
 import com.blocker.blocker_server.chat.domain.ChatUser;
+import com.blocker.blocker_server.chat.dto.request.SendMessageRequestDto;
+import com.blocker.blocker_server.chat.dto.response.GetChatMessagesResponseDto;
+import com.blocker.blocker_server.chat.dto.response.GetChatRoomListDto;
 import com.blocker.blocker_server.chat.dto.response.GetOneToOneChatRoomResponse;
-import com.blocker.blocker_server.chat.repository.ChatRoomRepository;
-import com.blocker.blocker_server.chat.repository.ChatUserRepository;
-import com.blocker.blocker_server.contract.domain.Contract;
-import com.blocker.blocker_server.contract.repository.ContractRepository;
+import com.blocker.blocker_server.commons.jwt.JwtProvider;
+import com.blocker.blocker_server.commons.kafka.KafkaMessage;
+import com.blocker.blocker_server.commons.kafka.MessageSender;
 import com.blocker.blocker_server.user.domain.User;
-import com.blocker.blocker_server.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.*;
 
-@Transactional
-class ChatServiceTest extends IntegrationTestSupport {
+@ExtendWith(MockitoExtension.class)
+class ChatServiceTest {
 
-    @Autowired
+    @InjectMocks
     private ChatService chatService;
+    @Mock
+    private ChatServiceSupport chatServiceSupport;
+    @Mock
+    private JwtProvider jwtProvider;
+    @Mock
+    private MessageSender sender;
 
-    @Autowired
-    private UserRepository userRepository;
+    private User user;
+    private User user2;
+    private ChatRoom chatRoom;
 
-    @Autowired
-    private ChatRoomRepository chatRoomRepository;
+    @BeforeEach
+    void setUp() {
+        user = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
+        user2 = User.create("testEmail2", "testName2", "testPicture", "testValue2",List.of("USER"));
+        chatRoom = ChatRoom.create(LocalDateTime.of(2024, 1, 1, 12, 0));
+    }
 
-    @Autowired
-    private ChatUserRepository chatUserRepository;
-
-    @Autowired
-    private BoardRepository boardRepository;
-
-    @Autowired
-    private ContractRepository contractRepository;
-
-    @DisplayName("게시글 작성자와 1:1 채팅방이 있으면, 그 채팅방의 인덱스를 반환한다.")
+    @DisplayName("메세지를 보내는 요청을 받으면, 메세지를 mongoDB에 저장하고, 채팅방의 마지막 채팅기록이 수정되며 카프카로 메세지를 보낸다.")
     @Test
-    void getOneToOneChatRoomIdExist() {
+    void sendMessage() {
 
         /** given */
+        given(jwtProvider.getEmail(anyString())).willReturn("testEmail");
+        given(jwtProvider.getUsername(anyString())).willReturn("testName");
+        willDoNothing().given(chatServiceSupport).saveChatMessage(any(ChatMessage.class));
+        given(chatServiceSupport.getChatRoomById(anyLong())).willReturn(chatRoom);
+        willDoNothing().given(sender).send(anyString(), any(KafkaMessage.class));
 
-        User user1  = User.create("testEmail1","testName1","testPicture1","testValue1", List.of("USER"));
-        User user2  = User.create("testEmail2","testName2","testPicture2","testValue2", List.of("USER"));
-        userRepository.saveAll(List.of(user1, user2));
-
-        Contract contract = Contract.create(user1,"testTitle","testContent");
-        contractRepository.save(contract);
-
-        Board board = Board.create(user1,"testTitle","testContent","testImage","testInfo",contract);
-        boardRepository.save(board);
-
-        ChatRoom chatRoom = ChatRoom.create(LocalDateTime.now());
-        chatRoomRepository.save(chatRoom);
-
-        ChatUser chatUser1 = ChatUser.create(user1, chatRoom);
-        ChatUser chatUser2 = ChatUser.create(user2, chatRoom);
-        chatUserRepository.saveAll(List.of(chatUser1, chatUser2));
+        SendMessageRequestDto request = SendMessageRequestDto.builder().content("testContent").build();
 
         /** when */
 
-        GetOneToOneChatRoomResponse response = chatService.getOneToOneChatRoomId(user2, board.getBoardId());
+        chatService.sendMessage("testToken", 1l, request);
 
         /** then */
 
-        assertThat(response).isNotNull();
+        verify(jwtProvider, times(1)).getEmail(anyString());
+        verify(jwtProvider, times(1)).getUsername(anyString());
+        verify(chatServiceSupport, times(1)).saveChatMessage(any(ChatMessage.class));
+        verify(chatServiceSupport, times(1)).getChatRoomById(anyLong());
+        verify(sender, times(1)).send(anyString(), any(KafkaMessage.class));
 
+        assertThat(chatRoom.getLastChat()).isEqualTo("testContent");
     }
 
-    @DisplayName("게시글 작성자와 1:1 채팅방이 없으면, 채팅방을 만들고 그 채팅방의 인덱스를 반환한다.")
+    @DisplayName("채팅방을 생성한다.")
     @Test
-    void getOneToOneChatRoomIdNoExist() {
+    void createChatRoom() {
 
         /** given */
 
-        User user1  = User.create("testEmail1","testName1","testPicture1","testValue1", List.of("USER"));
-        User user2  = User.create("testEmail2","testName2","testPicture2","testValue2", List.of("USER"));
-        userRepository.saveAll(List.of(user1, user2));
-
-        Contract contract = Contract.create(user1,"testTitle","testContent");
-        contractRepository.save(contract);
-
-        Board board = Board.create(user1,"testTitle","testContent","testImage","testInfo",contract);
-        boardRepository.save(board);
+        willDoNothing().given(chatServiceSupport).saveChatRoom(any(ChatRoom.class));
+        given(chatServiceSupport.createChatUsers(any(ChatRoom.class), any(User.class), anyList())).willReturn(mock(List.class));
+        willDoNothing().given(chatServiceSupport).saveChatUsers(anyList());
 
         /** when */
 
-        GetOneToOneChatRoomResponse response = chatService.getOneToOneChatRoomId(user2, board.getBoardId());
+        chatService.createChatRoom(user,List.of("testEmail2","testEmail3"));
 
         /** then */
 
-        assertThat(response).isNotNull();
+        verify(chatServiceSupport, times(1)).saveChatRoom(any(ChatRoom.class));
+        verify(chatServiceSupport, times(1)).createChatUsers(any(ChatRoom.class), any(User.class), anyList());
+        verify(chatServiceSupport, times(1)).saveChatUsers(anyList());
+    }
+
+    @DisplayName("나의 채팅방 리스트를 조회한다.")
+    @Test
+    void getChatRooms() {
+
+        /** given */
+
+        given(chatServiceSupport.getChatRoomsByUser(any(User.class))).willReturn(mock(List.class));
+        given(chatServiceSupport.createChatRoomListResponseDto(anyList())).willReturn(mock(List.class));
+
+        /** when */
+
+        List<GetChatRoomListDto> result = chatService.getChatRooms(user);
+
+        /** then */
+
+        verify(chatServiceSupport, times(1)).getChatRoomsByUser(any(User.class));
+        verify(chatServiceSupport, times(1)).createChatRoomListResponseDto(anyList());
 
     }
+
+    @DisplayName("채팅방의 메시지들을 조회한다.")
+    @Test
+    void getMessages() {
+
+        /** given */
+
+        willDoNothing().given(chatServiceSupport).checkIsChatParticipant(any(User.class),anyLong());
+        given(chatServiceSupport.getChatMessagesByChatRoomId(anyLong(),any(Pageable.class))).willReturn(mock(List.class));
+        given(chatServiceSupport.createChatMessageResponseDto(anyList())).willReturn(mock(List.class));
+
+        /** when */
+
+        List<GetChatMessagesResponseDto> result = chatService.getMessages(user, 1l, PageRequest.of(0, 20));
+
+        /** then */
+
+        verify(chatServiceSupport, times(1)).checkIsChatParticipant(any(User.class), anyLong());
+        verify(chatServiceSupport, times(1)).getChatMessagesByChatRoomId(anyLong(), any(Pageable.class));
+        verify(chatServiceSupport, times(1)).createChatMessageResponseDto(anyList());
+
+    }
+
+    @DisplayName("게시글 작성자와의 1:1 채팅방 인덱스를 찾아서 반환한다.")
+    @Test
+    void getOneToOneChatRoomId() {
+
+        /** given */
+
+        given(chatServiceSupport.getBoardWriter(anyLong())).willReturn(user);
+        given(chatServiceSupport.getOneToOneChatRoomByUsers(anyString(), anyString())).willReturn(1l);
+
+        /** when */
+
+        GetOneToOneChatRoomResponse result = chatService.getOneToOneChatRoomId(user, 1l);
+
+        /** then */
+
+        verify(chatServiceSupport, times(1)).getBoardWriter(anyLong());
+        verify(chatServiceSupport, times(1)).getOneToOneChatRoomByUsers(anyString(), anyString());
+    }
+
 
 }

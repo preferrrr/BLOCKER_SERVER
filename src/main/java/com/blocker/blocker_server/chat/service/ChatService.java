@@ -101,7 +101,7 @@ public class ChatService {
     public GetOneToOneChatRoomResponse getOneToOneChatRoomId(User user, Long boardId) {
 
         //게시글 작성자
-        User boardWriter = chatServiceSupport.getBoardWriter(user.getEmail(), boardId);
+        User boardWriter = chatServiceSupport.getBoardWriter(boardId);
 
         //채팅방 인덱스
         Long chatRoomId = chatServiceSupport.getOneToOneChatRoomByUsers(user.getEmail(), boardWriter.getEmail());
