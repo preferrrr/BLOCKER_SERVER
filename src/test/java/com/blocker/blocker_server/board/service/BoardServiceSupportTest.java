@@ -4,6 +4,7 @@ import com.blocker.blocker_server.IntegrationTestSupport;
 import com.blocker.blocker_server.board.domain.Board;
 import com.blocker.blocker_server.Image.domain.Image;
 import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
+import com.blocker.blocker_server.board.exception.BoardNotFoundException;
 import com.blocker.blocker_server.board.exception.UnauthorizedDeleteBoardException;
 import com.blocker.blocker_server.board.exception.UnauthorizedModifyBoardException;
 import com.blocker.blocker_server.board.repository.BoardRepository;
@@ -77,6 +78,20 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
         /** then */
 
         assertThat(getBoard.getBoardId()).isEqualTo(savedBoard.getBoardId());
+
+    }
+
+    @DisplayName("게시글 인덱스로 조회할 때 게시글이 없으면 BoardNotFoundException을 던진다.")
+    @Test
+    void getBoardByIdException() {
+
+        /** given */
+
+        /** when */
+
+        /** then */
+        assertThatThrownBy(() -> boardServiceSupport.getBoardById(1l))
+                .isInstanceOf(BoardNotFoundException.class);
 
     }
 
@@ -395,6 +410,31 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
         /** then */
 
         assertThat(result.getContractId()).isEqualTo(contract2.getContractId());
+
+    }
+
+    @DisplayName("게시글에 포함된 계약서가 같을 경우 해당 계약서를 반환한다.")
+    @Test
+    void modifyContractBelongingToBoardWithSameContract() {
+
+        /** given */
+        User user = User.create("testEmail1", "testName1", "testPicture", "testValue1", List.of("USER"));
+        userRepository.save(user);
+
+        Contract contract1 = Contract.create(user, "testTitle1", "testContent1");
+        Contract contract2 = Contract.create(user, "testTitle2", "testContent2");
+        contractRepository.saveAll(List.of(contract1, contract2));
+
+        Board board = Board.create(user, "testTitle1", "testContent1", "testImage", "testInfo", contract1);
+        boardRepository.save(board);
+
+        /** when */
+
+        Contract result = boardServiceSupport.modifyContractBelongingToBoard(user.getEmail(), board, contract1.getContractId());
+
+        /** then */
+
+        assertThat(result.getContractId()).isEqualTo(contract1.getContractId());
 
     }
 

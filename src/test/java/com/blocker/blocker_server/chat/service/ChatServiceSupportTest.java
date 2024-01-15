@@ -316,7 +316,7 @@ class ChatServiceSupportTest extends IntegrationTestSupport {
         chatMessageRepository.saveAll(List.of(chatMessage1, chatMessage2, chatMessage3, chatMessage4, chatMessage5));
 
         /** when */
-        List<ChatMessage> messages = chatMessageRepository.findByChatRoomId(chatRoom.getChatRoomID(), PageRequest.of(0, 10));
+        List<ChatMessage> messages = chatServiceSupport.getChatMessagesByChatRoomId(chatRoom.getChatRoomID(), PageRequest.of(0, 10));
 
         /** then */
         assertThat(messages).hasSize(5);

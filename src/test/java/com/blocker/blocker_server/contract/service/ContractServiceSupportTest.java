@@ -4,6 +4,8 @@ import com.blocker.blocker_server.IntegrationTestSupport;
 import com.blocker.blocker_server.board.domain.Board;
 import com.blocker.blocker_server.board.repository.BoardRepository;
 import com.blocker.blocker_server.contract.domain.Contract;
+import com.blocker.blocker_server.contract.domain.ContractState;
+import com.blocker.blocker_server.contract.dto.response.ContractorAndSignState;
 import com.blocker.blocker_server.contract.dto.response.GetContractResponseDto;
 import com.blocker.blocker_server.contract.exception.*;
 import com.blocker.blocker_server.contract.repository.ContractRepository;
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -347,15 +350,21 @@ class ContractServiceSupportTest extends IntegrationTestSupport {
         AgreementSign agreementSign2 = AgreementSign.create(user2, contract);
         agreementSignRepository.saveAll(List.of(agreementSign1, agreementSign2));
 
-        /** when */
+        Contract contract1 = contractRepository.findContractWithSignsByContractId(contract.getContractId()).get();
 
-        List<AgreementSign> result = agreementSignRepository.findByContract(contract);
+        /** when */
+        List<ContractorAndSignState> result = contractServiceSupport.getContractorAndSignState(contract1.getAgreementSigns());
 
         /** then */
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).getUser().getEmail()).isEqualTo("testEmail");
-        assertThat(result.get(1).getUser().getEmail()).isEqualTo("testEmail2");
 
+        List<String> contractors = result.stream()
+                .map(o -> o.getContractor())
+                .collect(Collectors.toList());
+
+        assertThat(contractors)
+                .contains(user1.getName())
+                .contains(user2.getName());
     }
 
     @DisplayName("체결 계약서가 아니라면 IsNotConcludeContractException을 던진다.")
@@ -375,4 +384,95 @@ class ContractServiceSupportTest extends IntegrationTestSupport {
 
     }
 
+    public List<Contract> getContractsByUserAndState(String email, ContractState state) {
+        if (state.equals(ContractState.NOT_PROCEED))
+            return contractRepository.findNotProceedContractsByUserEmailAndContractState(email, state);
+        else
+            return contractRepository.findProceedOrConcludeContractListByUserEmailAndContractState(email, state);
+    }
+
+    @DisplayName("사용자의 NOT_PROCEED 계약서를 조회한다.")
+    @Test
+    void getNotProceedContractsByUserAndState() {
+
+        /** given */
+        User user = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
+        userRepository.save(user);
+
+        Contract contract1 = Contract.create(user, "testTitle", "testContent");
+        Contract contract2 = Contract.create(user, "testTitle", "testContent");
+        Contract contract3 = Contract.create(user, "testTitle", "testContent");
+        contract3.updateStateToProceed();
+        Contract contract4 = Contract.create(user, "testTitle", "testContent");
+        contract4.updateStateToConclude();
+        contractRepository.saveAll(List.of(contract1, contract2, contract3, contract4));
+
+        /** when */
+        List<Contract> result = contractServiceSupport.getContractsByUserAndState(user.getEmail(), ContractState.NOT_PROCEED);
+
+        /** then */
+
+        assertThat(result).hasSize(2);
+
+    }
+
+    @DisplayName("사용자의 PROCEED 계약서를 조회한다.")
+    @Test
+    void getProceedContractsByUserAndState() {
+
+        /** given */
+        User user = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
+        userRepository.save(user);
+
+        Contract contract1 = Contract.create(user, "testTitle", "testContent");
+        Contract contract2 = Contract.create(user, "testTitle", "testContent");
+        contract2.updateStateToProceed();
+        Contract contract3 = Contract.create(user, "testTitle", "testContent");
+        contract3.updateStateToProceed();
+        Contract contract4 = Contract.create(user, "testTitle", "testContent");
+        contract4.updateStateToConclude();
+        contractRepository.saveAll(List.of(contract1, contract2, contract3, contract4));
+
+        AgreementSign agreementSign1 = AgreementSign.create(user, contract2);
+        AgreementSign agreementSign2 = AgreementSign.create(user, contract3);
+        agreementSignRepository.saveAll(List.of(agreementSign1, agreementSign2));
+
+        /** when */
+        List<Contract> result = contractServiceSupport.getContractsByUserAndState(user.getEmail(), ContractState.PROCEED);
+
+        /** then */
+
+        assertThat(result).hasSize(2);
+
+    }
+
+    @DisplayName("사용자의 CONCLUDE 계약서를 조회한다.")
+    @Test
+    void getConcludeContractsByUserAndState() {
+
+        /** given */
+        User user = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
+        userRepository.save(user);
+
+        Contract contract1 = Contract.create(user, "testTitle", "testContent");
+        Contract contract2 = Contract.create(user, "testTitle", "testContent");
+        contract2.updateStateToProceed();
+        Contract contract3 = Contract.create(user, "testTitle", "testContent");
+        contract3.updateStateToConclude();
+        Contract contract4 = Contract.create(user, "testTitle", "testContent");
+        contract4.updateStateToConclude();
+        contractRepository.saveAll(List.of(contract1, contract2, contract3, contract4));
+
+        AgreementSign agreementSign1 = AgreementSign.create(user, contract3);
+        AgreementSign agreementSign2 = AgreementSign.create(user, contract4);
+        agreementSignRepository.saveAll(List.of(agreementSign1, agreementSign2));
+
+        /** when */
+        List<Contract> result = contractServiceSupport.getContractsByUserAndState(user.getEmail(), ContractState.CONCLUDE);
+
+        /** then */
+
+        assertThat(result).hasSize(2);
+
+    }
 }
