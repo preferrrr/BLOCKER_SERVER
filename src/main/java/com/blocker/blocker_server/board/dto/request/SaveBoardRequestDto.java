@@ -1,12 +1,15 @@
 package com.blocker.blocker_server.board.dto.request;
 
 import com.blocker.blocker_server.commons.exception.InvalidRequestParameterException;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Getter
+@NoArgsConstructor
 public class SaveBoardRequestDto {
     private String title;
     private String content;
@@ -16,7 +19,7 @@ public class SaveBoardRequestDto {
     private List<String> images;
 
     @Builder
-    private SaveBoardRequestDto(String title, String content, String info, String representImage, Long contractId, List<String> images) {
+    public SaveBoardRequestDto(String title, String content, String info, String representImage, Long contractId, List<String> images) {
         this.title = title;
         this.content = content;
         this.info = info;
