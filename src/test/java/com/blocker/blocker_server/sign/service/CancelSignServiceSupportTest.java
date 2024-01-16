@@ -8,6 +8,7 @@ import com.blocker.blocker_server.contract.repository.CancelContractRepository;
 import com.blocker.blocker_server.contract.repository.ContractRepository;
 import com.blocker.blocker_server.sign.domain.AgreementSign;
 import com.blocker.blocker_server.sign.domain.CancelSign;
+import com.blocker.blocker_server.sign.domain.SignState;
 import com.blocker.blocker_server.sign.exception.*;
 import com.blocker.blocker_server.sign.repository.AgreementSignRepository;
 import com.blocker.blocker_server.sign.repository.CancelSignRepository;
@@ -223,18 +224,39 @@ class CancelSignServiceSupportTest extends IntegrationTestSupport {
 
         /** when */
 
-        CancelSign myCancelSign = getMyCancelSign(user1.getEmail(), List.of(cancelSign1, cancelSign2, cancelSign3));
+        CancelSign myCancelSign = cancelSignServiceSupport.getMyCancelSign(user1.getEmail(), List.of(cancelSign1, cancelSign2, cancelSign3));
 
         /** then */
 
         assertThat(myCancelSign.getUser().getEmail()).isEqualTo(user1.getEmail());
 
     }
-    public CancelSign getMyCancelSign(String email, List<CancelSign> cancelSigns) {
-        return cancelSigns.stream()
-                .filter(cancelSign -> cancelSign.getUser().getEmail().equals(email))
-                .findFirst()
-                .orElseThrow(() -> new IsNotCancelContractParticipantException("email: " + email));
+
+    @DisplayName("CancelSign 리스트 중 나의 CancelSign이 없으면, IsNotCancelContractParticipantException을 던진다.")
+    @Test
+    void getMyCancelSignException() {
+
+        /** given */
+        User me = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
+        User contractor1 = User.create("testEmail2", "testName2", "testPicture", "testValue2", List.of("USER"));
+        User contractor2 = User.create("testEmail3", "testName3", "testPicture", "testValue3", List.of("USER"));
+        userRepository.saveAll(List.of(me, contractor1, contractor2));
+
+        Contract contract = Contract.create(me, "testTitle", "testContent");
+        contractRepository.save(contract);
+
+        CancelContract cancelContract = CancelContract.create(me, contract, "testTitle", "testContent");
+        cancelContractRepository.save(cancelContract);
+
+        CancelSign cancelSign1 = CancelSign.create(contractor1, cancelContract);
+        CancelSign cancelSign2 = CancelSign.create(contractor2, cancelContract);
+        cancelSignRepository.saveAll(List.of(cancelSign1, cancelSign2));
+
+        /** when then */
+
+        assertThatThrownBy(() -> cancelSignServiceSupport.getMyCancelSign(me.getEmail(), List.of(cancelSign1, cancelSign2)))
+                .isInstanceOf(IsNotCancelContractParticipantException.class);
+
     }
 
     @DisplayName("CancelSign들의 SignState가 모두 Y이면, CancelContract의 CancelContractState를 CANCELED로 바꾼다.")
@@ -270,6 +292,57 @@ class CancelSignServiceSupportTest extends IntegrationTestSupport {
         /** then */
 
         assertThat(cancelContract.getCancelContractState()).isEqualTo(CancelContractState.CANCELED);
+    }
+
+    @DisplayName("나의 CancelSign의 state가 Y이면 IsAlreadyCancelSignException을 던진다.")
+    @Test
+    void checkMySignStateIsN() {
+
+        /** given */
+        User me = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
+        User user = User.create("testEmail2", "testName2", "testPicture", "testValue2", List.of("USER"));
+        userRepository.saveAll(List.of(me, user));
+
+        Contract contract = Contract.create(me, "testTitle", "testContent");
+        contractRepository.save(contract);
+
+        CancelContract cancelContract = CancelContract.create(me, contract, "testTitle", "testContent");
+        cancelContractRepository.save(cancelContract);
+
+        CancelSign myCancelSign = CancelSign.create(me, cancelContract);
+        myCancelSign.sign();
+        CancelSign userCancelSign = CancelSign.create(user, cancelContract);
+        cancelSignRepository.saveAll(List.of(myCancelSign, userCancelSign));
+
+        /** when then */
+
+        assertThatThrownBy(() -> cancelSignServiceSupport.checkMySignStateIsN(myCancelSign))
+                .isInstanceOf(IsAlreadyCancelSignException.class);
+    }
+
+    @DisplayName("이미 파기 진행 중 계약서라면 IsAlreadyCancelingException을 던진다.")
+    @Test
+    void checkIsCancelingContract() {
+
+        /** given */
+        User user1 = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
+        User user2 = User.create("testEmail2", "testName2", "testPicture", "testValue2", List.of("USER"));
+        userRepository.saveAll(List.of(user1, user2));
+
+        Contract contract = Contract.create(user1, "testTitle", "testContent");
+        contractRepository.save(contract);
+
+        CancelContract cancelContract = CancelContract.create(user1, contract, "testTitle", "testContent");
+        cancelContractRepository.save(cancelContract);
+
+        CancelSign cancelSign1 = CancelSign.create(user1, cancelContract);
+        cancelSign1.sign();
+        CancelSign cancelSign2 = CancelSign.create(user2, cancelContract);
+        cancelSignRepository.saveAll(List.of(cancelSign1, cancelSign2));
+
+        /** when then */
+        assertThatThrownBy(() -> cancelSignServiceSupport.checkIsCancelingContract(contract))
+                .isInstanceOf(IsAlreadyCancelingException.class);
     }
 
 }
