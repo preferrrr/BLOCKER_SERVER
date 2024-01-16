@@ -1,47 +1,31 @@
 package com.blocker.blocker_server.contract.controller;
 
+import com.blocker.blocker_server.ControllerTestSupport;
 import com.blocker.blocker_server.contract.domain.ContractState;
 import com.blocker.blocker_server.contract.dto.request.ModifyContractRequestDto;
 import com.blocker.blocker_server.contract.dto.request.SaveContractRequestDto;
 import com.blocker.blocker_server.contract.dto.response.*;
-import com.blocker.blocker_server.contract.service.ContractService;
 import com.blocker.blocker_server.user.domain.User;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
-import static org.mockito.BDDMockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = ContractController.class)
 @WithMockUser(roles = "USER")
-class ContractControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
-    private ContractService contractService;
+class ContractControllerTest extends ControllerTestSupport {
 
     @DisplayName("계약서를 저장한다.")
     @Test

@@ -1,19 +1,13 @@
 package com.blocker.blocker_server.bookmark.controller;
 
+import com.blocker.blocker_server.ControllerTestSupport;
 import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.bookmark.dto.request.SaveBookmarkRequestDto;
-import com.blocker.blocker_server.bookmark.service.BookmarkService;
-import com.blocker.blocker_server.user.domain.User;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
@@ -23,17 +17,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = BookmarkController.class)
 @WithMockUser(roles = "USER")
-class BookmarkControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
-    private BookmarkService bookmarkService;
+class BookmarkControllerTest extends ControllerTestSupport {
 
     @DisplayName("게시글을 북마크로 등록한다.")
     @Test

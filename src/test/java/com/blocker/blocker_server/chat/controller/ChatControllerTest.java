@@ -1,39 +1,18 @@
 package com.blocker.blocker_server.chat.controller;
 
+import com.blocker.blocker_server.ControllerTestSupport;
 import com.blocker.blocker_server.chat.dto.request.CreateChatRoomRequestDto;
-import com.blocker.blocker_server.chat.dto.request.SendMessageRequestDto;
 import com.blocker.blocker_server.chat.dto.response.GetChatMessagesResponseDto;
 import com.blocker.blocker_server.chat.dto.response.GetChatRoomListDto;
 import com.blocker.blocker_server.chat.dto.response.GetOneToOneChatRoomResponse;
-import com.blocker.blocker_server.chat.service.ChatService;
-import com.blocker.blocker_server.user.domain.User;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.*;
@@ -43,18 +22,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = ChatController.class)
 @WithMockUser(roles = "USER")
-class ChatControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
-    private ChatService chatService;
-
+class ChatControllerTest extends ControllerTestSupport {
 
     @DisplayName("채팅방을 생성한다.")
     @Test

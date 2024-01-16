@@ -1,20 +1,15 @@
 package com.blocker.blocker_server.board.controller;
 
+import com.blocker.blocker_server.ControllerTestSupport;
 import com.blocker.blocker_server.board.dto.request.ModifyBoardRequestDto;
 import com.blocker.blocker_server.board.dto.request.SaveBoardRequestDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardResponseDto;
-import com.blocker.blocker_server.board.service.BoardService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,18 +23,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = BoardController.class)
 @WithMockUser(roles = "USER")
-class BoardControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
-    private BoardService boardService;
-
+class BoardControllerTest extends ControllerTestSupport {
 
     @DisplayName("게시글 리스트를 불러온다.")
     @Test

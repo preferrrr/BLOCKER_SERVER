@@ -1,48 +1,25 @@
 package com.blocker.blocker_server.contract.controller;
 
+import com.blocker.blocker_server.ControllerTestSupport;
 import com.blocker.blocker_server.contract.domain.CancelContractState;
 import com.blocker.blocker_server.contract.dto.response.GetCancelContractResponseDto;
 import com.blocker.blocker_server.contract.dto.response.GetCancelContractWithSignStateResponseDto;
-import com.blocker.blocker_server.contract.service.CancelContractService;
-import com.blocker.blocker_server.user.domain.User;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = CancelContractController.class)
 @WithMockUser(roles = "USER")
-class CancelContractControllerTest {
-
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private CancelContractService cancelContractService;
+class CancelContractControllerTest extends ControllerTestSupport {
 
     @DisplayName("파기 진행 중 계약서 리스트를 조회한다.")
     @Test

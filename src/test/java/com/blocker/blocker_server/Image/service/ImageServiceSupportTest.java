@@ -38,6 +38,9 @@ class ImageServiceSupportTest extends IntegrationTestSupport {
     @AfterEach
     void tearDown() {
         imageRepository.deleteAllInBatch();
+        boardRepository.deleteAllInBatch();
+        contractRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
     }
 
     @DisplayName("이미지 리스트를 저장한다.")
