@@ -6,8 +6,7 @@ import lombok.Getter;
 public class InvalidImageException extends RuntimeException{
     private final String NAME;
 
-    public InvalidImageException(String message) {
-        super(message);
+    public InvalidImageException() {
         NAME = "InvalidImageException";
     }
 }

@@ -3,10 +3,12 @@ package com.blocker.blocker_server.sign.dto.request;
 import com.blocker.blocker_server.commons.exception.InvalidRequestParameterException;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Getter
+@NoArgsConstructor
 public class ProceedSignRequestDto {
     private Long contractId;
     private List<String> contractors;

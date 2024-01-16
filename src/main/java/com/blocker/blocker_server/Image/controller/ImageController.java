@@ -24,10 +24,10 @@ public class ImageController {
     private final ImageService imageService;
 
     @PostMapping("")
-    public ResponseEntity<SaveImageResponseDto> s3SaveImage(@AuthenticationPrincipal User user, @RequestPart("image") MultipartFile image) throws IOException {
+    public ResponseEntity<SaveImageResponseDto> s3SaveImage(@RequestPart("image") MultipartFile image) throws IOException {
 
         if(image.isEmpty())
-            throw new InvalidImageException("email : " + user.getEmail());
+            throw new InvalidImageException();
 
         SaveImageResponseDto response = imageService.s3SaveImage(image);
 
