@@ -28,12 +28,9 @@ BLOCKER는 비대면 전자 계약 플랫폼으로, 프라이빗 블록체인(�
     - jwt
 - Spring Data JPA
 - QueryDSL
-
 - JUnit5
-
 - Kafka
 - WebSocket (stomp)
-
 - DB
     - MongoDB
     - MySql
@@ -48,9 +45,12 @@ BLOCKER는 비대면 전자 계약 플랫폼으로, 프라이빗 블록체인(�
 </br>
 
 ## 아키텍처 구조
-![아키텍쳐](https://github.com/preferrrr/BLOCKER_SERVER/assets/99793526/7751cc94-df3d-436d-8e82-2d7079c88206)
+![아키텍쳐](https://github.com/preferrrr/BLOCKER_SERVER/assets/99793526/6102bef9-f0f8-4103-9c68-6b39d668ea92)
 
 ## Rest API 명세서
+- [API 명세서 구글시트](https://docs.google.com/spreadsheets/d/1DFMd0ERGCjn0O0FpOp1oUvjnTeKOAhN43ziPQ3hMcdg/edit#gid=2006977463) 
+
+![API 명세서](https://github.com/preferrrr/BLOCKER_SERVER/assets/99793526/c4731807-afd7-4ecf-8ec2-bd66e6b6cb54)
 
 </br>
 
@@ -61,7 +61,7 @@ BLOCKER는 비대면 전자 계약 플랫폼으로, 프라이빗 블록체인(�
 
 ## 테스트 코드
 - 전체 테스트 코드 커버리지 80%
-- [테스트 클래스에 적용한 @Transactional 편하지만 독이될 수도](https://prefercoding.tistory.com/42)
+- [테스트 클래스에 적용한 @Transactional 편하지만 독이 될 수도](https://prefercoding.tistory.com/42)
 
 
 ## Team
@@ -72,7 +72,7 @@ BLOCKER는 비대면 전자 계약 플랫폼으로, 프라이빗 블록체인(�
 |이선호|조윤찬|오예준|
 |:---:|:---:|:---:|
 |<img width="230px" src="https://avatars.githubusercontent.com/u/99793526?v=4"/> | <img width="230px" src="https://avatars.githubusercontent.com/u/87313979?v=4"/> |<img width="230px" src="https://avatars.githubusercontent.com/u/101854418?v=4"/> |
-|[@preferrrr](https://github.com/preferrrr)|[@YOON-CC](https://github.com/YOON-CC)|[](https://github.com/ddogong)|
+|[@preferrrr](https://github.com/preferrrr)|[@YOON-CC](https://github.com/YOON-CC)|[@nu-jey](https://github.com/ddogong)|
 |Backend| Frontend | ios |
 
 </div>
