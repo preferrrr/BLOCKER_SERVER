@@ -5,6 +5,9 @@ import com.blocker.blocker_server.board.dto.request.ModifyBoardRequestDto;
 import com.blocker.blocker_server.board.dto.request.SaveBoardRequestDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardResponseDto;
+import com.blocker.blocker_server.commons.response.BaseResponse;
+import com.blocker.blocker_server.commons.response.ListResponse;
+import com.blocker.blocker_server.commons.response.SingleResponse;
 import com.blocker.blocker_server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -29,11 +32,10 @@ public class BoardController {
      * /boards
      */
     @GetMapping("")
-    public ResponseEntity<List<GetBoardListResponseDto>> getBoards(@PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<ListResponse<GetBoardListResponseDto>> getBoards(@PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return new ResponseEntity<>(
-                boardService.getBoards(pageable),
-                HttpStatus.OK
+        return ResponseEntity.ok(
+                ListResponse.ok(boardService.getBoards(pageable))
         );
     }
 
@@ -42,12 +44,11 @@ public class BoardController {
      * /boards/{boardId}
      */
     @GetMapping("/{boardId}")
-    public ResponseEntity<GetBoardResponseDto> getBoard(@AuthenticationPrincipal User user,
-                                                        @PathVariable("boardId") Long boardId) {
+    public ResponseEntity<SingleResponse<GetBoardResponseDto>> getBoard(@AuthenticationPrincipal User user,
+                                                                       @PathVariable("boardId") Long boardId) {
 
-        return new ResponseEntity<>(
-                boardService.getBoard(user, boardId),
-                HttpStatus.OK
+        return ResponseEntity.ok(
+                SingleResponse.ok(boardService.getBoard(user, boardId))
         );
 
     }
@@ -57,12 +58,12 @@ public class BoardController {
      * /boards
      */
     @PostMapping("")
-    public ResponseEntity<HttpStatus> saveBoard(@AuthenticationPrincipal User user,
-                                                @RequestBody SaveBoardRequestDto requestDto) {
+    public ResponseEntity<BaseResponse> saveBoard(@AuthenticationPrincipal User user,
+                                                  @RequestBody SaveBoardRequestDto requestDto) {
 
         boardService.saveBoard(user, requestDto);
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return ResponseEntity.ok(BaseResponse.ok());
     }
 
 
@@ -71,12 +72,12 @@ public class BoardController {
      * /boards
      */
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<HttpStatus> deleteBoard(@AuthenticationPrincipal User user,
+    public ResponseEntity<BaseResponse> deleteBoard(@AuthenticationPrincipal User user,
                                                   @PathVariable("boardId") Long boardId) {
 
         boardService.deleteBoard(user, boardId);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(BaseResponse.ok());
     }
 
     /**
@@ -84,13 +85,13 @@ public class BoardController {
      * /boards/{boardId}
      */
     @PatchMapping("/{boardId}")
-    public ResponseEntity<HttpStatus> modifyBoard(@AuthenticationPrincipal User user,
+    public ResponseEntity<BaseResponse> modifyBoard(@AuthenticationPrincipal User user,
                                                   @PathVariable("boardId") Long boardId,
                                                   @RequestBody ModifyBoardRequestDto requestDto) {
 
         boardService.modifyBoard(user, boardId, requestDto);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(BaseResponse.ok());
 
     }
 
@@ -99,12 +100,11 @@ public class BoardController {
      * /boards/my-boards
      */
     @GetMapping("/my-boards")
-    public ResponseEntity<List<GetBoardListResponseDto>> getMyBoards(@AuthenticationPrincipal User user,
+    public ResponseEntity<ListResponse<GetBoardListResponseDto>> getMyBoards(@AuthenticationPrincipal User user,
                                                                      @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return new ResponseEntity<>(
-                boardService.getMyBoards(user, pageable),
-                HttpStatus.OK
+        return ResponseEntity.ok(
+                ListResponse.ok(boardService.getMyBoards(user, pageable))
         );
     }
 }
