@@ -13,11 +13,11 @@ public class SingleResponse<T> extends BaseResponse {
         this.data = data;
     }
 
-    public static <T> SingleResponse<T> of(HttpStatus status, T data) {
+    public static <T> SingleResponse<T> of(final HttpStatus status, final T data) {
         return new SingleResponse<>(status, data);
     }
 
-    public static <T> SingleResponse<T> ok(T data) {
+    public static <T> SingleResponse<T> ok(final T data) {
         return new SingleResponse<>(HttpStatus.OK, data);
     }
 }
