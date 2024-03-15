@@ -1,4 +1,4 @@
-package com.blocker.blocker_server.commons.config;
+package com.blocker.blocker_server.commons.config.socket;
 
 import com.blocker.blocker_server.chat.domain.ChatRoom;
 import com.blocker.blocker_server.chat.exception.IsNotChatParticipantException;

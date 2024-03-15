@@ -1,4 +1,4 @@
-package com.blocker.blocker_server.commons.config;
+package com.blocker.blocker_server.commons.config.jpa;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

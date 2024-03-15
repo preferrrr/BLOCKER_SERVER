@@ -1,4 +1,4 @@
-package com.blocker.blocker_server.commons.config;
+package com.blocker.blocker_server.commons.config.s3;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;

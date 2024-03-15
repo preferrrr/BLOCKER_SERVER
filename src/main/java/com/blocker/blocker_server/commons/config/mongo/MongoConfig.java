@@ -1,4 +1,4 @@
-package com.blocker.blocker_server.commons.config;
+package com.blocker.blocker_server.commons.config.mongo;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;

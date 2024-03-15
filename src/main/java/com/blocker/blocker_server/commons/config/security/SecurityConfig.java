@@ -1,4 +1,4 @@
-package com.blocker.blocker_server.commons.config;
+package com.blocker.blocker_server.commons.config.security;
 
 import com.blocker.blocker_server.commons.jwt.JwtAuthenticationFilter;
 import com.blocker.blocker_server.commons.jwt.JwtExceptionFilter;

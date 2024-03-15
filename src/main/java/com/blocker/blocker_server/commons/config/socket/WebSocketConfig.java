@@ -1,5 +1,6 @@
-package com.blocker.blocker_server.commons.config;
+package com.blocker.blocker_server.commons.config.socket;
 
+import com.blocker.blocker_server.commons.config.socket.ChatPreHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
