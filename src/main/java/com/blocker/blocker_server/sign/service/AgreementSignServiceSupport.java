@@ -66,7 +66,7 @@ public class AgreementSignServiceSupport {
 
     public void checkMySignStateIsN(AgreementSign agreementSign) {
         if (agreementSign.getSignState().equals(SignState.Y))
-            throw new IsAlreadySignedException("email: " + agreementSign.getUser().getEmail());
+            throw new IsAlreadySignedException();
     }
 
     public AgreementSign getMyAgreementSign(String email, List<AgreementSign> agreementSigns) {

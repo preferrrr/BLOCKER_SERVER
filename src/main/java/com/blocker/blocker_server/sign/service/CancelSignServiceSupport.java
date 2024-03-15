@@ -29,17 +29,17 @@ public class CancelSignServiceSupport {
 
     public void checkIsConcludeContract(Contract contract) {
         if (!contract.getContractState().equals(ContractState.CONCLUDE))
-            throw new IsNotConcludeContractForCancelException("contract id: " + contract.getContractId());
+            throw new IsNotConcludeContractForCancelException();
     }
 
     public void checkIsParticipantForCancel(User user, Contract contract) {
         if (!agreementSignRepository.existsByUserAndContract(user, contract))
-            throw new IsNotContractParticipantForCancelException("contract id: " + contract.getContractId() +", user: " + user.getEmail());
+            throw new IsNotContractParticipantForCancelException();
     }
 
     public void checkIsCancelingContract(Contract contract) {
         if (cancelContractRepository.existsByContract(contract))
-            throw new IsAlreadyCancelingException("contract id: " + contract.getContractId());
+            throw new IsAlreadyCancelingException();
     }
 
     public List<CancelSign> createCancelSigns(CancelContract cancelContract, List<AgreementSign> agreementSigns) {
@@ -62,12 +62,12 @@ public class CancelSignServiceSupport {
         return cancelSigns.stream()
                 .filter(cancelSign -> cancelSign.getUser().getEmail().equals(email))
                 .findFirst()
-                .orElseThrow(() -> new IsNotCancelContractParticipantException("email: " + email));
+                .orElseThrow(IsNotCancelContractParticipantException::new);
     }
 
     public void checkMySignStateIsN(CancelSign myCancelSign) {
         if (myCancelSign.getSignState().equals(SignState.Y))
-            throw new IsAlreadyCancelSignException("user: " + myCancelSign.getUser().getEmail());
+            throw new IsAlreadyCancelSignException();
     }
 
     @Transactional
