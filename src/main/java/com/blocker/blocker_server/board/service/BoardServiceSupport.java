@@ -28,7 +28,7 @@ public class BoardServiceSupport {
     private final BookmarkRepository bookmarkRepository;
 
     public Board getBoardById(Long boardId) {
-        return boardRepository.findById(boardId).orElseThrow(() -> new BoardNotFoundException("board id: " + boardId));
+        return boardRepository.findById(boardId).orElseThrow(BoardNotFoundException::new);
     }
 
     public List<Board> getBoardList(Pageable pageable) {
@@ -36,7 +36,7 @@ public class BoardServiceSupport {
     }
 
     public Board getBoardWithImages(Long boardId) {
-        return boardRepository.getBoardWithImages(boardId).orElseThrow(()-> new BoardNotFoundException("board id: " + boardId));
+        return boardRepository.getBoardWithImages(boardId).orElseThrow(BoardNotFoundException::new);
     }
 
     @Transactional
@@ -62,12 +62,12 @@ public class BoardServiceSupport {
 
     public void checkDeleteAuthority(String me, String boardWriter) {
         if(!me.equals(boardWriter))
-            throw new UnauthorizedDeleteBoardException("user: " + me);
+            throw new UnauthorizedDeleteBoardException();
     }
 
     public void checkModifyAuthority(String me, String boardWriter) {
         if(!me.equals(boardWriter))
-            throw new UnauthorizedModifyBoardException("user: " + me);
+            throw new UnauthorizedModifyBoardException();
     }
 
     @Transactional

@@ -1,5 +1,7 @@
 package com.blocker.blocker_server.signature.exception;
 
+import com.blocker.blocker_server.commons.exception.ExceptionCode;
+import com.blocker.blocker_server.commons.exception.ExceptionResponse;
 import com.blocker.blocker_server.user.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,20 +14,26 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class SignatureExceptionHandler {
 
     @ExceptionHandler(AlreadyHaveSignatureException.class)
-    public ResponseEntity<HttpStatus> handleAlreadyHaveSignatureException(final AlreadyHaveSignatureException e) {
+    public ResponseEntity<ExceptionResponse> handleAlreadyHaveSignatureException(final AlreadyHaveSignatureException e) {
 
-        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
-        log.error(msg);
+        ExceptionCode exceptionCode = e.getExceptionCode();
+        log.error("{}", e.getMessage());
 
-        return new ResponseEntity<>(HttpStatus.CONFLICT); /** 이미 전자서명 가지고 있음 */
+        return new ResponseEntity<>(
+                ExceptionResponse.of(exceptionCode),
+                exceptionCode.getHttpStatus()
+        ); /** 이미 전자서명 가지고 있음 */
     }
 
     @ExceptionHandler(SignatureNotFoundException.class)
-    public ResponseEntity<HttpStatus> handleSignatureNotFoundException(final SignatureNotFoundException e) {
+    public ResponseEntity<ExceptionResponse> handleSignatureNotFoundException(final SignatureNotFoundException e) {
 
-        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
-        log.error(msg);
+        ExceptionCode exceptionCode = e.getExceptionCode();
+        log.error("{}", e.getMessage());
 
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND); /** 전자서명 없음 */
+        return new ResponseEntity<>(
+                ExceptionResponse.of(exceptionCode),
+                exceptionCode.getHttpStatus()
+        ); /** 전자서명 없음 */
     }
 }

@@ -8,7 +8,7 @@ import com.blocker.blocker_server.contract.dto.request.SaveContractRequestDto;
 import com.blocker.blocker_server.contract.dto.response.GetContractResponseDto;
 import com.blocker.blocker_server.contract.dto.response.GetProceedContractResponseDto;
 import com.blocker.blocker_server.user.domain.User;
-import com.blocker.blocker_server.commons.exception.InvalidQueryStringException;
+import com.blocker.blocker_server.contract.exception.InvalidContractStateException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,7 +64,7 @@ public class ContractController {
                                                                      @RequestParam(name = "state") ContractState state) {
 
         if (!state.equals(ContractState.PROCEED) && !state.equals(ContractState.NOT_PROCEED) && !state.equals(ContractState.CONCLUDE))
-            throw new InvalidQueryStringException("[get contract] email, state : " + user.getEmail() + ", " + state);
+            throw new InvalidContractStateException();
 
         List<GetContractResponseDto> response = contractService.getContracts(user, state);
 

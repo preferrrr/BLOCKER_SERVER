@@ -30,12 +30,12 @@ public class ContractServiceSupport {
     private final AgreementSignServiceSupport agreementSignServiceSupport;
 
     public Contract getContractById(Long contractId) {
-        return contractRepository.findById(contractId).orElseThrow(() -> new ContractNotFoundException("contract id: " + contractId));
+        return contractRepository.findById(contractId).orElseThrow(ContractNotFoundException::new);
     }
 
     public void checkIsContractWriter(String me, Contract contract) {
         if (!contract.getUser().getEmail().equals(me))
-            throw new IsNotContractWriterException("contract id: " + contract.getContractId() + ", user: " + me);
+            throw new IsNotContractWriterException();
     }
 
     @Transactional
@@ -45,7 +45,7 @@ public class ContractServiceSupport {
 
     public void checkIsConcludeContractForModify(String user, Contract contract) {
         if (contract.getContractState().equals(ContractState.CONCLUDE))
-            throw new CannotModifyContractInConcludedStateException("contract id: " + contract.getContractId() + ", user: " + user);
+            throw new CannotModifyContractInConcludedStateException();
     }
 
     @Transactional
@@ -70,7 +70,7 @@ public class ContractServiceSupport {
 
     public void checkIsNotProceedContract(Contract contract) {
         if (!contract.getContractState().equals(ContractState.NOT_PROCEED))
-            throw new IsNotNotProceedContractException("contract id: " + contract.getContractId());
+            throw new IsNotNotProceedContractException();
     }
 
     @Transactional
@@ -80,21 +80,21 @@ public class ContractServiceSupport {
 
     public void checkExistsBoardBelongingToContract(Contract contract) {
         if (boardRepository.existsByContract(contract))
-            throw new ExistBoardsBelongingToContractException("contract id: " + contract.getContractId());
+            throw new ExistBoardsBelongingToContractException();
     }
 
     public void checkIsProceedContract(Contract contract) {
         if (!contract.getContractState().equals(ContractState.PROCEED))
-            throw new IsNotProceedContractException("contract id: " + contract.getContractId());
+            throw new IsNotProceedContractException();
     }
 
     public void checkIsParticipant(User user, Contract contract) {
         if (!agreementSignRepository.existsByUserAndContract(user, contract))
-            throw new IsNotContractParticipantException("contract id: " + contract.getContractId() + ", user: " + user.getEmail());
+            throw new IsNotContractParticipantException();
     }
 
     public Contract getContractWIthSignsById(Long contractId) {
-        return contractRepository.findContractWithSignsByContractId(contractId).orElseThrow(() -> new ContractNotFoundException("contract id: " + contractId));
+        return contractRepository.findContractWithSignsByContractId(contractId).orElseThrow(ContractNotFoundException::new);
     }
 
     public List<ContractorAndSignState> getContractorAndSignState(List<AgreementSign> agreementSigns) {
@@ -105,6 +105,6 @@ public class ContractServiceSupport {
 
     public void checkIsConcludeContract(Contract contract) {
         if (!contract.getContractState().equals(ContractState.CONCLUDE))
-            throw new IsNotConcludeContractException("contract id: " + contract.getContractId());
+            throw new IsNotConcludeContractException();
     }
 }

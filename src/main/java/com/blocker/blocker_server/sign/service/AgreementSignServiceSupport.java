@@ -39,7 +39,7 @@ public class AgreementSignServiceSupport {
 
     public void checkIsNotProceedContract(Contract contract) {
         if (!contract.getContractState().equals(ContractState.NOT_PROCEED))
-            throw new IsNotNotProceedContractException("contract id: " + contract.getContractId());
+            throw new IsNotNotProceedContractException();
     }
 
     public void checkIsEmptyContractor(List<String> contractors) {
@@ -50,7 +50,7 @@ public class AgreementSignServiceSupport {
     public List<AgreementSign> createAgreementSigns(Contract contract, User me, List<String> contractors) {
         List<AgreementSign> agreementSigns = contractors.stream() // 계약에 참여하는 사람들
                 .map(email -> userRepository.findByEmail(email)
-                        .orElseThrow(() -> new UserNotFoundException("email: " + email)))
+                        .orElseThrow(UserNotFoundException::new))
                 .map(contractor -> AgreementSign.create(contractor, contract))
                 .collect(Collectors.toList());
         agreementSigns.add(AgreementSign.create(me, contract)); // 나도 계약 참여자. 나도 나중에 서명해야함.
@@ -66,14 +66,14 @@ public class AgreementSignServiceSupport {
 
     public void checkMySignStateIsN(AgreementSign agreementSign) {
         if (agreementSign.getSignState().equals(SignState.Y))
-            throw new IsAlreadySignedException("email: " + agreementSign.getUser().getEmail());
+            throw new IsAlreadySignedException();
     }
 
     public AgreementSign getMyAgreementSign(String email, List<AgreementSign> agreementSigns) {
         return agreementSigns.stream()
                 .filter(agreementSign -> agreementSign.getUser().getEmail().equals(email))
                 .findFirst()
-                .orElseThrow(() -> new IsNotContractParticipantException("email: " + email));
+                .orElseThrow(() -> new IsNotContractParticipantException());
     }
 
     @Transactional

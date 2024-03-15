@@ -1,13 +1,16 @@
 package com.blocker.blocker_server.board.exception;
 
+import com.blocker.blocker_server.commons.exception.ExceptionCode;
 import lombok.Getter;
 
-@Getter
-public class BoardNotFoundException extends RuntimeException{
-    private final String NAME;
+import static com.blocker.blocker_server.board.exception.BoardExceptionCode.BOARD_NOT_FOUND;
 
-    public BoardNotFoundException(String message) {
-        super(message);
-        NAME = "BoardNotFoundException";
+public class BoardNotFoundException extends RuntimeException{
+    @Getter
+    private final ExceptionCode exceptionCode;
+
+    public BoardNotFoundException() {
+        super(BOARD_NOT_FOUND.getMessage());
+        this.exceptionCode = BOARD_NOT_FOUND;
     }
 }

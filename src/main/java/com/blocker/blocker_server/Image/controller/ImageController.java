@@ -2,12 +2,9 @@ package com.blocker.blocker_server.Image.controller;
 
 import com.blocker.blocker_server.Image.service.ImageService;
 import com.blocker.blocker_server.Image.dto.response.SaveImageResponseDto;
-import com.blocker.blocker_server.user.domain.User;
-import com.blocker.blocker_server.commons.exception.InvalidImageException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -25,9 +22,6 @@ public class ImageController {
 
     @PostMapping("")
     public ResponseEntity<SaveImageResponseDto> s3SaveImage(@RequestPart("image") MultipartFile image) throws IOException {
-
-        if(image.isEmpty())
-            throw new InvalidImageException();
 
         SaveImageResponseDto response = imageService.s3SaveImage(image);
 

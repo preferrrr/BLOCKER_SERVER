@@ -1,13 +1,16 @@
 package com.blocker.blocker_server.user.exception;
 
+import com.blocker.blocker_server.commons.exception.ExceptionCode;
 import lombok.Getter;
 
-@Getter
-public class UserNotFoundException extends RuntimeException{
-    private final String NAME;
+import static com.blocker.blocker_server.user.exception.UserExceptionCode.USER_NOT_FOUND;
 
-    public UserNotFoundException(String message) {
-        super(message);
-        NAME = "UserNotFoundException";
+public class UserNotFoundException extends RuntimeException{
+    @Getter
+    private final ExceptionCode exceptionCode;
+
+    public UserNotFoundException() {
+        super(USER_NOT_FOUND.getMessage());
+        this.exceptionCode = USER_NOT_FOUND;
     }
 }

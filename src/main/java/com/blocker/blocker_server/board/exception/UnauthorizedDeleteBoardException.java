@@ -1,14 +1,16 @@
 package com.blocker.blocker_server.board.exception;
 
+import com.blocker.blocker_server.commons.exception.ExceptionCode;
 import lombok.Getter;
 
-@Getter
-public class UnauthorizedDeleteBoardException extends RuntimeException{
-    private final String NAME;
+import static com.blocker.blocker_server.board.exception.BoardExceptionCode.UNAUTHORIZED_DELETE;
 
-    public UnauthorizedDeleteBoardException(String message) {
-        super(message);
-        NAME = "UnauthorizedDeleteBoardException";
+public class UnauthorizedDeleteBoardException extends RuntimeException {
+    @Getter
+    private final ExceptionCode exceptionCode;
+
+    public UnauthorizedDeleteBoardException() {
+        super(UNAUTHORIZED_DELETE.getMessage());
+        this.exceptionCode = UNAUTHORIZED_DELETE;
     }
-
 }

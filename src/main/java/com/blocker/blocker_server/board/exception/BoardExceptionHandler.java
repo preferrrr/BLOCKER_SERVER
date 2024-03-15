@@ -1,5 +1,7 @@
 package com.blocker.blocker_server.board.exception;
 
+import com.blocker.blocker_server.commons.exception.ExceptionCode;
+import com.blocker.blocker_server.commons.exception.ExceptionResponse;
 import com.blocker.blocker_server.commons.exception.InvalidRequestParameterException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,29 +14,35 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class BoardExceptionHandler {
 
     @ExceptionHandler(BoardNotFoundException.class)
-    public ResponseEntity<HttpStatus> handleBoardNotFoundException(final BoardNotFoundException e) {
+    public ResponseEntity<ExceptionResponse> handleBoardNotFoundException(final BoardNotFoundException e) {
 
-        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
-        log.error(msg);
+        ExceptionCode exceptionCode = e.getExceptionCode();
+        log.error("[board not found exception] {}", e.getMessage());
 
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND); /** 게시글 찾을 수 없음 */
+        return new ResponseEntity<>(
+                ExceptionResponse.of(exceptionCode),
+                exceptionCode.getHttpStatus());
     }
 
     @ExceptionHandler(UnauthorizedDeleteBoardException.class)
-    public ResponseEntity<HttpStatus> handleUnauthorizedDeleteBoardException(final UnauthorizedDeleteBoardException e) {
+    public ResponseEntity<ExceptionResponse> handleUnauthorizedDeleteException(final UnauthorizedDeleteBoardException e) {
 
-        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
-        log.error(msg);
+        ExceptionCode exceptionCode = e.getExceptionCode();
+        log.error("[unauthorized delete exception] {}", e.getMessage());
 
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN); /** 게시글 삭제 권한 없음 */
+        return new ResponseEntity<>(
+                ExceptionResponse.of(exceptionCode),
+                exceptionCode.getHttpStatus());
     }
 
     @ExceptionHandler(UnauthorizedModifyBoardException.class)
-    public ResponseEntity<HttpStatus> handleUnauthorizedModifyBoardException(final UnauthorizedModifyBoardException e) {
+    public ResponseEntity<ExceptionResponse> handleUnauthorizedModifyException(final UnauthorizedModifyBoardException e) {
 
-        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
-        log.error(msg);
+        ExceptionCode exceptionCode = e.getExceptionCode();
+        log.error("[unauthorized modify exception] {}", e.getMessage());
 
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN); /** 게시글 수정 권한 없음 */
+        return new ResponseEntity<>(
+                ExceptionResponse.of(exceptionCode),
+                exceptionCode.getHttpStatus());
     }
 }

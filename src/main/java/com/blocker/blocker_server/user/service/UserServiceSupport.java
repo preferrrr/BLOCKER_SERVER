@@ -25,7 +25,7 @@ public class UserServiceSupport {
     private final JwtProvider jwtProvider;
 
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("email: " + email));
+        return userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
     }
 
     public List<User> searchUsers(String keyword) {
@@ -40,7 +40,7 @@ public class UserServiceSupport {
 
     public User getUserByRefreshTokenValue(String token) {
         String value = jwtProvider.getRefreshTokenValue(token);
-        return userRepository.findByRefreshtokenValue(value).orElseThrow(() -> new InvalidRefreshTokenException("value: " + value));
+        return userRepository.findByRefreshtokenValue(value).orElseThrow(InvalidRefreshTokenException::new);
     }
 
 

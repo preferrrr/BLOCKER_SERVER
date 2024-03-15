@@ -1,13 +1,16 @@
 package com.blocker.blocker_server.contract.exception;
 
+import com.blocker.blocker_server.commons.exception.ExceptionCode;
 import lombok.Getter;
 
-@Getter
-public class IsNotCancelContractParticipant extends RuntimeException {
-    private final String NAME;
+import static com.blocker.blocker_server.contract.exception.ContractExceptionCode.IS_NOT_CANCEL_CONTRACT_PARTICIPANT;
 
-    public IsNotCancelContractParticipant(String message) {
-        super(message);
-        NAME = "IsNotCancelContractParticipant";
+public class IsNotCancelContractParticipant extends RuntimeException {
+    @Getter
+    private final ExceptionCode exceptionCode;
+
+    public IsNotCancelContractParticipant() {
+        super(IS_NOT_CANCEL_CONTRACT_PARTICIPANT.getMessage());
+        this.exceptionCode = IS_NOT_CANCEL_CONTRACT_PARTICIPANT;
     }
 }
