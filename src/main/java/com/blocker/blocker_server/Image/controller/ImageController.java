@@ -2,6 +2,7 @@ package com.blocker.blocker_server.Image.controller;
 
 import com.blocker.blocker_server.Image.service.ImageService;
 import com.blocker.blocker_server.Image.dto.response.SaveImageResponseDto;
+import com.blocker.blocker_server.commons.response.SingleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +22,10 @@ public class ImageController {
     private final ImageService imageService;
 
     @PostMapping("")
-    public ResponseEntity<SaveImageResponseDto> s3SaveImage(@RequestPart("image") MultipartFile image) throws IOException {
+    public ResponseEntity<SingleResponse<SaveImageResponseDto>> s3SaveImage(@RequestPart("image") MultipartFile image) throws IOException {
 
         return new ResponseEntity<>(
-                imageService.s3SaveImage(image),
+                SingleResponse.of(HttpStatus.CREATED, imageService.s3SaveImage(image)),
                 HttpStatus.CREATED
         );
     }
