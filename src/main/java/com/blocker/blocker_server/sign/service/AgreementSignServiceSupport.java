@@ -39,7 +39,7 @@ public class AgreementSignServiceSupport {
 
     public void checkIsNotProceedContract(Contract contract) {
         if (!contract.getContractState().equals(ContractState.NOT_PROCEED))
-            throw new IsNotNotProceedContractException("contract id: " + contract.getContractId());
+            throw new IsNotNotProceedContractException();
     }
 
     public void checkIsEmptyContractor(List<String> contractors) {
@@ -73,7 +73,7 @@ public class AgreementSignServiceSupport {
         return agreementSigns.stream()
                 .filter(agreementSign -> agreementSign.getUser().getEmail().equals(email))
                 .findFirst()
-                .orElseThrow(() -> new IsNotContractParticipantException("email: " + email));
+                .orElseThrow(() -> new IsNotContractParticipantException());
     }
 
     @Transactional

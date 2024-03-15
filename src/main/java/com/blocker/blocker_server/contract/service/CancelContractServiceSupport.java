@@ -44,21 +44,21 @@ public class CancelContractServiceSupport {
     }
 
     public CancelContract getCancelContractWithSignsById(Long cancelContractId) {
-        return cancelContractRepository.findCancelContractWithSignsById(cancelContractId).orElseThrow(() -> new CancelContractNotFoundException("cancel contract id: " + cancelContractId));
+        return cancelContractRepository.findCancelContractWithSignsById(cancelContractId).orElseThrow(CancelContractNotFoundException::new);
     }
 
     public void checkIsCancelingCancelContract(CancelContract cancelContract) {
         if (!cancelContract.getCancelContractState().equals(CancelContractState.CANCELING))
-            throw new IsNotCancelingCancelContract("cancel contract id: " + cancelContract.getCancelContractId());
+            throw new IsNotCancelingCancelContract();
     }
 
     public void checkIsCancelContractParticipant(User user, CancelContract cancelContract) {
         if (!cancelSignRepository.existsByUserAndCancelContract(user, cancelContract))
-            throw new IsNotCancelContractParticipant("cancel contract id: " + cancelContract.getCancelContractId() +", user: " + user.getEmail());
+            throw new IsNotCancelContractParticipant();
     }
 
     public void checkIsCanceledCancelContract(CancelContract cancelContract) {
         if (!cancelContract.getCancelContractState().equals(CancelContractState.CANCELED))
-            throw new IsNotCanceledCancelContract("cancel contract id: " + cancelContract.getCancelContractId());
+            throw new IsNotCanceledCancelContract();
     }
 }

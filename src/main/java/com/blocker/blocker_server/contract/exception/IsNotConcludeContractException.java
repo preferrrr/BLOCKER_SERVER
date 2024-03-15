@@ -1,13 +1,16 @@
 package com.blocker.blocker_server.contract.exception;
 
+import com.blocker.blocker_server.commons.exception.ExceptionCode;
 import lombok.Getter;
 
-@Getter
-public class IsNotConcludeContractException extends RuntimeException{
-    private final String NAME;
+import static com.blocker.blocker_server.contract.exception.ContractExceptionCode.IS_NOT_CONCLUDE_CONTRACT;
 
-    public IsNotConcludeContractException(String message) {
-        super(message);
-        NAME = "IsNotConcludeContractException";
+public class IsNotConcludeContractException extends RuntimeException {
+    @Getter
+    private final ExceptionCode exceptionCode;
+
+    public IsNotConcludeContractException() {
+        super(IS_NOT_CONCLUDE_CONTRACT.getMessage());
+        this.exceptionCode = IS_NOT_CONCLUDE_CONTRACT;
     }
 }
