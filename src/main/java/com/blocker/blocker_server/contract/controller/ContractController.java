@@ -32,8 +32,6 @@ public class ContractController {
     public ResponseEntity<HttpStatus> saveContract(@AuthenticationPrincipal User user,
                                                    @RequestBody SaveContractRequestDto requestDto) {
 
-        requestDto.validateFieldsNotNull();
-
         contractService.saveContract(user, requestDto);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -47,7 +45,6 @@ public class ContractController {
     public ResponseEntity<HttpStatus> modifyContract(@AuthenticationPrincipal User user,
                                                      @RequestBody ModifyContractRequestDto requestDto,
                                                      @PathVariable Long contractId) {
-        requestDto.validateFieldsNotNull();
 
         contractService.modifyContract(user, contractId, requestDto);
 
@@ -66,9 +63,11 @@ public class ContractController {
         if (!state.equals(ContractState.PROCEED) && !state.equals(ContractState.NOT_PROCEED) && !state.equals(ContractState.CONCLUDE))
             throw new InvalidContractStateException();
 
-        List<GetContractResponseDto> response = contractService.getContracts(user, state);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(
+                contractService.getContracts(user, state),
+                HttpStatus.OK
+        );
     }
 
     /**
@@ -78,9 +77,10 @@ public class ContractController {
     @GetMapping("/not-proceed/{contractId}")
     public ResponseEntity<GetContractResponseDto> getContract(@PathVariable("contractId") Long contractId) {
 
-        GetContractResponseDto response = contractService.getNotProceedContract(contractId);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(
+                contractService.getNotProceedContract(contractId),
+                HttpStatus.OK
+        );
     }
 
     /**
@@ -90,6 +90,7 @@ public class ContractController {
     @DeleteMapping("/{contractId}")
     public ResponseEntity<HttpStatus> deleteContract(@AuthenticationPrincipal User user,
                                                      @PathVariable("contractId") Long contractId) {
+
         contractService.deleteContract(user, contractId);
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -102,9 +103,11 @@ public class ContractController {
     @GetMapping("/proceed/{contractId}")
     public ResponseEntity<GetProceedContractResponseDto> getProceedContract(@AuthenticationPrincipal User user,
                                                                             @PathVariable("contractId") Long contractId) {
-        GetProceedContractResponseDto response = contractService.getProceedContract(user, contractId);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(
+                contractService.getProceedContract(user, contractId),
+                HttpStatus.OK
+        );
     }
 
     /**
@@ -122,13 +125,15 @@ public class ContractController {
     /**
      * 체결 계약서 조회
      * /contracts/conclude/{contractId}
-     * */
+     */
     @GetMapping("/conclude/{contractId}")
     public ResponseEntity<GetConcludeContractResponseDto> getConcludeContract(@AuthenticationPrincipal User user,
                                                                               @PathVariable("contractId") Long contractId) {
-        GetConcludeContractResponseDto response = contractService.getConcludeContract(user, contractId);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(
+                contractService.getConcludeContract(user, contractId),
+                HttpStatus.OK
+        );
     }
 
 }

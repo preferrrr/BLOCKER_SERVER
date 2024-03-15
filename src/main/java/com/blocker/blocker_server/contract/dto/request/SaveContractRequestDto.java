@@ -1,6 +1,7 @@
 package com.blocker.blocker_server.contract.dto.request;
 
 import com.blocker.blocker_server.commons.exception.InvalidRequestParameterException;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SaveContractRequestDto {
 
+    @NotBlank(message = "제목은 null 또는 공백일 수 없습니다.")
     private String title;
+    @NotBlank(message = "내용은 null 또는 공백일 수 없습니다.")
     private String content;
 
 
@@ -19,10 +22,4 @@ public class SaveContractRequestDto {
         this.content = content;
     }
 
-    public void validateFieldsNotNull() {
-        if(title == null || title.isEmpty() || title.isBlank())
-            throw new InvalidRequestParameterException("Invalid title");
-        if(content == null || content.isEmpty() || content.isBlank())
-            throw new InvalidRequestParameterException("Invalid content");
-    }
 }

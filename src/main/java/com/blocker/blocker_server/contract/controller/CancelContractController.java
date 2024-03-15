@@ -28,9 +28,10 @@ public class CancelContractController {
     public ResponseEntity<List<GetCancelContractResponseDto>> getCancelContractList(@AuthenticationPrincipal User user,
                                                                                     @RequestParam(name = "state") CancelContractState state) {
 
-        List<GetCancelContractResponseDto> response = cancelContractService.getCancelContractList(user, state);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(
+                cancelContractService.getCancelContractList(user, state),
+                HttpStatus.OK
+        );
     }
 
     /**
@@ -41,23 +42,26 @@ public class CancelContractController {
     public ResponseEntity<GetCancelContractWithSignStateResponseDto> getCancelingContract(@AuthenticationPrincipal User user,
                                                                                           @PathVariable Long cancelContractId) {
 
-        GetCancelContractWithSignStateResponseDto response = cancelContractService.getCancelingContract(user, cancelContractId);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(
+                cancelContractService.getCancelingContract(user, cancelContractId),
+                HttpStatus.OK
+        );
 
     }
 
     /**
      * 파기 체결 계약서 조회
      * /cancel-contracts/canceled/{cancelContractId}
-     * */
+     */
     @GetMapping("/canceled/{cancelContractId}")
     public ResponseEntity<GetCancelContractWithSignStateResponseDto> getCanceledContract(@AuthenticationPrincipal User user,
                                                                                          @PathVariable Long cancelContractId) {
 
-        GetCancelContractWithSignStateResponseDto response = cancelContractService.getCanceledContract(user, cancelContractId);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(
+                cancelContractService.getCanceledContract(user, cancelContractId),
+                HttpStatus.OK
+        );
 
     }
 }
