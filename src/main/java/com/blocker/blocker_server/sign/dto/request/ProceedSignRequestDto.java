@@ -1,6 +1,5 @@
 package com.blocker.blocker_server.sign.dto.request;
 
-import com.blocker.blocker_server.commons.exception.InvalidRequestParameterException;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
