@@ -23,7 +23,7 @@ public class SignatureServiceSupport {
 
     public void checkAlreadyHaveSignature(User user) {
         if(signatureRepository.existsByUser(user))
-            throw new AlreadyHaveSignatureException("email : " + user.getEmail());
+            throw new AlreadyHaveSignatureException();
     }
 
     @Transactional
@@ -46,6 +46,6 @@ public class SignatureServiceSupport {
 
     public Signature getMySignature(User user) {
         return  signatureRepository.findByUserOrderByCreatedAtDesc(user)
-                .orElseThrow(()-> new SignatureNotFoundException("email : " + user.getEmail()));
+                .orElseThrow(SignatureNotFoundException::new);
     }
 }
