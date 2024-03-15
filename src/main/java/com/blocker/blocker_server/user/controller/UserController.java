@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.user.controller;
 
+import com.blocker.blocker_server.commons.response.ListResponse;
 import com.blocker.blocker_server.user.dto.request.LoginRequestDto;
 import com.blocker.blocker_server.user.dto.response.SearchUserResponse;
 import com.blocker.blocker_server.user.service.UserService;
@@ -27,18 +28,16 @@ public class UserController {
     @GetMapping("/reissue-token")
     public ResponseEntity<HttpHeaders> reissueToken(@RequestHeader("Cookie") String cookie) {
 
-        return new ResponseEntity<>(
-                userService.reissueToken(cookie),
-                HttpStatus.OK
+        return ResponseEntity.ok(
+                userService.reissueToken(cookie)
         );
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<SearchUserResponse>> searchUsers(@RequestParam("keyword") String keyword) {
+    public ResponseEntity<ListResponse<SearchUserResponse>> searchUsers(@RequestParam("keyword") String keyword) {
 
-        return new ResponseEntity(
-                userService.searchUsers(keyword),
-                HttpStatus.OK
+        return ResponseEntity.ok(
+                ListResponse.ok(userService.searchUsers(keyword))
         );
     }
 
