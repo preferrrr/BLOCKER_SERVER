@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "USER")
+@Table(name = "USERS")
 @Getter
 @DynamicInsert
 @DynamicUpdate
