@@ -1,7 +1,6 @@
 package com.blocker.blocker_server.chat.service;
 
 import com.blocker.blocker_server.board.domain.Board;
-import com.blocker.blocker_server.board.repository.BoardRepository;
 import com.blocker.blocker_server.board.service.BoardServiceSupport;
 import com.blocker.blocker_server.chat.domain.ChatMessage;
 import com.blocker.blocker_server.chat.domain.ChatRoom;
@@ -42,7 +41,7 @@ public class ChatServiceSupport {
 
     public ChatRoom getChatRoomById(Long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new ChatRoomNotFoundException("chat room id: " + chatRoomId));
+                .orElseThrow(ChatRoomNotFoundException::new);
     }
 
     @Transactional
@@ -79,7 +78,7 @@ public class ChatServiceSupport {
 
     public void checkIsChatParticipant(User user, Long chatRoomId) {
         if (!chatUserRepository.existsByUserAndChatRoom(user, chatRoomRepository.getReferenceById(chatRoomId)))
-            throw new IsNotChatParticipantException("user: " + user.getEmail() +", chat room id: " + chatRoomId);
+            throw new IsNotChatParticipantException();
     }
 
     public List<ChatMessage> getChatMessagesByChatRoomId(Long chatRoomId, Pageable pageable) {
