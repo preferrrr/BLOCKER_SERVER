@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.sign.controller;
 
+import com.blocker.blocker_server.commons.response.BaseResponse;
 import com.blocker.blocker_server.sign.service.CancelSignService;
 import com.blocker.blocker_server.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -15,24 +16,30 @@ public class CancelSignController {
 
     private final CancelSignService cancelSignService;
 
-    /**파기 계약 진행*/
+    /**
+     * 파기 계약 진행
+     */
     @PostMapping("/contract/{contractId}")
-    public ResponseEntity<HttpStatus> cancelContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long contractId) {
+    public ResponseEntity<BaseResponse> cancelContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long contractId) {
 
         cancelSignService.cancelContract(user, contractId);
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                BaseResponse.of(HttpStatus.CREATED),
+                HttpStatus.CREATED
+        );
     }
 
-    /**서명
+    /**
+     * 서명
      * /cancel-signs/cancel-contract/{contractId}
-     * */
+     */
     @PatchMapping("/cancel-contract/{contractId}")
-    public ResponseEntity<HttpStatus> signContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long cancelContractId) {
+    public ResponseEntity<BaseResponse> signContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long cancelContractId) {
 
         cancelSignService.signCancelContract(user, cancelContractId);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(BaseResponse.ok());
     }
 
 }

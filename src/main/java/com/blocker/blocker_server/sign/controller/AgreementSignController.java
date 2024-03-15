@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.sign.controller;
 
+import com.blocker.blocker_server.commons.response.BaseResponse;
 import com.blocker.blocker_server.sign.dto.request.ProceedSignRequestDto;
 import com.blocker.blocker_server.sign.service.AgreementSignService;
 import com.blocker.blocker_server.user.domain.User;
@@ -22,39 +23,45 @@ public class AgreementSignController {
     // 계약 테이블에 create 한다는 것에 초점을 두면 POST /signs가 될 수 있겠다.
     // 나는 SIGN 테이블에 초점을 둔다.
 
-    /**계약 진행.
+    /**
+     * 계약 진행.
      * 참여자들을 초대하고, 계약서의 상태도 진행 중으로 바뀜.
      * /signs
-     * */
+     */
     @PostMapping("")
-    public ResponseEntity<HttpStatus> proceedContract(@AuthenticationPrincipal User user, @RequestBody ProceedSignRequestDto request) {
+    public ResponseEntity<BaseResponse> proceedContract(@AuthenticationPrincipal User user, @RequestBody ProceedSignRequestDto request) {
 
         agreementSignService.proceedContract(user, request);
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                BaseResponse.of(HttpStatus.CREATED),
+                HttpStatus.CREATED
+        );
     }
 
 
-    /**서명
+    /**
+     * 서명
      * /signs/contract/{contractId}
-     * */
+     */
     @PatchMapping("/contract/{contractId}")
-    public ResponseEntity<HttpStatus> signContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long contractId) {
+    public ResponseEntity<BaseResponse> signContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long contractId) {
 
         agreementSignService.signContract(user, contractId);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(BaseResponse.ok());
     }
 
-    /**진행 중 계약 파기
+    /**
+     * 진행 중 계약 파기
      * /signs/contract/{contractId}
-     * */
+     */
     @DeleteMapping("/contract/{contractId}")
-    public ResponseEntity<HttpStatus> breakContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long contractId) {
+    public ResponseEntity<BaseResponse> breakContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long contractId) {
 
         agreementSignService.breakContract(user, contractId);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(BaseResponse.ok());
 
     }
 
