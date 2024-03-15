@@ -1,22 +1,23 @@
 package com.blocker.blocker_server.commons.exception;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler({InvalidRequestParameterException.class})
-    public ResponseEntity<?> handleDuplicateUsernameException(final InvalidRequestParameterException e) {
 
-        String msg = e.getNAME() + ": [" + e.getMessage() + "]";
-        log.error(msg);
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity handleBindException(final BindException e) {
 
+        log.error("[bind exception] {}", GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getMessage());
 
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity(
+                ExceptionResponse.of(GlobalExceptionCode.INVALID_REQUEST_PARAMETER, e.getAllErrors().get(0).getDefaultMessage()),
+                GlobalExceptionCode.INVALID_REQUEST_PARAMETER.getHttpStatus());
     }
 
 }

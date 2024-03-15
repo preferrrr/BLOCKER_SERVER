@@ -2,9 +2,7 @@ package com.blocker.blocker_server.board.exception;
 
 import com.blocker.blocker_server.commons.exception.ExceptionCode;
 import com.blocker.blocker_server.commons.exception.ExceptionResponse;
-import com.blocker.blocker_server.commons.exception.InvalidRequestParameterException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
