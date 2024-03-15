@@ -25,7 +25,6 @@ public class BookmarkController {
     @PostMapping("")
     public ResponseEntity<HttpStatus> saveBookmark(@AuthenticationPrincipal User user,
                                                    @RequestBody SaveBookmarkRequestDto requestDto) {
-        requestDto.validateFieldsNotNull();
 
         bookmarkService.saveBookmark(user, requestDto);
 
@@ -45,8 +44,9 @@ public class BookmarkController {
     public ResponseEntity<List<GetBoardListResponseDto>> getBookmarkBoards(@AuthenticationPrincipal User user,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        List<GetBoardListResponseDto> response = bookmarkService.getBookmarkBoards(user, pageable);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(
+                bookmarkService.getBookmarkBoards(user, pageable),
+                HttpStatus.OK
+        );
     }
 }
