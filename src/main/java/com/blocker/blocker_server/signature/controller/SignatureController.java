@@ -1,5 +1,7 @@
 package com.blocker.blocker_server.signature.controller;
 
+import com.blocker.blocker_server.commons.response.BaseResponse;
+import com.blocker.blocker_server.commons.response.SingleResponse;
 import com.blocker.blocker_server.signature.dto.response.GetSignatureResponseDto;
 import com.blocker.blocker_server.signature.service.SignatureService;
 import com.blocker.blocker_server.user.domain.User;
@@ -23,26 +25,24 @@ public class SignatureController {
     @PostMapping("")
     public ResponseEntity<HttpHeaders> setSignature(@AuthenticationPrincipal User user, @RequestPart("signature") MultipartFile file) throws IOException {
 
-        return new ResponseEntity<>(
-                signatureService.setSignature(user, file),
-                HttpStatus.OK
+        return ResponseEntity.ok(
+                signatureService.setSignature(user, file)
         );
     }
 
     @PatchMapping("")
-    public ResponseEntity<HttpStatus> modifySignature(@AuthenticationPrincipal User user, @RequestPart("signature") MultipartFile file) throws IOException {
+    public ResponseEntity<BaseResponse> modifySignature(@AuthenticationPrincipal User user, @RequestPart("signature") MultipartFile file) throws IOException {
 
         signatureService.modifySignature(user, file);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(BaseResponse.ok());
     }
 
     @GetMapping("")
-    public ResponseEntity<GetSignatureResponseDto> getSignature(@AuthenticationPrincipal User user) {
+    public ResponseEntity<SingleResponse<GetSignatureResponseDto>> getSignature(@AuthenticationPrincipal User user) {
 
-        return new ResponseEntity<>(
-                signatureService.getSignature(user),
-                HttpStatus.OK
+        return ResponseEntity.ok(
+                SingleResponse.ok(signatureService.getSignature(user))
         );
     }
 }
