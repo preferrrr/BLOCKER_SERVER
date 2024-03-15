@@ -20,7 +20,8 @@ public enum ContractExceptionCode implements ExceptionCode {
     IS_NOT_CONTRACT_PARTICIPANT(HttpStatus.BAD_REQUEST, "계약 참여자가 아닙니다."),
     IS_NOT_CONTRACT_WRITER(HttpStatus.BAD_REQUEST, "계약서 작성자가 아닙니다."),
     IS_NOT_NOTPROCEED_CONTRACT(HttpStatus.BAD_REQUEST, "미체결 계약서가 아닙니다."),
-    IS_NOT_PROCEED_CONTRACT(HttpStatus.BAD_REQUEST, "진행 중 계약서가 아닙니다.");
+    IS_NOT_PROCEED_CONTRACT(HttpStatus.BAD_REQUEST, "진행 중 계약서가 아닙니다."),
+    INVALID_CONTRACT_STATE(HttpStatus.BAD_REQUEST, "잘못된 계약서 상태입니다.");
 
 
     private final HttpStatus httpStatus;

@@ -1,9 +1,9 @@
 package com.blocker.blocker_server.commons.config;
 
 import com.blocker.blocker_server.chat.domain.ChatRoom;
+import com.blocker.blocker_server.chat.exception.IsNotChatParticipantException;
 import com.blocker.blocker_server.chat.repository.ChatRoomRepository;
 import com.blocker.blocker_server.chat.repository.ChatUserRepository;
-import com.blocker.blocker_server.commons.exception.ForbiddenException;
 import com.blocker.blocker_server.commons.jwt.JwtProvider;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.user.repository.UserRepository;
@@ -89,7 +89,7 @@ public class ChatPreHandler implements ChannelInterceptor {
         User user = userRepository.getReferenceById(jwtProvider.getEmail(token));
 
         if (!chatUserRepository.existsByUserAndChatRoom(user, chatRoom))
-            throw new ForbiddenException("not participant");
+            throw new IsNotChatParticipantException();
 
     }
 

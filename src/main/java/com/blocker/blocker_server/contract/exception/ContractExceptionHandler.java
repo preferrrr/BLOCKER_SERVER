@@ -144,4 +144,16 @@ public class ContractExceptionHandler {
                 exceptionCode.getHttpStatus()
         ); /** 파기 체결된 계약서가 아님.*/
     }
+
+    @ExceptionHandler(InvalidContractStateException.class)
+    public ResponseEntity<ExceptionResponse> handleInvalidContractState(final InvalidContractStateException e) {
+
+        ExceptionCode exceptionCode = e.getExceptionCode();
+        log.error("{}", e.getMessage());
+
+        return new ResponseEntity<>(
+                ExceptionResponse.of(exceptionCode),
+                exceptionCode.getHttpStatus()
+        );
+    }
 }
