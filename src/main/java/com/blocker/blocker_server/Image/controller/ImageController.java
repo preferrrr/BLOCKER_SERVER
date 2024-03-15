@@ -23,9 +23,10 @@ public class ImageController {
     @PostMapping("")
     public ResponseEntity<SaveImageResponseDto> s3SaveImage(@RequestPart("image") MultipartFile image) throws IOException {
 
-        SaveImageResponseDto response = imageService.s3SaveImage(image);
-
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                imageService.s3SaveImage(image),
+                HttpStatus.CREATED
+        );
     }
 
 }

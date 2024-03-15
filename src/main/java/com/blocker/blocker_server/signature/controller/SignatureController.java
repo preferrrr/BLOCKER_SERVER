@@ -23,19 +23,14 @@ public class SignatureController {
     @PostMapping("")
     public ResponseEntity<HttpHeaders> setSignature(@AuthenticationPrincipal User user, @RequestPart("signature") MultipartFile file) throws IOException {
 
-        if (file.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-        HttpHeaders headers = signatureService.setSignature(user, file);
-
-        return new ResponseEntity<>(headers, HttpStatus.OK);
+        return new ResponseEntity<>(
+                signatureService.setSignature(user, file),
+                HttpStatus.OK
+        );
     }
 
     @PatchMapping("")
     public ResponseEntity<HttpStatus> modifySignature(@AuthenticationPrincipal User user, @RequestPart("signature") MultipartFile file) throws IOException {
-
-        if (file.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         signatureService.modifySignature(user, file);
 
@@ -45,8 +40,9 @@ public class SignatureController {
     @GetMapping("")
     public ResponseEntity<GetSignatureResponseDto> getSignature(@AuthenticationPrincipal User user) {
 
-        GetSignatureResponseDto dto = signatureService.getSignature(user);
-
-        return new ResponseEntity<>(dto, HttpStatus.OK);
+        return new ResponseEntity<>(
+                signatureService.getSignature(user),
+                HttpStatus.OK
+        );
     }
 }
