@@ -29,12 +29,12 @@ public class BookmarkServiceSupport {
 
     public void checkIsBookmarked(User user, Board board) {
         if(bookmarkRepository.existsByUserAndBoard(user, board))
-            throw new IsAlreadyBookmarkedException("email : " + user.getEmail() + ", boardId : " + board.getBoardId());
+            throw new IsAlreadyBookmarkedException();
     }
 
     public void checkIsNotBookmarked(User user, Board board) {
         if(!bookmarkRepository.existsByUserAndBoard(user, board))
-            throw new IsNotBookmarkedException("email : " + user.getEmail() + ", boardId : " + board.getBoardId());
+            throw new IsNotBookmarkedException();
     }
 
     @Transactional

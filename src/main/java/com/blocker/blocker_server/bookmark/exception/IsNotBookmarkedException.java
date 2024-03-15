@@ -1,13 +1,16 @@
 package com.blocker.blocker_server.bookmark.exception;
 
+import com.blocker.blocker_server.commons.exception.ExceptionCode;
 import lombok.Getter;
 
-@Getter
-public class IsNotBookmarkedException extends RuntimeException{
-    private final String NAME;
+import static com.blocker.blocker_server.bookmark.exception.BookmarkExceptionCode.IS_NOT_BOOKMARKED;
 
-    public IsNotBookmarkedException(String message) {
-        super(message);
-        NAME = "IsNotBookmarkedException";
+public class IsNotBookmarkedException extends RuntimeException {
+    @Getter
+    private final ExceptionCode exceptionCode;
+
+    public IsNotBookmarkedException() {
+        super(IS_NOT_BOOKMARKED.getMessage());
+        this.exceptionCode = IS_NOT_BOOKMARKED;
     }
 }
