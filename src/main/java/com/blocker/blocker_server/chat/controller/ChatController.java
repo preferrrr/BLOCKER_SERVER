@@ -45,8 +45,6 @@ public class ChatController {
     @PostMapping("/chatrooms")
     public ResponseEntity<HttpStatus> createRoom(@AuthenticationPrincipal User user, @RequestBody CreateChatRoomRequestDto createChatRoomRequestDto) {
 
-        createChatRoomRequestDto.validateFieldsNotNull();
-
         chatService.createChatRoom(user, createChatRoomRequestDto.getChatUsers());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -58,9 +56,10 @@ public class ChatController {
     @GetMapping("/chatrooms")
     public ResponseEntity<List<GetChatRoomListDto>> getChatRooms(@AuthenticationPrincipal User user) {
 
-        List<GetChatRoomListDto> response = chatService.getChatRooms(user);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(
+                chatService.getChatRooms(user),
+                HttpStatus.OK
+        );
     }
 
     /**
@@ -71,9 +70,10 @@ public class ChatController {
                                                                         @PathVariable("chatRoomId") Long chatRoomId,
                                                                         @PageableDefault(size = 20, sort = "sendAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        List<GetChatMessagesResponseDto> response = chatService.getMessages(user, chatRoomId, pageable);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(
+                chatService.getMessages(user, chatRoomId, pageable),
+                HttpStatus.OK
+        );
     }
 
     /**
@@ -82,9 +82,11 @@ public class ChatController {
     @GetMapping("/chatrooms/boards/{boardId}")
     public ResponseEntity<GetOneToOneChatRoomResponse> getOneToOneChatRoom(@AuthenticationPrincipal User user, @PathVariable("boardId") Long boardId) {
 
-        GetOneToOneChatRoomResponse response = chatService.getOneToOneChatRoomId(user, boardId);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(
+                chatService.getOneToOneChatRoomId(user, boardId),
+                HttpStatus.OK
+        );
     }
 
 

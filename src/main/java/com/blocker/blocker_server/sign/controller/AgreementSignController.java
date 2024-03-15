@@ -29,8 +29,6 @@ public class AgreementSignController {
     @PostMapping("")
     public ResponseEntity<HttpStatus> proceedContract(@AuthenticationPrincipal User user, @RequestBody ProceedSignRequestDto request) {
 
-        request.validateFieldsNotNull();
-
         agreementSignService.proceedContract(user, request);
 
         return new ResponseEntity<>(HttpStatus.CREATED);

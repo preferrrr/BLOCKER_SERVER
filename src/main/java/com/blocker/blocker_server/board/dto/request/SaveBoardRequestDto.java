@@ -1,6 +1,7 @@
 package com.blocker.blocker_server.board.dto.request;
 
 import com.blocker.blocker_server.commons.exception.InvalidRequestParameterException;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,10 +12,13 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class SaveBoardRequestDto {
+    @NotBlank(message = "제목은 null 또는 공백일 수 없습니다.")
     private String title;
+    @NotBlank(message = "제목은 null 또는 공백일 수 없습니다.")
     private String content;
     private String info;
     private String representImage;
+    @NotBlank(message = "계약서 인덱스는 null 또는 공백일 수 없습니다.")
     private Long contractId;
     private List<String> images;
 
@@ -28,15 +32,4 @@ public class SaveBoardRequestDto {
         this.images = images;
     }
 
-
-
-
-    public void validateFieldsNotNull() {
-        if(title == null || title.isEmpty() || title.isBlank())
-            throw new InvalidRequestParameterException("Invalid title");
-        if(content == null || content.isEmpty() || content.isBlank())
-            throw new InvalidRequestParameterException("Invalid name");
-        if(contractId == null)
-            throw new InvalidRequestParameterException("Invalid contractId");
-    }
 }
