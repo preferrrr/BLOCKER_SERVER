@@ -114,13 +114,13 @@ public class JwtProvider {
         try {
             claims = getClaimsFromToken(token);
         } catch (ExpiredJwtException e) {
-            throw new InvalidRefreshTokenException("[expired jwt] token : " + token);
+            throw new InvalidRefreshTokenException();
         } catch (SecurityException e) {
-            throw new InvalidRefreshTokenException("[wrong signature] token : " + token);
+            throw new InvalidRefreshTokenException();
         } catch (MalformedJwtException e) {
-            throw new InvalidRefreshTokenException("[invalid refresh token] : " + token);
+            throw new InvalidRefreshTokenException();
         } catch (UnsupportedJwtException e) {
-            throw new InvalidRefreshTokenException("[unsupported JWT] token : " + token);
+            throw new InvalidRefreshTokenException();
         }
 
         return (String) claims.getBody().get("value");

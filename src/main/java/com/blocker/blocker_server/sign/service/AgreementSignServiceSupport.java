@@ -50,7 +50,7 @@ public class AgreementSignServiceSupport {
     public List<AgreementSign> createAgreementSigns(Contract contract, User me, List<String> contractors) {
         List<AgreementSign> agreementSigns = contractors.stream() // 계약에 참여하는 사람들
                 .map(email -> userRepository.findByEmail(email)
-                        .orElseThrow(() -> new UserNotFoundException("email: " + email)))
+                        .orElseThrow(UserNotFoundException::new))
                 .map(contractor -> AgreementSign.create(contractor, contract))
                 .collect(Collectors.toList());
         agreementSigns.add(AgreementSign.create(me, contract)); // 나도 계약 참여자. 나도 나중에 서명해야함.
