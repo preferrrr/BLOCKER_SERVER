@@ -1,5 +1,7 @@
 package com.blocker.blocker_server.contract.controller;
 
+import com.blocker.blocker_server.commons.response.ListResponse;
+import com.blocker.blocker_server.commons.response.SingleResponse;
 import com.blocker.blocker_server.contract.dto.response.GetCancelContractResponseDto;
 import com.blocker.blocker_server.contract.service.CancelContractService;
 import com.blocker.blocker_server.contract.domain.CancelContractState;
@@ -25,12 +27,11 @@ public class CancelContractController {
      * /cancel-contracts
      */
     @GetMapping("")
-    public ResponseEntity<List<GetCancelContractResponseDto>> getCancelContractList(@AuthenticationPrincipal User user,
-                                                                                    @RequestParam(name = "state") CancelContractState state) {
+    public ResponseEntity<ListResponse<GetCancelContractResponseDto>> getCancelContractList(@AuthenticationPrincipal User user,
+                                                                                            @RequestParam(name = "state") CancelContractState state) {
 
-        return new ResponseEntity<>(
-                cancelContractService.getCancelContractList(user, state),
-                HttpStatus.OK
+        return ResponseEntity.ok(
+                ListResponse.ok(cancelContractService.getCancelContractList(user, state))
         );
     }
 
@@ -39,12 +40,11 @@ public class CancelContractController {
      * /cancel-contracts/canceling/{cancelContractId}
      */
     @GetMapping("/canceling/{cancelContractId}")
-    public ResponseEntity<GetCancelContractWithSignStateResponseDto> getCancelingContract(@AuthenticationPrincipal User user,
-                                                                                          @PathVariable Long cancelContractId) {
+    public ResponseEntity<SingleResponse<GetCancelContractWithSignStateResponseDto>> getCancelingContract(@AuthenticationPrincipal User user,
+                                                                                                          @PathVariable Long cancelContractId) {
 
-        return new ResponseEntity<>(
-                cancelContractService.getCancelingContract(user, cancelContractId),
-                HttpStatus.OK
+        return ResponseEntity.ok(
+                SingleResponse.ok(cancelContractService.getCancelingContract(user, cancelContractId))
         );
 
     }
@@ -54,13 +54,12 @@ public class CancelContractController {
      * /cancel-contracts/canceled/{cancelContractId}
      */
     @GetMapping("/canceled/{cancelContractId}")
-    public ResponseEntity<GetCancelContractWithSignStateResponseDto> getCanceledContract(@AuthenticationPrincipal User user,
+    public ResponseEntity<SingleResponse<GetCancelContractWithSignStateResponseDto>> getCanceledContract(@AuthenticationPrincipal User user,
                                                                                          @PathVariable Long cancelContractId) {
 
 
-        return new ResponseEntity<>(
-                cancelContractService.getCanceledContract(user, cancelContractId),
-                HttpStatus.OK
+        return ResponseEntity.ok(
+                SingleResponse.ok(cancelContractService.getCanceledContract(user, cancelContractId))
         );
 
     }
