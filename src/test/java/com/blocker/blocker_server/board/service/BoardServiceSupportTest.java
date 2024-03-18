@@ -17,6 +17,7 @@ import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.user.repository.UserRepository;
 import org.hibernate.Hibernate;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,40 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     @Autowired
     private BookmarkRepository bookmarkRepository;
 
+
+    private User me, anotherUser;
+    private Contract myContract, anotherContract;
+    private Board myBoard1, myBoard2, myBoard3, otherBoard1, otherBoard2;
+    private Image image1, image2, image3;
+    private Bookmark bookmark;
+
+    @BeforeEach
+    void setUp() {
+        me = User.create("me@gmail.com", "me", "me picture", "me value", List.of("USER"));
+        anotherUser = User.create("anotherUser@gmail.com", "another user", "another user picture", "another user value", List.of("USER"));
+
+        myContract = Contract.create(me, "my contract title", "my contract content");
+        anotherContract = Contract.create(anotherUser, "another contract title", "another contract content");
+
+        myBoard1 = Board.create(me, "my board1 title", "my board1 content", "my rep image1", "my info1", myContract);
+        myBoard2 = Board.create(me, "my board2 title", "my board2 content", "my rep image2", "my info2", myContract);
+        myBoard3 = Board.create(me, "my board3 title", "my board3 content", "my rep image3", "my info3", myContract);
+        otherBoard1 = Board.create(anotherUser, "other board1 title", "other board1 content", "other rep image1", "other info1", anotherContract);
+        otherBoard2 = Board.create(anotherUser, "other board2 title", "other board2 content", "other rep image2", "other info2", anotherContract);
+
+        image1 = Image.create(myBoard1, "address1");
+        image2 = Image.create(myBoard1, "address2");
+        image3 = Image.create(myBoard1, "address3");
+
+        bookmark = Bookmark.create(me, otherBoard1);
+
+        userRepository.saveAll(List.of(me, anotherUser));
+        contractRepository.saveAll(List.of(myContract, anotherContract));
+        boardRepository.saveAll(List.of(myBoard1, myBoard2, myBoard3, otherBoard1, otherBoard2));
+        imageRepository.saveAll(List.of(image1, image2, image3));
+        bookmarkRepository.save(bookmark);
+    }
+
     @AfterEach
     void tearDown() {
         imageRepository.deleteAllInBatch();
@@ -64,20 +99,16 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     void getBoardById() {
 
         /** given */
-        User user = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
-        Contract contract = Contract.create(user, "testTitle", "testContent");
-        Board board = Board.create(user, "testTitle", "testContent", "testRepImage", "testInfo", contract);
-        userRepository.save(user);
-        contractRepository.save(contract);
-        Board savedBoard = boardRepository.save(board);
+        //before each
 
         /** when */
 
-        Board getBoard = boardServiceSupport.getBoardById(savedBoard.getBoardId());
+        Board getBoard = boardServiceSupport.getBoardById(myBoard1.getBoardId());
 
         /** then */
 
-        assertThat(getBoard.getBoardId()).isEqualTo(savedBoard.getBoardId());
+        assertThat(getBoard.getBoardId()).isEqualTo(myBoard1.getBoardId());
+        assertThat(getBoard.getUser().getEmail()).isEqualTo(myBoard1.getUser().getEmail());
 
     }
 
@@ -85,12 +116,11 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     @Test
     void getBoardByIdException() {
 
-        /** given */
-
-        /** when */
+        /** given when */
+        // before each
 
         /** then */
-        assertThatThrownBy(() -> boardServiceSupport.getBoardById(1l))
+        assertThatThrownBy(() -> boardServiceSupport.getBoardById(100l))
                 .isInstanceOf(BoardNotFoundException.class);
 
     }
@@ -100,41 +130,25 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     void getBoardList() {
 
         /** given */
-
-        User user = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
-        Contract contract = Contract.create(user, "testTitle", "testContent");
-        Board board1 = Board.create(user, "testTitle", "testContent", "testRepImage", "testInfo", contract);
-        Board board2 = Board.create(user, "testTitle", "testContent", "testRepImage", "testInfo", contract);
-        Board board3 = Board.create(user, "testTitle", "testContent", "testRepImage", "testInfo", contract);
-        userRepository.save(user);
-        contractRepository.save(contract);
-        boardRepository.saveAll(List.of(board1, board2, board3));
+        //before each
 
         /** when */
+
         List<Board> boards = boardServiceSupport.getBoardList(PageRequest.of(0, 10));
 
         /** then */
-        assertThat(boards).hasSize(3);
+        assertThat(boards).hasSize(5);
     }
 
     @Test
     void getBoardWithImages() {
 
         /** given */
-        User user = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
-        Contract contract = Contract.create(user, "testTitle", "testContent");
-        Board board = Board.create(user, "testTitle", "testContent", "testRepImage", "testInfo", contract);
-        Image image1 = Image.create(board, "testAddress1");
-        Image image2 = Image.create(board, "testAddress2");
-        Image image3 = Image.create(board, "testAddress3");
-        userRepository.save(user);
-        contractRepository.save(contract);
-        Board savedBoard = boardRepository.save(board);
-        imageRepository.saveAll(List.of(image1, image2, image3));
+        //before each
 
         /** when */
 
-        Board getBoard = boardServiceSupport.getBoardWithImages(savedBoard.getBoardId());
+        Board getBoard = boardServiceSupport.getBoardWithImages(myBoard1.getBoardId());
 
         /** then */
 
@@ -163,25 +177,15 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     void save() {
 
         /** given */
-        User user = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
-        Contract contract = Contract.create(user, "testTitle", "testContent");
-        userRepository.save(user);
-        contractRepository.save(contract);
-
-        Board newBoard = Board.create(user, "testTitle", "testContent", "testImage", "testInfo", contract);
+        Board newBoard = Board.create(me, "testTitle", "testContent", "testImage", "testInfo", myContract);
 
         /** when */
         boardServiceSupport.save(newBoard);
 
         /** then */
-
         List<Board> boards = boardRepository.findAll();
-        assertThat(boards).hasSize(1)
-                .extracting("title", "content")
-                .containsExactlyInAnyOrder(
-                        tuple("testTitle", "testContent")
-                );
-
+        //before each 5개 + 새로 저장한 1개 = 6개
+        assertThat(boards).hasSize(6);
     }
 
     @DisplayName("게시글 리스트를 dto 리스트로 변환한다.")
@@ -189,28 +193,20 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     void createBoardListResponseDto() {
 
         /** given */
-        User user = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
-        Contract contract = Contract.create(user, "testTitle", "testContent");
-        userRepository.save(user);
-        contractRepository.save(contract);
-
-        Board board1 = Board.create(user, "testTitle1", "testContent1", "testImage", "testInfo", contract);
-        Board board2 = Board.create(user, "testTitle2", "testContent2", "testImage", "testInfo", contract);
-        Board board3 = Board.create(user, "testTitle3", "testContent3", "testImage", "testInfo", contract);
-        boardRepository.saveAll(List.of(board1, board2, board3));
+        //before each
 
         /** when */
 
-        List<GetBoardListResponseDto> response = boardServiceSupport.createBoardListResponseDto(List.of(board1, board2, board3));
+        List<GetBoardListResponseDto> response = boardServiceSupport.createBoardListResponseDto(List.of(myBoard1, myBoard2, myBoard3));
 
         /** then */
 
         assertThat(response).hasSize(3)
                 .extracting("title", "content")
                 .containsExactlyInAnyOrder(
-                        tuple("testTitle1", "testContent1"),
-                        tuple("testTitle2", "testContent2"),
-                        tuple("testTitle3", "testContent3")
+                        tuple("my board1 title", "my board1 content"),
+                        tuple("my board2 title", "my board2 content"),
+                        tuple("my board3 title", "my board3 content")
                 );
 
     }
@@ -220,19 +216,11 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     void isWriter() {
 
         /** given */
-        User me = User.create("testEmail1", "testName1", "testPicture", "testValue1", List.of("USER"));
-        User user2 = User.create("testEmail2", "testName2", "testPicture", "testValue2", List.of("USER"));
-        userRepository.saveAll(List.of(me, user2));
-
-        Contract contract = Contract.create(me, "testTitle", "testContent");
-        contractRepository.save(contract);
-
-        Board board = Board.create(me, "testTitle1", "testContent1", "testImage", "testInfo", contract);
-        boardRepository.save(board);
+        //before each
 
         /** when */
 
-        boolean result = boardServiceSupport.checkIsWriter(me.getEmail(), board.getUser().getEmail());
+        boolean result = boardServiceSupport.checkIsWriter(me.getEmail(), myBoard1.getUser().getEmail());
 
         /** then */
         assertTrue(result);
@@ -245,19 +233,11 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     void isNotWriter() {
 
         /** given */
-        User me = User.create("testEmail1", "testName1", "testPicture", "testValue1", List.of("USER"));
-        User user2 = User.create("testEmail2", "testName2", "testPicture", "testValue2", List.of("USER"));
-        userRepository.saveAll(List.of(me, user2));
-
-        Contract contract = Contract.create(me, "testTitle", "testContent");
-        contractRepository.save(contract);
-
-        Board board = Board.create(me, "testTitle1", "testContent1", "testImage", "testInfo", contract);
-        boardRepository.save(board);
+        //before each
 
         /** when */
 
-        boolean result = boardServiceSupport.checkIsWriter(user2.getEmail(), board.getUser().getEmail());
+        boolean result = boardServiceSupport.checkIsWriter(anotherUser.getEmail(), myBoard1.getUser().getEmail());
 
         /** then */
         assertFalse(result);
@@ -269,21 +249,11 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     void IsBookmarked() {
 
         /** given */
-        User user = User.create("testEmail1", "testName1", "testPicture", "testValue1", List.of("USER"));
-        userRepository.save(user);
-
-        Contract contract = Contract.create(user, "testTitle", "testContent");
-        contractRepository.save(contract);
-
-        Board board = Board.create(user, "testTitle1", "testContent1", "testImage", "testInfo", contract);
-        boardRepository.save(board);
-
-        Bookmark bookmark = Bookmark.create(user, board);
-        bookmarkRepository.save(bookmark);
+        //before each
 
         /** when */
 
-        boolean result = boardServiceSupport.checkIsBookmarked(user, board);
+        boolean result = boardServiceSupport.checkIsBookmarked(me, otherBoard1);
 
         /** then */
 
@@ -296,22 +266,11 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     void IsNotBookmarked() {
 
         /** given */
-        User user = User.create("testEmail1", "testName1", "testPicture", "testValue1", List.of("USER"));
-        User me = User.create("testEmail2", "testName2", "testPicture", "testValue2", List.of("USER"));
-        userRepository.saveAll(List.of(user, me));
-
-        Contract contract = Contract.create(user, "testTitle", "testContent");
-        contractRepository.save(contract);
-
-        Board board = Board.create(user, "testTitle1", "testContent1", "testImage", "testInfo", contract);
-        boardRepository.save(board);
-
-        Bookmark bookmark = Bookmark.create(user, board);
-        bookmarkRepository.save(bookmark);
+        //before each
 
         /** when */
 
-        boolean result = boardServiceSupport.checkIsBookmarked(me, board);
+        boolean result = boardServiceSupport.checkIsBookmarked(me, otherBoard2);
 
         /** then */
 
@@ -324,19 +283,11 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     void NohaveDeleteAuthority() {
 
         /** given */
-        User user = User.create("testEmail1", "testName1", "testPicture", "testValue1", List.of("USER"));
-        User me = User.create("testEmail2", "testName2", "testPicture", "testValue2", List.of("USER"));
-        userRepository.saveAll(List.of(user, me));
-
-        Contract contract = Contract.create(user, "testTitle", "testContent");
-        contractRepository.save(contract);
-
-        Board board = Board.create(user, "testTitle1", "testContent1", "testImage", "testInfo", contract);
-        boardRepository.save(board);
+        //before each
 
         /** when then */
 
-        assertThatThrownBy(() -> boardServiceSupport.checkDeleteAuthority(me.getEmail(), board.getUser().getEmail()))
+        assertThatThrownBy(() -> boardServiceSupport.checkDeleteAuthority(me.getEmail(), otherBoard1.getUser().getEmail()))
                 .isInstanceOf(UnauthorizedDeleteBoardException.class);
 
     }
@@ -347,18 +298,10 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     void NoHaveModifyAuthority() {
 
         /** given */
-        User user = User.create("testEmail1", "testName1", "testPicture", "testValue1", List.of("USER"));
-        User me = User.create("testEmail2", "testName2", "testPicture", "testValue2", List.of("USER"));
-        userRepository.saveAll(List.of(user, me));
 
-        Contract contract = Contract.create(user, "testTitle", "testContent");
-        contractRepository.save(contract);
-
-        Board board = Board.create(user, "testTitle1", "testContent1", "testImage", "testInfo", contract);
-        boardRepository.save(board);
 
         /** when then */
-        assertThatThrownBy(() -> boardServiceSupport.checkModifyAuthority(me.getEmail(), board.getUser().getEmail()))
+        assertThatThrownBy(() -> boardServiceSupport.checkModifyAuthority(me.getEmail(), otherBoard1.getUser().getEmail()))
                 .isInstanceOf(UnauthorizedModifyBoardException.class);
     }
 
@@ -367,23 +310,17 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     void deleteBoardById() {
 
         /** given */
-        User user = User.create("testEmail1", "testName1", "testPicture", "testValue1", List.of("USER"));
-        userRepository.save(user);
-
-        Contract contract = Contract.create(user, "testTitle", "testContent");
-        contractRepository.save(contract);
-
-        Board board = Board.create(user, "testTitle1", "testContent1", "testImage", "testInfo", contract);
-        boardRepository.save(board);
+        //before each
 
         /** when */
 
-        boardServiceSupport.deleteBoardById(board.getBoardId());
+        boardServiceSupport.deleteBoardById(myBoard1.getBoardId());
 
         /** then */
 
         List<Board> boards = boardRepository.findAll();
-        assertThat(boards).hasSize(0);
+        //before each의 5개 - 1개 = 4개
+        assertThat(boards).hasSize(4);
 
 
     }
@@ -393,23 +330,17 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     void modifyContractBelongingToBoard() {
 
         /** given */
-        User user = User.create("testEmail1", "testName1", "testPicture", "testValue1", List.of("USER"));
-        userRepository.save(user);
-
-        Contract contract1 = Contract.create(user, "testTitle1", "testContent1");
-        Contract contract2 = Contract.create(user, "testTitle2", "testContent2");
-        contractRepository.saveAll(List.of(contract1, contract2));
-
-        Board board = Board.create(user, "testTitle1", "testContent1", "testImage", "testInfo", contract1);
-        boardRepository.save(board);
+        //before each
+        Contract newContract = Contract.create(me, "new contract title", "new contract content");
+        contractRepository.save(newContract);
 
         /** when */
 
-        Contract result = boardServiceSupport.modifyContractBelongingToBoard(user.getEmail(), board, contract2.getContractId());
+        Contract result = boardServiceSupport.modifyContractBelongingToBoard(me.getEmail(), myBoard1, newContract.getContractId());
 
         /** then */
 
-        assertThat(result.getContractId()).isEqualTo(contract2.getContractId());
+        assertThat(result.getContractId()).isEqualTo(newContract.getContractId());
 
     }
 
@@ -418,47 +349,24 @@ class BoardServiceSupportTest extends IntegrationTestSupport {
     void modifyContractBelongingToBoardWithSameContract() {
 
         /** given */
-        User user = User.create("testEmail1", "testName1", "testPicture", "testValue1", List.of("USER"));
-        userRepository.save(user);
-
-        Contract contract1 = Contract.create(user, "testTitle1", "testContent1");
-        Contract contract2 = Contract.create(user, "testTitle2", "testContent2");
-        contractRepository.saveAll(List.of(contract1, contract2));
-
-        Board board = Board.create(user, "testTitle1", "testContent1", "testImage", "testInfo", contract1);
-        boardRepository.save(board);
+        //before each
 
         /** when */
 
-        Contract result = boardServiceSupport.modifyContractBelongingToBoard(user.getEmail(), board, contract1.getContractId());
+        Contract result = boardServiceSupport.modifyContractBelongingToBoard(me.getEmail(), myBoard1, myContract.getContractId());
 
         /** then */
 
-        assertThat(result.getContractId()).isEqualTo(contract1.getContractId());
+        assertThat(result.getContractId()).isEqualTo(myContract.getContractId());
 
     }
 
     @DisplayName("내가 작성한 게시글 리스트를 조회한다.")
     @Test
     void getMyBoards() {
+
         /** given */
-        User me = User.create("testEmail1", "testName1", "testPicture",
-                "testValue1", List.of("USER"));
-        User user = User.create("testEmail2", "testName2", "testPicture",
-                "testValue2", List.of("USER"));
-        userRepository.saveAll(List.of(me, user));
-
-        Contract contract1 = Contract.create(me, "testTitle1", "testContent1");
-        Contract contract2 = Contract.create(user, "testTitle2", "testContent2");
-        contractRepository.saveAll(List.of(contract1, contract2));
-
-        Board board1 = Board.create(me, "testTitle1", "testContent1", "testImage", "testInfo", contract1);
-        Board board2 = Board.create(me, "testTitle2", "testContent2", "testImage", "testInfo", contract1);
-        Board board3 = Board.create(me, "testTitle3", "testContent3", "testImage", "testInfo", contract1);
-        Board board4 = Board.create(user, "testTitle4", "testContent4", "testImage", "testInfo", contract2);
-        Board board5 = Board.create(user, "testTitle5", "testContent5", "testImage", "testInfo", contract2);
-
-        boardRepository.saveAll(List.of(board1, board2, board3, board4, board5));
+        //before each
 
         /** when */
 
