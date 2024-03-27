@@ -91,8 +91,7 @@ BLOCKER는 비대면 전자 계약 플랫폼으로, 프라이빗 블록체인(�
 
 
 ## 아키텍처 구조
-![아키텍쳐](https://github.com/preferrrr/BLOCKER_SERVER/assets/99793526/6102bef9-f0f8-4103-9c68-6b39d668ea92)
-
+![아키텍쳐2](https://github.com/preferrrr/BLOCKER_SERVER/assets/99793526/84c2d609-bf40-467b-8645-20d9543f1eb4)
 ## Rest API 명세서
 - [API 명세서 구글시트](https://docs.google.com/spreadsheets/d/1DFMd0ERGCjn0O0FpOp1oUvjnTeKOAhN43ziPQ3hMcdg/edit#gid=2006977463) 
 
