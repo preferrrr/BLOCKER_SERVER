@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.sign.service;
 
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.contract.domain.CancelContract;
 import com.blocker.blocker_server.contract.service.CancelContractServiceSupport;
 import com.blocker.blocker_server.contract.service.ContractServiceSupport;
@@ -20,9 +21,12 @@ public class CancelSignService {
     private final CancelSignServiceSupport cancelSignServiceSupport;
     private final ContractServiceSupport contractServiceSupport;
     private final CancelContractServiceSupport cancelContractServiceSupport;
+    private final CurrentUserGetter currentUserGetter;
 
     @Transactional
-    public void cancelContract(User me, Long contractId) {
+    public void cancelContract(Long contractId) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         //파기를 진행할 계약서
         Contract contract = contractServiceSupport.getContractWIthSignsById(contractId);
@@ -49,7 +53,9 @@ public class CancelSignService {
     }
 
     @Transactional
-    public void signCancelContract(User me, Long cancelContractId) {
+    public void signCancelContract(Long cancelContractId) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         //계약서 서명과 함께 조회
         CancelContract cancelContract = cancelContractServiceSupport.getCancelContractWithSignsById(cancelContractId);
