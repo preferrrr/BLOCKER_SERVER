@@ -44,11 +44,10 @@ public class BoardController {
      * /boards/{boardId}
      */
     @GetMapping("/{boardId}")
-    public ResponseEntity<SingleResponse<GetBoardResponseDto>> getBoard(@AuthenticationPrincipal User user,
-                                                                       @PathVariable("boardId") Long boardId) {
+    public ResponseEntity<SingleResponse<GetBoardResponseDto>> getBoard(@PathVariable("boardId") Long boardId) {
 
         return ResponseEntity.ok(
-                SingleResponse.ok(boardService.getBoard(user, boardId))
+                SingleResponse.ok(boardService.getBoard(boardId))
         );
 
     }
@@ -58,10 +57,9 @@ public class BoardController {
      * /boards
      */
     @PostMapping("")
-    public ResponseEntity<BaseResponse> saveBoard(@AuthenticationPrincipal User user,
-                                                  @RequestBody SaveBoardRequestDto requestDto) {
+    public ResponseEntity<BaseResponse> saveBoard(@RequestBody SaveBoardRequestDto requestDto) {
 
-        boardService.saveBoard(user, requestDto);
+        boardService.saveBoard(requestDto);
 
         return ResponseEntity.ok(BaseResponse.ok());
     }
@@ -72,10 +70,9 @@ public class BoardController {
      * /boards
      */
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<BaseResponse> deleteBoard(@AuthenticationPrincipal User user,
-                                                  @PathVariable("boardId") Long boardId) {
+    public ResponseEntity<BaseResponse> deleteBoard(@PathVariable("boardId") Long boardId) {
 
-        boardService.deleteBoard(user, boardId);
+        boardService.deleteBoard(boardId);
 
         return ResponseEntity.ok(BaseResponse.ok());
     }
@@ -85,11 +82,10 @@ public class BoardController {
      * /boards/{boardId}
      */
     @PatchMapping("/{boardId}")
-    public ResponseEntity<BaseResponse> modifyBoard(@AuthenticationPrincipal User user,
-                                                  @PathVariable("boardId") Long boardId,
+    public ResponseEntity<BaseResponse> modifyBoard(@PathVariable("boardId") Long boardId,
                                                   @RequestBody ModifyBoardRequestDto requestDto) {
 
-        boardService.modifyBoard(user, boardId, requestDto);
+        boardService.modifyBoard(boardId, requestDto);
 
         return ResponseEntity.ok(BaseResponse.ok());
 
@@ -100,11 +96,10 @@ public class BoardController {
      * /boards/my-boards
      */
     @GetMapping("/my-boards")
-    public ResponseEntity<ListResponse<GetBoardListResponseDto>> getMyBoards(@AuthenticationPrincipal User user,
-                                                                     @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<ListResponse<GetBoardListResponseDto>> getMyBoards(@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         return ResponseEntity.ok(
-                ListResponse.ok(boardService.getMyBoards(user, pageable))
+                ListResponse.ok(boardService.getMyBoards(pageable))
         );
     }
 }
