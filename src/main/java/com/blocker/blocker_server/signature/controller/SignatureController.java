@@ -23,26 +23,26 @@ public class SignatureController {
     private final SignatureService signatureService;
 
     @PostMapping("")
-    public ResponseEntity<HttpHeaders> setSignature(@AuthenticationPrincipal User user, @RequestPart("signature") MultipartFile file) throws IOException {
+    public ResponseEntity<HttpHeaders> setSignature(@RequestPart("signature") MultipartFile file) throws IOException {
 
         return ResponseEntity.ok(
-                signatureService.setSignature(user, file)
+                signatureService.setSignature(file)
         );
     }
 
     @PatchMapping("")
-    public ResponseEntity<BaseResponse> modifySignature(@AuthenticationPrincipal User user, @RequestPart("signature") MultipartFile file) throws IOException {
+    public ResponseEntity<BaseResponse> modifySignature(@RequestPart("signature") MultipartFile file) throws IOException {
 
-        signatureService.modifySignature(user, file);
+        signatureService.modifySignature(file);
 
         return ResponseEntity.ok(BaseResponse.ok());
     }
 
     @GetMapping("")
-    public ResponseEntity<SingleResponse<GetSignatureResponseDto>> getSignature(@AuthenticationPrincipal User user) {
+    public ResponseEntity<SingleResponse<GetSignatureResponseDto>> getSignature() {
 
         return ResponseEntity.ok(
-                SingleResponse.ok(signatureService.getSignature(user))
+                SingleResponse.ok(signatureService.getSignature())
         );
     }
 }
