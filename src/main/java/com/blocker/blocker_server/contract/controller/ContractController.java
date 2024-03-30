@@ -32,10 +32,9 @@ public class ContractController {
      * /contracts
      */
     @PostMapping("")
-    public ResponseEntity<BaseResponse> saveContract(@AuthenticationPrincipal User user,
-                                                     @RequestBody SaveContractRequestDto requestDto) {
+    public ResponseEntity<BaseResponse> saveContract(@RequestBody SaveContractRequestDto requestDto) {
 
-        contractService.saveContract(user, requestDto);
+        contractService.saveContract(requestDto);
 
         return new ResponseEntity<>(
                 BaseResponse.of(HttpStatus.CREATED),
@@ -48,11 +47,10 @@ public class ContractController {
      * /contracts/{contractId}
      */
     @PatchMapping("/{contractId}")
-    public ResponseEntity<BaseResponse> modifyContract(@AuthenticationPrincipal User user,
-                                                       @RequestBody ModifyContractRequestDto requestDto,
+    public ResponseEntity<BaseResponse> modifyContract(@RequestBody ModifyContractRequestDto requestDto,
                                                        @PathVariable Long contractId) {
 
-        contractService.modifyContract(user, contractId, requestDto);
+        contractService.modifyContract(contractId, requestDto);
 
         return ResponseEntity.ok(
                 BaseResponse.ok()
@@ -65,14 +63,13 @@ public class ContractController {
      * /contracts
      */
     @GetMapping("")
-    public ResponseEntity<ListResponse<GetContractResponseDto>> getContracts(@AuthenticationPrincipal User user,
-                                                                             @RequestParam(name = "state") ContractState state) {
+    public ResponseEntity<ListResponse<GetContractResponseDto>> getContracts(@RequestParam(name = "state") ContractState state) {
 
         if (!state.equals(ContractState.PROCEED) && !state.equals(ContractState.NOT_PROCEED) && !state.equals(ContractState.CONCLUDE))
             throw new InvalidContractStateException();
 
         return ResponseEntity.ok(
-                ListResponse.ok(contractService.getContracts(user, state))
+                ListResponse.ok(contractService.getContracts(state))
         );
     }
 
@@ -93,10 +90,9 @@ public class ContractController {
      * /contracts/{contractId}
      */
     @DeleteMapping("/{contractId}")
-    public ResponseEntity<BaseResponse> deleteContract(@AuthenticationPrincipal User user,
-                                                       @PathVariable("contractId") Long contractId) {
+    public ResponseEntity<BaseResponse> deleteContract(@PathVariable("contractId") Long contractId) {
 
-        contractService.deleteContract(user, contractId);
+        contractService.deleteContract(contractId);
 
         return ResponseEntity.ok(BaseResponse.ok());
     }
@@ -106,11 +102,10 @@ public class ContractController {
      * /contracts/proceed/{contractId}
      */
     @GetMapping("/proceed/{contractId}")
-    public ResponseEntity<SingleResponse<GetProceedContractResponseDto>> getProceedContract(@AuthenticationPrincipal User user,
-                                                                                            @PathVariable("contractId") Long contractId) {
+    public ResponseEntity<SingleResponse<GetProceedContractResponseDto>> getProceedContract(@PathVariable("contractId") Long contractId) {
 
         return ResponseEntity.ok(
-                SingleResponse.ok(contractService.getProceedContract(user, contractId))
+                SingleResponse.ok(contractService.getProceedContract(contractId))
         );
     }
 
@@ -119,9 +114,8 @@ public class ContractController {
      * /contracts/with-boards/{contractId}
      */
     @DeleteMapping("/with-boards/{contractId}")
-    public ResponseEntity<BaseResponse> deleteContractWithBoards(@AuthenticationPrincipal User user,
-                                                                 @PathVariable("contractId") Long contractId) {
-        contractService.deleteContractWithBoards(user, contractId);
+    public ResponseEntity<BaseResponse> deleteContractWithBoards(@PathVariable("contractId") Long contractId) {
+        contractService.deleteContractWithBoards(contractId);
 
         return ResponseEntity.ok(BaseResponse.ok());
     }
@@ -131,11 +125,10 @@ public class ContractController {
      * /contracts/conclude/{contractId}
      */
     @GetMapping("/conclude/{contractId}")
-    public ResponseEntity<SingleResponse<GetConcludeContractResponseDto>> getConcludeContract(@AuthenticationPrincipal User user,
-                                                                                              @PathVariable("contractId") Long contractId) {
+    public ResponseEntity<SingleResponse<GetConcludeContractResponseDto>> getConcludeContract(@PathVariable("contractId") Long contractId) {
 
         return ResponseEntity.ok(
-                SingleResponse.ok(contractService.getConcludeContract(user, contractId))
+                SingleResponse.ok(contractService.getConcludeContract(contractId))
         );
     }
 
