@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.signature.service;
 
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.signature.dto.response.GetSignatureResponseDto;
 import com.blocker.blocker_server.Image.service.S3Service;
 import com.blocker.blocker_server.signature.domain.Signature;
@@ -21,10 +22,13 @@ public class SignatureService {
     private final SignatureServiceSupport signatureServiceSupport;
     private final UserServiceSupport userServiceSupport;
     private final S3Service s3Service;
+    private final CurrentUserGetter currentUserGetter;
 
 
     @Transactional
-    public HttpHeaders setSignature(User user, MultipartFile file) throws IOException {
+    public HttpHeaders setSignature(MultipartFile file) throws IOException {
+
+        User user = currentUserGetter.getCurrentUser();
 
         User me = userServiceSupport.getUserByEmail(user.getEmail());
 
@@ -49,7 +53,9 @@ public class SignatureService {
     // 그렇다면 전자서명 수정은 결국 새로운 전자서명을 create 하는건데, HttpMethod POST가 맞을까?
     // 일단은 수정이니까 PATCH로 함.
     @Transactional
-    public void modifySignature(User user, MultipartFile file) throws IOException {
+    public void modifySignature(MultipartFile file) throws IOException {
+
+        User user = currentUserGetter.getCurrentUser();
 
         User me = userServiceSupport.getUserByEmail(user.getEmail());
 
@@ -62,7 +68,10 @@ public class SignatureService {
         signatureServiceSupport.saveSignature(signature);
     }
 
-    public GetSignatureResponseDto getSignature(User user) {
+    public GetSignatureResponseDto getSignature() {
+
+        User user = currentUserGetter.getCurrentUser();
+
         //여러 개 중 가장 최근에 등록한 전자서명 조회
         Signature mySignature = signatureServiceSupport.getMySignature(user);
 
