@@ -10,6 +10,7 @@ import com.blocker.blocker_server.chat.dto.response.GetOneToOneChatRoomResponse;
 import com.blocker.blocker_server.commons.kafka.KafkaChatConstant;
 import com.blocker.blocker_server.commons.kafka.KafkaMessage;
 import com.blocker.blocker_server.commons.kafka.MessageSender;
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.commons.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class ChatService {
     private final ChatServiceSupport chatServiceSupport;
     private final JwtProvider jwtProvider;
     private final MessageSender sender;
+    private final CurrentUserGetter currentUserGetter;
 
     @Transactional
     public void sendMessage(String token, Long chatRoomId, SendMessageRequestDto requestDto) {
@@ -58,7 +60,9 @@ public class ChatService {
     }
 
     @Transactional
-    public void createChatRoom(User user, List<String> chatParticipants) {
+    public void createChatRoom(List<String> chatParticipants) {
+
+        User user = currentUserGetter.getCurrentUser();
 
         //새로운 채팅방
         ChatRoom chatRoom = ChatRoom.create(LocalDateTime.now());
@@ -74,7 +78,9 @@ public class ChatService {
 
     }
 
-    public List<GetChatRoomListDto> getChatRooms(User user) {
+    public List<GetChatRoomListDto> getChatRooms() {
+
+        User user = currentUserGetter.getCurrentUser();
 
         //나의 채팅방들 조회
         List<ChatRoom> chatRooms = chatServiceSupport.getChatRoomsByUser(user);
@@ -84,7 +90,9 @@ public class ChatService {
     }
 
 
-    public List<GetChatMessagesResponseDto> getMessages(User user, Long chatRoomId, Pageable pageable) {
+    public List<GetChatMessagesResponseDto> getMessages(Long chatRoomId, Pageable pageable) {
+
+        User user = currentUserGetter.getCurrentUser();
 
         //자신의 채팅방인지 검사
         chatServiceSupport.checkIsChatParticipant(user, chatRoomId);
@@ -98,7 +106,9 @@ public class ChatService {
 
 
     @Transactional
-    public GetOneToOneChatRoomResponse getOneToOneChatRoomId(User user, Long boardId) {
+    public GetOneToOneChatRoomResponse getOneToOneChatRoomId(Long boardId) {
+
+        User user = currentUserGetter.getCurrentUser();
 
         //게시글 작성자
         User boardWriter = chatServiceSupport.getBoardWriter(boardId);
