@@ -5,6 +5,7 @@ import com.blocker.blocker_server.bookmark.domain.Bookmark;
 import com.blocker.blocker_server.bookmark.dto.request.SaveBookmarkRequestDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.board.domain.Board;
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +21,12 @@ public class BookmarkService {
 
     private final BookmarkServiceSupport bookmarkServiceSupport;
     private final BoardServiceSupport boardServiceSupport;
+    private final CurrentUserGetter currentUserGetter;
 
     @Transactional
-    public void saveBookmark(User user, SaveBookmarkRequestDto requestDto) {
+    public void saveBookmark(SaveBookmarkRequestDto requestDto) {
+
+        User user = currentUserGetter.getCurrentUser();
 
         //북마크할 게시글
         Board board = boardServiceSupport.getBoardById(requestDto.getBoardId());
@@ -41,7 +45,9 @@ public class BookmarkService {
     }
 
     @Transactional
-    public void deleteBookmark(User user, Long boardId) {
+    public void deleteBookmark(Long boardId) {
+
+        User user = currentUserGetter.getCurrentUser();
 
         //북마크 해제할 게시글
         Board board = boardServiceSupport.getBoardById(boardId);
