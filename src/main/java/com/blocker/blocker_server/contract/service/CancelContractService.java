@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.contract.service;
 
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.contract.domain.CancelContract;
 import com.blocker.blocker_server.contract.domain.CancelContractState;
 import com.blocker.blocker_server.contract.dto.response.CancelContractorAndSignState;
@@ -19,8 +20,11 @@ import java.util.stream.Collectors;
 public class CancelContractService {
 
     private final CancelContractServiceSupport contractServiceSupport;
+    private final CurrentUserGetter currentUserGetter;
 
-    public List<GetCancelContractResponseDto> getCancelContractList(User me, CancelContractState state) {
+    public List<GetCancelContractResponseDto> getCancelContractList(CancelContractState state) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         //파기 계약서 리스트 조회
         List<CancelContract> cancelContracts = contractServiceSupport.getCancelContractsByUserAndState(me, state);
@@ -31,7 +35,9 @@ public class CancelContractService {
 
 
 
-    public GetCancelContractWithSignStateResponseDto getCancelingContract(User me, Long cancelContractId) {
+    public GetCancelContractWithSignStateResponseDto getCancelingContract(Long cancelContractId) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         //조회할 계약서
         CancelContract cancelContract = contractServiceSupport.getCancelContractWithSignsById(cancelContractId);
@@ -48,7 +54,9 @@ public class CancelContractService {
         return GetCancelContractWithSignStateResponseDto.of(cancelContract, contractorAndSignStates);
     }
 
-    public GetCancelContractWithSignStateResponseDto getCanceledContract(User me, Long cancelContractId) {
+    public GetCancelContractWithSignStateResponseDto getCanceledContract(Long cancelContractId) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         CancelContract cancelContract = contractServiceSupport.getCancelContractWithSignsById(cancelContractId);
 
