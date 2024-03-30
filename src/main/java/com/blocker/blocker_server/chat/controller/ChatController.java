@@ -9,7 +9,6 @@ import com.blocker.blocker_server.chat.dto.response.GetChatRoomListDto;
 import com.blocker.blocker_server.commons.response.BaseResponse;
 import com.blocker.blocker_server.commons.response.ListResponse;
 import com.blocker.blocker_server.commons.response.SingleResponse;
-import com.blocker.blocker_server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,9 +42,9 @@ public class ChatController {
      * /chatrooms
      */
     @PostMapping("/chatrooms")
-    public ResponseEntity<BaseResponse> createRoom(@AuthenticationPrincipal User user, @RequestBody CreateChatRoomRequestDto createChatRoomRequestDto) {
+    public ResponseEntity<BaseResponse> createRoom(@RequestBody CreateChatRoomRequestDto createChatRoomRequestDto) {
 
-        chatService.createChatRoom(user, createChatRoomRequestDto.getChatUsers());
+        chatService.createChatRoom(createChatRoomRequestDto.getChatUsers());
 
         return ResponseEntity.ok(BaseResponse.ok());
     }
@@ -55,10 +53,10 @@ public class ChatController {
      * 채팅방 리스트 조회
      */
     @GetMapping("/chatrooms")
-    public ResponseEntity<ListResponse<GetChatRoomListDto>> getChatRooms(@AuthenticationPrincipal User user) {
+    public ResponseEntity<ListResponse<GetChatRoomListDto>> getChatRooms() {
 
         return ResponseEntity.ok(
-                ListResponse.ok(chatService.getChatRooms(user))
+                ListResponse.ok(chatService.getChatRooms())
         );
     }
 
@@ -66,12 +64,11 @@ public class ChatController {
      * 채팅방 메세지 조회
      */
     @GetMapping("/chatrooms/{chatRoomId}")
-    public ResponseEntity<ListResponse<GetChatMessagesResponseDto>> getMessages(@AuthenticationPrincipal User user,
-                                                                        @PathVariable("chatRoomId") Long chatRoomId,
-                                                                        @PageableDefault(size = 20, sort = "sendAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<ListResponse<GetChatMessagesResponseDto>> getMessages(@PathVariable("chatRoomId") Long chatRoomId,
+                                                                                @PageableDefault(size = 20, sort = "sendAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         return ResponseEntity.ok(
-                ListResponse.ok(chatService.getMessages(user, chatRoomId, pageable))
+                ListResponse.ok(chatService.getMessages(chatRoomId, pageable))
         );
     }
 
@@ -79,11 +76,10 @@ public class ChatController {
      * 게시글에서 작성자와 1:1 채팅
      */
     @GetMapping("/chatrooms/boards/{boardId}")
-    public ResponseEntity<SingleResponse<GetOneToOneChatRoomResponse>> getOneToOneChatRoom(@AuthenticationPrincipal User user, @PathVariable("boardId") Long boardId) {
-
+    public ResponseEntity<SingleResponse<GetOneToOneChatRoomResponse>> getOneToOneChatRoom(@PathVariable("boardId") Long boardId) {
 
         return ResponseEntity.ok(
-                SingleResponse.ok(chatService.getOneToOneChatRoomId(user, boardId))
+                SingleResponse.ok(chatService.getOneToOneChatRoomId(boardId))
         );
     }
 
