@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.contract.service;
 
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.contract.domain.Contract;
 import com.blocker.blocker_server.contract.domain.ContractState;
 import com.blocker.blocker_server.contract.dto.request.ModifyContractRequestDto;
@@ -21,9 +22,12 @@ import java.util.List;
 public class ContractService {
 
     private final ContractServiceSupport contractServiceSupport;
+    private final CurrentUserGetter currentUserGetter;
 
     @Transactional
-    public void saveContract(User user, SaveContractRequestDto requestDto) {
+    public void saveContract(SaveContractRequestDto requestDto) {
+
+        User user = currentUserGetter.getCurrentUser();
 
         Contract contract = Contract.create(user, requestDto.getTitle(), requestDto.getContent());
 
@@ -31,7 +35,9 @@ public class ContractService {
     }
 
     @Transactional
-    public void modifyContract(User user, Long contractId, ModifyContractRequestDto requestDto) {
+    public void modifyContract(Long contractId, ModifyContractRequestDto requestDto) {
+
+        User user = currentUserGetter.getCurrentUser();
 
         //수정할 계약서
         Contract contract = contractServiceSupport.getContractById(contractId);
@@ -46,7 +52,9 @@ public class ContractService {
 
     }
 
-    public List<GetContractResponseDto> getContracts(User user, ContractState state) {
+    public List<GetContractResponseDto> getContracts(ContractState state) {
+
+        User user = currentUserGetter.getCurrentUser();
 
         List<Contract> contracts = contractServiceSupport.getContractsByUserAndState(user.getEmail(), state);
 
@@ -66,7 +74,9 @@ public class ContractService {
     }
 
     @Transactional
-    public void deleteContract(User user, Long contractId) {
+    public void deleteContract(Long contractId) {
+
+        User user = currentUserGetter.getCurrentUser();
 
         //삭제할 계약서
         Contract contract = contractServiceSupport.getContractById(contractId);
@@ -86,7 +96,10 @@ public class ContractService {
     }
 
     @Transactional
-    public void deleteContractWithBoards(User me, Long contractId) {
+    public void deleteContractWithBoards(Long contractId) {
+
+        User me = currentUserGetter.getCurrentUser();
+
         //삭제할 계약서
         Contract contract = contractServiceSupport.getContractById(contractId);
 
@@ -101,7 +114,9 @@ public class ContractService {
     }
 
 
-    public GetProceedContractResponseDto getProceedContract(User me, Long contractId) {
+    public GetProceedContractResponseDto getProceedContract(Long contractId) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         //계약서 참가자들 서명과 함께 조회
         Contract contract = contractServiceSupport.getContractWIthSignsById(contractId);
@@ -118,7 +133,9 @@ public class ContractService {
         return  GetProceedContractResponseDto.of(contract, signs);
     }
 
-    public GetConcludeContractResponseDto getConcludeContract(User me, Long contractId) {
+    public GetConcludeContractResponseDto getConcludeContract(Long contractId) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         //계약서 참가자들 서명과 함께 조회
         Contract contract = contractServiceSupport.getContractWIthSignsById(contractId);
