@@ -29,9 +29,9 @@ public class AgreementSignController {
      * /signs
      */
     @PostMapping("")
-    public ResponseEntity<BaseResponse> proceedContract(@AuthenticationPrincipal User user, @RequestBody ProceedSignRequestDto request) {
+    public ResponseEntity<BaseResponse> proceedContract(@RequestBody ProceedSignRequestDto request) {
 
-        agreementSignService.proceedContract(user, request);
+        agreementSignService.proceedContract(request);
 
         return new ResponseEntity<>(
                 BaseResponse.of(HttpStatus.CREATED),
@@ -45,9 +45,9 @@ public class AgreementSignController {
      * /signs/contract/{contractId}
      */
     @PatchMapping("/contract/{contractId}")
-    public ResponseEntity<BaseResponse> signContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long contractId) {
+    public ResponseEntity<BaseResponse> signContract(@PathVariable("contractId") Long contractId) {
 
-        agreementSignService.signContract(user, contractId);
+        agreementSignService.signContract(contractId);
 
         return ResponseEntity.ok(BaseResponse.ok());
     }
@@ -57,9 +57,9 @@ public class AgreementSignController {
      * /signs/contract/{contractId}
      */
     @DeleteMapping("/contract/{contractId}")
-    public ResponseEntity<BaseResponse> breakContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long contractId) {
+    public ResponseEntity<BaseResponse> breakContract(@PathVariable("contractId") Long contractId) {
 
-        agreementSignService.breakContract(user, contractId);
+        agreementSignService.breakContract(contractId);
 
         return ResponseEntity.ok(BaseResponse.ok());
 
