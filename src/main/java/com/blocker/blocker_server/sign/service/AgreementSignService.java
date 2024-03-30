@@ -2,6 +2,7 @@ package com.blocker.blocker_server.sign.service;
 
 import com.blocker.blocker_server.chat.service.ChatService;
 import com.blocker.blocker_server.commons.exception.*;
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.contract.domain.Contract;
 import com.blocker.blocker_server.contract.domain.ContractState;
 import com.blocker.blocker_server.contract.service.ContractServiceSupport;
@@ -28,9 +29,12 @@ public class AgreementSignService {
     private final AgreementSignServiceSupport agreementSignServiceSupport;
     private final ContractServiceSupport contractServiceSupport;
     private final ChatService chatService;
+    private final CurrentUserGetter currentUserGetter;
 
     @Transactional
-    public void proceedContract(User me, ProceedSignRequestDto request) {
+    public void proceedContract(ProceedSignRequestDto request) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         Contract contract = contractServiceSupport.getContractById(request.getContractId());
 
@@ -59,11 +63,13 @@ public class AgreementSignService {
         agreementSignServiceSupport.saveAgreementSigns(agreementSigns);
 
         //계약 참여자들끼리 단체 채팅방 만들어줌.
-        chatService.createChatRoom(me, request.getContractors());
+        chatService.createChatRoom(request.getContractors());
     }
 
     @Transactional
-    public void signContract(User me, Long contractId) {
+    public void signContract(Long contractId) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         //계약서 서명과 함께 조회
         Contract contract = contractServiceSupport.getContractWIthSignsById(contractId);
@@ -84,7 +90,9 @@ public class AgreementSignService {
     }
 
     @Transactional
-    public void breakContract(User me, Long contractId) {
+    public void breakContract(Long contractId) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         //진행 취소할 계약서
         Contract contract = contractServiceSupport.getContractWIthSignsById(contractId);
