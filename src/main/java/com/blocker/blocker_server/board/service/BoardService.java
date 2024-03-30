@@ -8,6 +8,7 @@ import com.blocker.blocker_server.board.dto.request.SaveBoardRequestDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardResponseDto;
 import com.blocker.blocker_server.Image.dto.response.ImageDto;
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.contract.domain.Contract;
 import com.blocker.blocker_server.contract.service.ContractServiceSupport;
 import com.blocker.blocker_server.user.domain.User;
@@ -26,6 +27,7 @@ public class BoardService {
     private final ImageServiceSupport imageServiceSupport;
     private final BoardServiceSupport boardServiceSupport;
     private final ContractServiceSupport contractServiceSupport;
+    private final CurrentUserGetter currentUserGetter;
 
     public List<GetBoardListResponseDto> getBoards(Pageable pageable) {
 
@@ -35,7 +37,9 @@ public class BoardService {
     }
 
 
-    public GetBoardResponseDto getBoard(User me, Long boardId) {
+    public GetBoardResponseDto getBoard(Long boardId) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         //image fetch join한 게시글
         Board board = boardServiceSupport.getBoardWithImages(boardId);
@@ -56,7 +60,9 @@ public class BoardService {
 
 
     @Transactional
-    public void saveBoard(User me, SaveBoardRequestDto requestDto) {
+    public void saveBoard(SaveBoardRequestDto requestDto) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         //게시글에 포함시킬 계약서
         Contract contract = contractServiceSupport.getContractById(requestDto.getContractId());
@@ -84,7 +90,9 @@ public class BoardService {
     }
 
     @Transactional
-    public void deleteBoard(User me, Long boardId) {
+    public void deleteBoard(Long boardId) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         //삭제할 게시글
         Board board = boardServiceSupport.getBoardById(boardId);
@@ -97,7 +105,9 @@ public class BoardService {
     }
 
     @Transactional
-    public void modifyBoard(User me, Long boardId, ModifyBoardRequestDto requestDto) {
+    public void modifyBoard(Long boardId, ModifyBoardRequestDto requestDto) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         //수정할 게시글
         Board board = boardServiceSupport.getBoardById(boardId);
@@ -126,7 +136,9 @@ public class BoardService {
     }
 
 
-    public List<GetBoardListResponseDto> getMyBoards(User me, Pageable pageable) {
+    public List<GetBoardListResponseDto> getMyBoards(Pageable pageable) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         List<Board> entityList = boardServiceSupport.getMyBoards(me.getEmail(), pageable);
 
