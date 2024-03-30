@@ -20,9 +20,9 @@ public class CancelSignController {
      * 파기 계약 진행
      */
     @PostMapping("/contract/{contractId}")
-    public ResponseEntity<BaseResponse> cancelContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long contractId) {
+    public ResponseEntity<BaseResponse> cancelContract(@PathVariable("contractId") Long contractId) {
 
-        cancelSignService.cancelContract(user, contractId);
+        cancelSignService.cancelContract(contractId);
 
         return new ResponseEntity<>(
                 BaseResponse.of(HttpStatus.CREATED),
@@ -35,9 +35,9 @@ public class CancelSignController {
      * /cancel-signs/cancel-contract/{contractId}
      */
     @PatchMapping("/cancel-contract/{contractId}")
-    public ResponseEntity<BaseResponse> signContract(@AuthenticationPrincipal User user, @PathVariable("contractId") Long cancelContractId) {
+    public ResponseEntity<BaseResponse> signContract(@PathVariable("contractId") Long cancelContractId) {
 
-        cancelSignService.signCancelContract(user, cancelContractId);
+        cancelSignService.signCancelContract(cancelContractId);
 
         return ResponseEntity.ok(BaseResponse.ok());
     }
