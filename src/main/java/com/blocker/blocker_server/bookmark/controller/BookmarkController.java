@@ -25,19 +25,18 @@ public class BookmarkController {
     private final BookmarkService bookmarkService;
 
     @PostMapping("")
-    public ResponseEntity<BaseResponse> saveBookmark(@AuthenticationPrincipal User user,
-                                                     @RequestBody SaveBookmarkRequestDto requestDto) {
+    public ResponseEntity<BaseResponse> saveBookmark(@RequestBody SaveBookmarkRequestDto requestDto) {
 
-        bookmarkService.saveBookmark(user, requestDto);
+        bookmarkService.saveBookmark(requestDto);
 
         return ResponseEntity.ok(BaseResponse.ok());
 
     }
 
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<BaseResponse> deleteBookmark(@AuthenticationPrincipal User user,
-                                                     @PathVariable("boardId") Long boardId) {
-        bookmarkService.deleteBookmark(user, boardId);
+    public ResponseEntity<BaseResponse> deleteBookmark(@PathVariable("boardId") Long boardId) {
+
+        bookmarkService.deleteBookmark(boardId);
 
         return ResponseEntity.ok(BaseResponse.ok());
     }
