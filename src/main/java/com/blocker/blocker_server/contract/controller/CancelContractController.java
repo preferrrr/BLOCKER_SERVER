@@ -27,11 +27,10 @@ public class CancelContractController {
      * /cancel-contracts
      */
     @GetMapping("")
-    public ResponseEntity<ListResponse<GetCancelContractResponseDto>> getCancelContractList(@AuthenticationPrincipal User user,
-                                                                                            @RequestParam(name = "state") CancelContractState state) {
+    public ResponseEntity<ListResponse<GetCancelContractResponseDto>> getCancelContractList(@RequestParam(name = "state") CancelContractState state) {
 
         return ResponseEntity.ok(
-                ListResponse.ok(cancelContractService.getCancelContractList(user, state))
+                ListResponse.ok(cancelContractService.getCancelContractList(state))
         );
     }
 
@@ -40,11 +39,10 @@ public class CancelContractController {
      * /cancel-contracts/canceling/{cancelContractId}
      */
     @GetMapping("/canceling/{cancelContractId}")
-    public ResponseEntity<SingleResponse<GetCancelContractWithSignStateResponseDto>> getCancelingContract(@AuthenticationPrincipal User user,
-                                                                                                          @PathVariable Long cancelContractId) {
+    public ResponseEntity<SingleResponse<GetCancelContractWithSignStateResponseDto>> getCancelingContract(@PathVariable Long cancelContractId) {
 
         return ResponseEntity.ok(
-                SingleResponse.ok(cancelContractService.getCancelingContract(user, cancelContractId))
+                SingleResponse.ok(cancelContractService.getCancelingContract(cancelContractId))
         );
 
     }
@@ -54,12 +52,11 @@ public class CancelContractController {
      * /cancel-contracts/canceled/{cancelContractId}
      */
     @GetMapping("/canceled/{cancelContractId}")
-    public ResponseEntity<SingleResponse<GetCancelContractWithSignStateResponseDto>> getCanceledContract(@AuthenticationPrincipal User user,
-                                                                                         @PathVariable Long cancelContractId) {
+    public ResponseEntity<SingleResponse<GetCancelContractWithSignStateResponseDto>> getCanceledContract(@PathVariable Long cancelContractId) {
 
 
         return ResponseEntity.ok(
-                SingleResponse.ok(cancelContractService.getCanceledContract(user, cancelContractId))
+                SingleResponse.ok(cancelContractService.getCanceledContract(cancelContractId))
         );
 
     }
