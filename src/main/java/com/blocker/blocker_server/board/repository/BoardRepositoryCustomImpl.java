@@ -46,16 +46,9 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
-        for (Sort.Order o : pageable.getSort()) {
-            PathBuilder pathBuilder = new PathBuilder(board.getType(), board.getMetadata());
-            getBoardListQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC,
-                    pathBuilder.get(o.getProperty())));
-        }
+        paging(getBoardListQuery, pageable);
 
-        List<Board> result = getBoardListQuery.fetch();
-
-
-        return result;
+        return getBoardListQuery.fetch();
 
     }
 
@@ -69,9 +62,9 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
                 //user를 fetch join하면 필요하지 않은 oneToOne 관계인 signature까지 가져와짐.
                 .where(board.boardId.eq(boardId));
 
-        Board result = getBoardQuery.fetchOne();
-
-        return Optional.ofNullable(result);
+        return Optional.ofNullable(
+                getBoardQuery.fetchOne()
+        );
     }
 
     @Override
@@ -86,16 +79,9 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
-        for (Sort.Order o : pageable.getSort()) {
-            PathBuilder pathBuilder = new PathBuilder(board.getType(), board.getMetadata());
-            getBookmarkBoardsQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC,
-                    pathBuilder.get(o.getProperty())));
-        }
+        paging(getBookmarkBoardsQuery, pageable);
 
-        List<Board> result = getBookmarkBoardsQuery.fetch();
-
-
-        return result;
+        return getBookmarkBoardsQuery.fetch();
     }
 
     @Override
@@ -109,15 +95,17 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
+        paging(getMyBoardsQuery, pageable);
+
+        return getMyBoardsQuery.fetch();
+    }
+
+    private void paging(JPAQuery<Board> query, Pageable pageable) {
         for (Sort.Order o : pageable.getSort()) {
             PathBuilder pathBuilder = new PathBuilder(board.getType(), board.getMetadata());
-            getMyBoardsQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC,
+            query.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC,
                     pathBuilder.get(o.getProperty())));
         }
-
-        List<Board> result = getMyBoardsQuery.fetch();
-
-
-        return result;    }
+    }
 
 }
