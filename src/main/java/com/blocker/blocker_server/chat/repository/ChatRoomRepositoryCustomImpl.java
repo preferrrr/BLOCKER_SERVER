@@ -31,9 +31,7 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
                 .join(chatRoom.chatUsers, chatUser).fetchJoin()
                 .where(chatUser.user.email.eq(user.getEmail()));
 
-        List<ChatRoom> result = getChatRoomListQuery.fetch();
-
-        return result;
+        return getChatRoomListQuery.fetch();
     }
 
     @Override
@@ -52,8 +50,6 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
                                         .groupBy(chatUser.chatRoom.chatRoomID)
                         )));
 
-        Long chatRoomId = getChatRoomIdQuery.fetchFirst();
-
-        return chatRoomId;
+        return getChatRoomIdQuery.fetchFirst();
     }
 }

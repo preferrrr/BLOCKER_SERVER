@@ -26,9 +26,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
                 .distinct()
                 .where(likeEmailOrName(keyword));
 
-        List<User> result = query.fetch();
-
-        return result;
+        return query.fetch();
     }
 
     private BooleanBuilder likeEmailOrName(String keyword) {

@@ -35,11 +35,7 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom{
                         contract.contractState.eq(state))
                 .orderBy(contract.modifiedAt.desc());
 
-        //TODO : 미체결 계약서 조회 페이징 ?
-
-        List<Contract> result = getContractListQuery.fetch();
-
-        return result;
+        return getContractListQuery.fetch();
     }
 
     @Override
@@ -51,9 +47,9 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom{
                 .join(agreementSign.user, user).fetchJoin()
                 .where(contract.contractId.eq(contractId));
 
-        Contract contract = getContractWithSignQuery.fetchOne();
-
-        return Optional.ofNullable(contract);
+        return Optional.ofNullable(
+                getContractWithSignQuery.fetchOne()
+        );
     }
 
     @Override
@@ -66,8 +62,6 @@ public class ContractRepositoryCustomImpl implements ContractRepositoryCustom{
                         contract.contractState.eq(state))
                 .orderBy(contract.modifiedAt.desc());
 
-        List<Contract> result = getContractListQuery.fetch();
-
-        return result;
+        return getContractListQuery.fetch();
     }
 }

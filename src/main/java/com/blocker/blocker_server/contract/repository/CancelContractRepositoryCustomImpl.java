@@ -33,9 +33,9 @@ public class CancelContractRepositoryCustomImpl implements CancelContractReposit
                 .join(cancelSign.user, user).fetchJoin()
                 .where(cancelContract.cancelContractId.eq(cancelContractId));
 
-        CancelContract result = getCancelContractQuery.fetchOne();
-
-        return Optional.ofNullable(result);
+        return Optional.ofNullable(
+                getCancelContractQuery.fetchOne()
+        );
     }
 
     @Override
@@ -48,8 +48,6 @@ public class CancelContractRepositoryCustomImpl implements CancelContractReposit
                 .where(cancelSign.user.email.eq(user.getEmail()),
                         cancelContract.cancelContractState.eq(state));
 
-        List<CancelContract> result = getCancelContractsQuery.fetch();
-
-        return result;
+        return getCancelContractsQuery.fetch();
     }
 }
