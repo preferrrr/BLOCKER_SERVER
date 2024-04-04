@@ -27,8 +27,9 @@ public class BoardServiceSupport {
     private final ContractServiceSupport contractServiceSupport;
     private final BookmarkRepository bookmarkRepository;
 
+    @Transactional(readOnly = false)
     public Board getBoardById(Long boardId) {
-        return boardRepository.findById(boardId).orElseThrow(BoardNotFoundException::new);
+        return boardRepository.findByBoardId(boardId).orElseThrow(BoardNotFoundException::new);
     }
 
     public List<Board> getBoardList(Pageable pageable) {
@@ -39,7 +40,7 @@ public class BoardServiceSupport {
         return boardRepository.getBoardWithImages(boardId).orElseThrow(BoardNotFoundException::new);
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     public void save(Board board) {
         boardRepository.save(board);
     }
@@ -70,12 +71,12 @@ public class BoardServiceSupport {
             throw new UnauthorizedModifyBoardException();
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     public void deleteBoardById(Long boardId) {
         boardRepository.deleteById(boardId);
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     public Contract modifyContractBelongingToBoard(String me, Board board, Long modifyContractId) {
 
         //계약서가 달라졌으면 조회 후 나의 계약서가 맞는지 확인
