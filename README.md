@@ -61,7 +61,7 @@ BLOCKER는 비대면 전자 계약 플랫폼으로, 프라이빗 블록체인(�
 
 - 계약서의 상태를 미체결, 진행 중, 체결, 파기 4가지로 분류
   - enum으로 계약서의 상태를 구분
-- 체결된 계약서를 파기하면 파기 계약서가 생성되고 파기 계약서에 참여자들이 모두 서명하면, 기존의 계약서의 상태가 파기로 바뀌도록 구현
+  - 계약을 진행하면 계약서의 상태가 ‘진행 중’으로 바뀌고 참여자들의 서명 상태가 DB에 저장되고, 모두 서명할 시 계약서의 상태가 ‘체결’로 바뀜
 - ios와 웹 모두 같은 인가 방식을 사용하기 위해 **JWT**로 선택
   - ios에서 웹 뷰를 쓰는 것이 아니므로 세션 방식 사용이 어려움
   - 또한 **JWT를 사용하는 것이 확장성 측면에서 유리**하다고 판단
@@ -81,9 +81,10 @@ BLOCKER는 비대면 전자 계약 플랫폼으로, 프라이빗 블록체인(�
       STOMP의 pub/sub 구조에서 **구독 정보는 각 인스턴스끼리 공유되지 않기 때문**
   - **Kafka**를 사용하여 메시지를 Kafka Topic으로 보내고, 각 인스턴스의 group id를 다르게 사용하여 해결
 - 채팅 메시지를 영구 저장하기 위해 **MongoDB** 사용
-  - 작성한 메시지는 수정과 삭제가 이루어지지 않고, 저장과 조회만 발생
-  - 스키마가 정해지지 않기 때문에 다양한 형식의 메시지를 유연하게 저장 가능
-  - 채팅 데이터는 사용자와 비례하여 대용량의 데이터가 쌓일 것이므로 MySQL보다 비교적 수평적 확장이 쉬움
+- MySQL Replication으로 DB Master-Slave 구축
+  - [**https://prefercoding.tistory.com/51**](https://prefercoding.tistory.com/51)
+- 분산된 서버와 DB에서의 동시성 문제
+  - [**https://prefercoding.tistory.com/66**](https://prefercoding.tistory.com/66)
 - 가비아에서 도메인 구입 후 AWS의 Route 53으로 도메인을 적용
 - nginx와 certbot을 사용하여 https 적용
 
@@ -91,7 +92,8 @@ BLOCKER는 비대면 전자 계약 플랫폼으로, 프라이빗 블록체인(�
 
 
 ## 아키텍처 구조
-![아키텍쳐2](https://github.com/preferrrr/BLOCKER_SERVER/assets/99793526/84c2d609-bf40-467b-8645-20d9543f1eb4)
+![아키텍쳐3](https://github.com/preferrrr/BLOCKER_SERVER/assets/99793526/49dfab42-c702-4c8c-a796-6f218e016325)
+
 ## Rest API 명세서
 - [API 명세서 구글시트](https://docs.google.com/spreadsheets/d/1DFMd0ERGCjn0O0FpOp1oUvjnTeKOAhN43ziPQ3hMcdg/edit#gid=2006977463) 
 
