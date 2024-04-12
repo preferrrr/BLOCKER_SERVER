@@ -5,17 +5,19 @@ import com.blocker.blocker_server.bookmark.domain.Bookmark;
 import com.blocker.blocker_server.bookmark.dto.request.SaveBookmarkRequestDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.board.domain.Board;
+import com.blocker.blocker_server.commons.config.annotation.DistributedLock;
 import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
 @RequiredArgsConstructor
 public class BookmarkService {
 
@@ -23,7 +25,8 @@ public class BookmarkService {
     private final BoardServiceSupport boardServiceSupport;
     private final CurrentUserGetter currentUserGetter;
 
-    @Transactional
+    @Transactional(readOnly = false)
+    @DistributedLock(key = "'board ' + #requestDto.getBoardId()")
     public void saveBookmark(SaveBookmarkRequestDto requestDto) {
 
         User user = currentUserGetter.getCurrentUser();
@@ -45,6 +48,7 @@ public class BookmarkService {
     }
 
     @Transactional
+    @DistributedLock(key = "'board ' + #requestDto.getBoardId()")
     public void deleteBookmark(Long boardId) {
 
         User user = currentUserGetter.getCurrentUser();
