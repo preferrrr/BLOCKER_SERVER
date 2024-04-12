@@ -23,11 +23,11 @@ public class SignatureController {
     private final SignatureService signatureService;
 
     @PostMapping("")
-    public ResponseEntity<HttpHeaders> setSignature(@RequestPart("signature") MultipartFile file) throws IOException {
+    public ResponseEntity<BaseResponse> setSignature(@RequestPart("signature") MultipartFile file) throws IOException {
 
-        return ResponseEntity.ok(
-                signatureService.setSignature(file)
-        );
+        return ResponseEntity.ok()
+                .headers(signatureService.setSignature(file))
+                .body(BaseResponse.ok());
     }
 
     @PatchMapping("")
