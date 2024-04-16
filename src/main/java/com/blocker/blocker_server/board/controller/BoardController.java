@@ -8,7 +8,7 @@ import com.blocker.blocker_server.board.dto.response.GetBoardResponseDto;
 import com.blocker.blocker_server.commons.response.BaseResponse;
 import com.blocker.blocker_server.commons.response.ListResponse;
 import com.blocker.blocker_server.commons.response.SingleResponse;
-import com.blocker.blocker_server.user.domain.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -57,7 +57,7 @@ public class BoardController {
      * /boards
      */
     @PostMapping("")
-    public ResponseEntity<BaseResponse> saveBoard(@RequestBody SaveBoardRequestDto requestDto) {
+    public ResponseEntity<BaseResponse> saveBoard(@RequestBody @Valid SaveBoardRequestDto requestDto) {
 
         boardService.saveBoard(requestDto);
 
@@ -85,7 +85,7 @@ public class BoardController {
      */
     @PatchMapping("/{boardId}")
     public ResponseEntity<BaseResponse> modifyBoard(@PathVariable("boardId") Long boardId,
-                                                  @RequestBody ModifyBoardRequestDto requestDto) {
+                                                  @RequestBody @Valid ModifyBoardRequestDto requestDto) {
 
         boardService.modifyBoard(boardId, requestDto);
 
