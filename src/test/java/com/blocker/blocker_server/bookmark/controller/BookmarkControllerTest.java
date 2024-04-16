@@ -1,7 +1,6 @@
 package com.blocker.blocker_server.bookmark.controller;
 
 import com.blocker.blocker_server.ControllerTestSupport;
-import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.bookmark.dto.request.SaveBookmarkRequestDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,7 @@ class BookmarkControllerTest extends ControllerTestSupport {
                 .boardId(1l)
                 .build();
 
-        willDoNothing().given(bookmarkService).saveBookmark(any(), any(SaveBookmarkRequestDto.class));
+        willDoNothing().given(bookmarkService).saveBookmark(any(SaveBookmarkRequestDto.class));
 
         /** when */
 
@@ -39,9 +38,10 @@ class BookmarkControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .with(csrf()))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"));
 
-        verify(bookmarkService, timeout(1)).saveBookmark(any(), any(SaveBookmarkRequestDto.class));
+        verify(bookmarkService, times(1)).saveBookmark(any(SaveBookmarkRequestDto.class));
 
     }
 
@@ -54,8 +54,6 @@ class BookmarkControllerTest extends ControllerTestSupport {
                 .boardId(null)
                 .build();
 
-        willDoNothing().given(bookmarkService).saveBookmark(any(), any(SaveBookmarkRequestDto.class));
-
         /** when */
 
         /** then */
@@ -64,7 +62,10 @@ class BookmarkControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .with(csrf()))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("게시글 인덱스는 null 또는 공백일 수 없습니다."));
+
+        verify(bookmarkService, times(0)).saveBookmark(any(SaveBookmarkRequestDto.class));
 
     }
 
@@ -74,7 +75,7 @@ class BookmarkControllerTest extends ControllerTestSupport {
 
         /** given */
 
-        willDoNothing().given(bookmarkService).deleteBookmark(any(), anyLong());
+        willDoNothing().given(bookmarkService).deleteBookmark(anyLong());
 
         /** when */
 
@@ -83,9 +84,10 @@ class BookmarkControllerTest extends ControllerTestSupport {
         mockMvc.perform(delete("/bookmarks/{boardId}", 1l)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(csrf()))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"));
 
-        verify(bookmarkService, timeout(1)).deleteBookmark(any(), anyLong());
+        verify(bookmarkService, times(1)).deleteBookmark(anyLong());
 
     }
 
@@ -95,8 +97,7 @@ class BookmarkControllerTest extends ControllerTestSupport {
 
         /** given */
 
-        List<GetBoardListResponseDto> response = List.of();
-        given(bookmarkService.getBookmarkBoards(any(), any(Pageable.class))).willReturn(response);
+        given(bookmarkService.getBookmarkBoards(any(Pageable.class))).willReturn(List.of());
 
         /** when */
 
@@ -105,9 +106,10 @@ class BookmarkControllerTest extends ControllerTestSupport {
         mockMvc.perform(get("/bookmarks/boards")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data").isArray());
 
-        verify(bookmarkService, timeout(1)).getBookmarkBoards(any(), any(Pageable.class));
+        verify(bookmarkService, times(1)).getBookmarkBoards(any(Pageable.class));
 
     }
 
