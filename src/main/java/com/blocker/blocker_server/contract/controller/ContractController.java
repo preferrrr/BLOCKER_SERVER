@@ -10,15 +10,13 @@ import com.blocker.blocker_server.contract.domain.ContractState;
 import com.blocker.blocker_server.contract.dto.request.SaveContractRequestDto;
 import com.blocker.blocker_server.contract.dto.response.GetContractResponseDto;
 import com.blocker.blocker_server.contract.dto.response.GetProceedContractResponseDto;
-import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.contract.exception.InvalidContractStateException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/contracts")
@@ -32,7 +30,7 @@ public class ContractController {
      * /contracts
      */
     @PostMapping("")
-    public ResponseEntity<BaseResponse> saveContract(@RequestBody SaveContractRequestDto requestDto) {
+    public ResponseEntity<BaseResponse> saveContract(@RequestBody @Valid SaveContractRequestDto requestDto) {
 
         contractService.saveContract(requestDto);
 
@@ -47,7 +45,7 @@ public class ContractController {
      * /contracts/{contractId}
      */
     @PatchMapping("/{contractId}")
-    public ResponseEntity<BaseResponse> modifyContract(@RequestBody ModifyContractRequestDto requestDto,
+    public ResponseEntity<BaseResponse> modifyContract(@RequestBody @Valid ModifyContractRequestDto requestDto,
                                                        @PathVariable Long contractId) {
 
         contractService.modifyContract(contractId, requestDto);
