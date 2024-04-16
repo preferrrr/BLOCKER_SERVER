@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.contract.service;
 
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.contract.domain.Contract;
 import com.blocker.blocker_server.contract.domain.ContractState;
 import com.blocker.blocker_server.contract.dto.request.ModifyContractRequestDto;
@@ -29,6 +30,8 @@ class ContractServiceTest {
     private ContractService contractService;
     @Mock
     private ContractServiceSupport contractServiceSupport;
+    @Mock
+    private CurrentUserGetter currentUserGetter;
 
     private Contract contract;
     private User user;
@@ -45,6 +48,7 @@ class ContractServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         willDoNothing().given(contractServiceSupport).saveContract(any(Contract.class));
         SaveContractRequestDto requestDto = SaveContractRequestDto.builder()
                 .title("testTitle")
@@ -53,7 +57,7 @@ class ContractServiceTest {
 
         /** when */
 
-        contractService.saveContract(user, requestDto);
+        contractService.saveContract(requestDto);
 
         /** then */
 
@@ -66,6 +70,7 @@ class ContractServiceTest {
     void modifyBoard() {
 
         /** given */
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(contractServiceSupport.getContractById(anyLong())).willReturn(contract);
         willDoNothing().given(contractServiceSupport).checkIsConcludeContractForModify(anyString(), any(Contract.class));
         willDoNothing().given(contractServiceSupport).checkIsProceedContractForModify(any(Contract.class));
@@ -77,7 +82,7 @@ class ContractServiceTest {
 
         /** when */
 
-        contractService.modifyContract(user, 1l, requestDto);
+        contractService.modifyContract(1l, requestDto);
 
         /** then */
         verify(contractServiceSupport, times(1)).getContractById(anyLong());
@@ -94,12 +99,13 @@ class ContractServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(contractServiceSupport.getContractsByUserAndState(anyString(), any(ContractState.class))).willReturn(mock(List.class));
         given(contractServiceSupport.entityListToDtoList(anyList())).willReturn(mock(List.class));
 
         /** when */
 
-        contractService.getContracts(user, ContractState.NOT_PROCEED);
+        contractService.getContracts(ContractState.NOT_PROCEED);
 
         /** then */
 
@@ -135,6 +141,7 @@ class ContractServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(contractServiceSupport.getContractById(anyLong())).willReturn(mock(Contract.class));
         willDoNothing().given(contractServiceSupport).checkIsContractWriter(anyString(), any(Contract.class));
         willDoNothing().given(contractServiceSupport).checkIsNotProceedContract(any(Contract.class));
@@ -143,7 +150,7 @@ class ContractServiceTest {
 
         /** when */
 
-        contractService.deleteContract(user, 1l);
+        contractService.deleteContract(1l);
 
         /** then */
 
@@ -162,6 +169,7 @@ class ContractServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(contractServiceSupport.getContractById(anyLong())).willReturn(contract);
         willDoNothing().given(contractServiceSupport).checkIsContractWriter(anyString(), any(Contract.class));
         willDoNothing().given(contractServiceSupport).checkIsNotProceedContract(any(Contract.class));
@@ -169,7 +177,7 @@ class ContractServiceTest {
 
         /** when */
 
-        contractService.deleteContractWithBoards(user, 1l);
+        contractService.deleteContractWithBoards(1l);
 
         /** then */
         verify(contractServiceSupport, times(1)).getContractById(anyLong());
@@ -186,6 +194,7 @@ class ContractServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(contractServiceSupport.getContractWIthSignsById(anyLong())).willReturn(contract);
         willDoNothing().given(contractServiceSupport).checkIsProceedContract(any(Contract.class));
         willDoNothing().given(contractServiceSupport).checkIsParticipant(any(User.class), any(Contract.class));
@@ -193,7 +202,7 @@ class ContractServiceTest {
 
         /** when */
 
-        GetProceedContractResponseDto result = contractService.getProceedContract(user, 1l);
+        GetProceedContractResponseDto result = contractService.getProceedContract(1l);
 
         /** then */
 
@@ -210,6 +219,7 @@ class ContractServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(contractServiceSupport.getContractWIthSignsById(anyLong())).willReturn(contract);
         willDoNothing().given(contractServiceSupport).checkIsConcludeContract(any(Contract.class));
         willDoNothing().given(contractServiceSupport).checkIsParticipant(any(User.class), any(Contract.class));
@@ -217,7 +227,7 @@ class ContractServiceTest {
 
         /** when */
 
-        GetConcludeContractResponseDto result = contractService.getConcludeContract(user, 1l);
+        GetConcludeContractResponseDto result = contractService.getConcludeContract(1l);
 
         /** then */
 
