@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WithMockUser(roles = "USER")
@@ -24,7 +25,7 @@ class AgreementSignControllerTest extends ControllerTestSupport {
 
         /** given */
 
-        willDoNothing().given(agreementSignService).proceedContract(any(), any(ProceedSignRequestDto.class));
+        willDoNothing().given(agreementSignService).proceedContract(any(ProceedSignRequestDto.class));
 
         ProceedSignRequestDto request = ProceedSignRequestDto.builder()
                 .contractId(1l)
@@ -39,17 +40,20 @@ class AgreementSignControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .with(csrf()))
-                .andExpect(status().isCreated());
-        verify(agreementSignService, times(1)).proceedContract(any(), any(ProceedSignRequestDto.class));
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("CREATED"));
+
+        verify(agreementSignService, times(1)).proceedContract(any(ProceedSignRequestDto.class));
     }
 
-    @DisplayName("계약 진행 request dto field가 비어있으면 InvalidRequestParameterException (204)을 반환한다.")
+
+    @DisplayName("계약 진행 request dto contractId가 비어있으면 InvalidRequestParameterException (400)을 반환한다.")
     @Test
-    void proceedContractInvalidField() throws Exception {
+    void proceedContractNoContractId() throws Exception {
 
         /** given */
 
-        willDoNothing().given(agreementSignService).proceedContract(any(), any(ProceedSignRequestDto.class));
+        willDoNothing().given(agreementSignService).proceedContract(any(ProceedSignRequestDto.class));
 
         ProceedSignRequestDto request = ProceedSignRequestDto.builder()
                 .contractId(null)
@@ -64,7 +68,38 @@ class AgreementSignControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .with(csrf()))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("계약서 인덱스는 null 또는 공백일 수 없습니다."));
+
+        verify(agreementSignService, times(0)).proceedContract(request);
+    }
+
+
+    @DisplayName("계약 진행 request dto field가 비어있으면 InvalidRequestParameterException (400)을 반환한다.")
+    @Test
+    void proceedContractInvalidField() throws Exception {
+
+        /** given */
+
+        willDoNothing().given(agreementSignService).proceedContract(any(ProceedSignRequestDto.class));
+
+        ProceedSignRequestDto request = ProceedSignRequestDto.builder()
+                .contractId(1l)
+                .contractors(List.of())
+                .build();
+
+        /** when */
+
+        /** then */
+
+        mockMvc.perform(post("/agreement-signs")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .with(csrf()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("계약 참여할 사람은 1명보다 많아야 합니다."));
+
+        verify(agreementSignService, times(0)).proceedContract(request);
     }
 
     @DisplayName("계약서에 서명한다. agreementSign의 state가 Y로 바뀜.")
@@ -73,7 +108,7 @@ class AgreementSignControllerTest extends ControllerTestSupport {
 
         /** given */
 
-        willDoNothing().given(agreementSignService).signContract(any(),anyLong());
+        willDoNothing().given(agreementSignService).signContract(anyLong());
 
         /** when */
 
@@ -82,9 +117,10 @@ class AgreementSignControllerTest extends ControllerTestSupport {
         mockMvc.perform(patch("/agreement-signs/contract/{contractId}",1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf()))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"));
 
-        verify(agreementSignService, times(1)).signContract(any(), anyLong());
+        verify(agreementSignService, times(1)).signContract(anyLong());
 
     }
 
@@ -94,7 +130,7 @@ class AgreementSignControllerTest extends ControllerTestSupport {
 
         /** given */
 
-        willDoNothing().given(agreementSignService).breakContract(any(),anyLong());
+        willDoNothing().given(agreementSignService).breakContract(anyLong());
 
         /** when */
 
@@ -103,9 +139,10 @@ class AgreementSignControllerTest extends ControllerTestSupport {
         mockMvc.perform(delete("/agreement-signs/contract/{contractId}", 1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf()))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"));
 
-        verify(agreementSignService, times(1)).breakContract(any(), anyLong());
+        verify(agreementSignService, times(1)).breakContract(anyLong());
     }
 
 }
