@@ -2,7 +2,6 @@ package com.blocker.blocker_server.contract.controller;
 
 import com.blocker.blocker_server.ControllerTestSupport;
 import com.blocker.blocker_server.contract.domain.CancelContractState;
-import com.blocker.blocker_server.contract.dto.response.GetCancelContractResponseDto;
 import com.blocker.blocker_server.contract.dto.response.GetCancelContractWithSignStateResponseDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,8 +25,7 @@ class CancelContractControllerTest extends ControllerTestSupport {
     void getCancelingContractList() throws Exception {
 
         /** given */
-        List<GetCancelContractResponseDto> response = List.of();
-        given(cancelContractService.getCancelContractList(any(), any(CancelContractState.class))).willReturn(response);
+        given(cancelContractService.getCancelContractList(any(CancelContractState.class))).willReturn(List.of());
 
         /** when */
 
@@ -37,9 +35,10 @@ class CancelContractControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("state", "CANCELING"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data").isArray());
 
-        verify(cancelContractService, times(1)).getCancelContractList(any(), any(CancelContractState.class));
+        verify(cancelContractService, times(1)).getCancelContractList(any(CancelContractState.class));
 
     }
 
@@ -48,8 +47,8 @@ class CancelContractControllerTest extends ControllerTestSupport {
     void getCanceledContractList() throws Exception {
 
         /** given */
-        List<GetCancelContractResponseDto> response = List.of();
-        given(cancelContractService.getCancelContractList(any(), any(CancelContractState.class))).willReturn(response);
+
+        given(cancelContractService.getCancelContractList(any(CancelContractState.class))).willReturn(List.of());
 
         /** when */
 
@@ -59,9 +58,10 @@ class CancelContractControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("state", "CANCELED"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data").isArray());
 
-        verify(cancelContractService, times(1)).getCancelContractList(any(), any(CancelContractState.class));
+        verify(cancelContractService, times(1)).getCancelContractList(any(CancelContractState.class));
 
     }
 
@@ -81,7 +81,7 @@ class CancelContractControllerTest extends ControllerTestSupport {
                 .modifiedAt(LocalDateTime.of(2024, 1, 1, 12, 0))
                 .build();
 
-        given(cancelContractService.getCancelingContract(any(), anyLong())).willReturn(response);
+        given(cancelContractService.getCancelingContract(anyLong())).willReturn(response);
 
         /** when */
 
@@ -90,15 +90,16 @@ class CancelContractControllerTest extends ControllerTestSupport {
         mockMvc.perform(get("/cancel-contracts/canceling/{cancelContractId}", 1l)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.contractId").exists())
-                .andExpect(jsonPath("$.title").exists())
-                .andExpect(jsonPath("$.content").exists())
-                .andExpect(jsonPath("$.cancelContractId").exists())
-                .andExpect(jsonPath("$.contractorAndSignStates").isArray())
-                .andExpect(jsonPath("$.createdAt").exists())
-                .andExpect(jsonPath("$.modifiedAt").exists());
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data.contractId").value(1l))
+                .andExpect(jsonPath("$.data.title").value("test"))
+                .andExpect(jsonPath("$.data.content").value("test"))
+                .andExpect(jsonPath("$.data.cancelContractId").value(1l))
+                .andExpect(jsonPath("$.data.contractorAndSignStates").isArray())
+                .andExpect(jsonPath("$.data.createdAt").isNotEmpty())
+                .andExpect(jsonPath("$.data.modifiedAt").isNotEmpty());
 
-        verify(cancelContractService, times(1)).getCancelingContract(any(), anyLong());
+        verify(cancelContractService, times(1)).getCancelingContract(anyLong());
 
     }
 
@@ -118,7 +119,7 @@ class CancelContractControllerTest extends ControllerTestSupport {
                 .modifiedAt(LocalDateTime.of(2024, 1, 1, 12, 0))
                 .build();
 
-        given(cancelContractService.getCanceledContract(any(), anyLong())).willReturn(response);
+        given(cancelContractService.getCanceledContract(anyLong())).willReturn(response);
 
         /** when */
 
@@ -127,15 +128,16 @@ class CancelContractControllerTest extends ControllerTestSupport {
         mockMvc.perform(get("/cancel-contracts/canceled/{cancelContractId}", 1l)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.contractId").exists())
-                .andExpect(jsonPath("$.title").exists())
-                .andExpect(jsonPath("$.content").exists())
-                .andExpect(jsonPath("$.cancelContractId").exists())
-                .andExpect(jsonPath("$.contractorAndSignStates").isArray())
-                .andExpect(jsonPath("$.createdAt").exists())
-                .andExpect(jsonPath("$.modifiedAt").exists());
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data.contractId").value(1l))
+                .andExpect(jsonPath("$.data.title").value("test"))
+                .andExpect(jsonPath("$.data.content").value("test"))
+                .andExpect(jsonPath("$.data.cancelContractId").value(1l))
+                .andExpect(jsonPath("$.data.contractorAndSignStates").isArray())
+                .andExpect(jsonPath("$.data.createdAt").isNotEmpty())
+                .andExpect(jsonPath("$.data.modifiedAt").isNotEmpty());
 
-        verify(cancelContractService, times(1)).getCanceledContract(any(), anyLong());
+        verify(cancelContractService, times(1)).getCanceledContract(anyLong());
 
     }
 
