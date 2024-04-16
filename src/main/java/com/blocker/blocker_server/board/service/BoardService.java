@@ -142,9 +142,7 @@ public class BoardService {
 
         List<Board> entityList = boardServiceSupport.getMyBoards(me.getEmail(), pageable);
 
-        List<GetBoardListResponseDto> response = boardServiceSupport.createBoardListResponseDto(entityList);
-
-        return response;
+        return boardServiceSupport.createBoardListResponseDto(entityList);
     }
 
 

@@ -5,8 +5,8 @@ import com.blocker.blocker_server.board.domain.Board;
 import com.blocker.blocker_server.Image.domain.Image;
 import com.blocker.blocker_server.board.dto.request.ModifyBoardRequestDto;
 import com.blocker.blocker_server.board.dto.request.SaveBoardRequestDto;
-import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardResponseDto;
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.contract.domain.Contract;
 import com.blocker.blocker_server.contract.service.ContractServiceSupport;
 import com.blocker.blocker_server.user.domain.User;
@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 
@@ -36,6 +37,8 @@ class BoardServiceTest {
     private BoardServiceSupport boardServiceSupport;
     @Mock
     private ContractServiceSupport contractServiceSupport;
+    @Mock
+    private CurrentUserGetter currentUserGetter;
 
 
     private Board board1;
@@ -74,7 +77,7 @@ class BoardServiceTest {
 
         /** when */
 
-        List<GetBoardListResponseDto> response = boardService.getBoards(pageable);
+        boardService.getBoards(pageable);
 
         /** then */
 
@@ -89,13 +92,15 @@ class BoardServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(boardServiceSupport.getBoardWithImages(any(Long.class))).willReturn(board1);
         given(boardServiceSupport.checkIsWriter(anyString(), anyString())).willReturn(true);
         given(boardServiceSupport.checkIsBookmarked(any(User.class), any(Board.class))).willReturn(true);
         given(imageServiceSupport.entityListToDtoList(any())).willReturn(mock(List.class));
+
         /** when */
 
-        GetBoardResponseDto response = boardService.getBoard(user, 1l);
+        GetBoardResponseDto response = boardService.getBoard(1l);
 
         /** then */
 
@@ -103,7 +108,10 @@ class BoardServiceTest {
         verify(boardServiceSupport, times(1)).checkIsWriter(anyString(), anyString());
         verify(boardServiceSupport, times(1)).checkIsBookmarked(any(User.class), any(Board.class));
         verify(imageServiceSupport, times(1)).entityListToDtoList(any(List.class));
-
+        assertThat(response.getTitle()).isEqualTo("testTitle1");
+        assertThat(response.getName()).isEqualTo(user.getName());
+        assertThat(response.getIsWriter()).isEqualTo(true);
+        assertThat(response.getIsBookmark()).isEqualTo(true);
     }
 
     @DisplayName("게시글을 저장한다.")
@@ -112,6 +120,7 @@ class BoardServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(contractServiceSupport.getContractById(anyLong())).willReturn(mock(Contract.class));
         willDoNothing().given(contractServiceSupport).checkIsContractWriter(anyString(), any(Contract.class));
         given(imageServiceSupport.createImageEntities(any(List.class), any(Board.class))).willReturn(List.of(image1, image2, image3));
@@ -127,7 +136,7 @@ class BoardServiceTest {
 
         /** when */
 
-        boardService.saveBoard(user, dto);
+        boardService.saveBoard(dto);
 
         /** then */
 
@@ -145,12 +154,13 @@ class BoardServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(boardServiceSupport.getBoardById(anyLong())).willReturn(board1);
         willDoNothing().given(boardServiceSupport).checkDeleteAuthority(anyString(), anyString());
 
         /** when */
 
-        boardService.deleteBoard(user, 1l);
+        boardService.deleteBoard(1l);
 
         /** then */
 
@@ -177,6 +187,7 @@ class BoardServiceTest {
                 .contractId(1l)
                 .build();
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(boardServiceSupport.getBoardById(anyLong())).willReturn(board1);
         willDoNothing().given(boardServiceSupport).checkModifyAuthority(anyString(), anyString());
         given(boardServiceSupport.modifyContractBelongingToBoard(anyString(), any(Board.class), anyLong())).willReturn(contract);
@@ -185,7 +196,7 @@ class BoardServiceTest {
 
         /** when */
 
-        boardService.modifyBoard(user, 1l, request);
+        boardService.modifyBoard(1l, request);
 
         /** then */
 
@@ -202,17 +213,20 @@ class BoardServiceTest {
     void getMyBoards() {
 
         /** given */
+
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(boardServiceSupport.getMyBoards(anyString(), any(Pageable.class))).willReturn(List.of(board1, board2, board3));
         given(boardServiceSupport.createBoardListResponseDto(anyList())).willReturn(mock(List.class));
 
         /** when */
 
-        boardService.getMyBoards(user, PageRequest.of(0, 10));
+        boardService.getMyBoards(PageRequest.of(0, 10));
 
         /** then */
 
         verify(boardServiceSupport, times(1)).getMyBoards(anyString(),any(Pageable.class));
         verify(boardServiceSupport, times(1)).createBoardListResponseDto(anyList());
+
     }
 
 
