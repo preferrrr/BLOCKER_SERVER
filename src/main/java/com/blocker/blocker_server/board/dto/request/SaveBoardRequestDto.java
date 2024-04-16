@@ -1,6 +1,7 @@
 package com.blocker.blocker_server.board.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,7 @@ public class SaveBoardRequestDto {
     private String content;
     private String info;
     private String representImage;
-    @NotBlank(message = "계약서 인덱스는 null 또는 공백일 수 없습니다.")
+    @NotNull(message = "계약서 인덱스는 null 또는 공백일 수 없습니다.")
     private Long contractId;
     private List<String> images;
 
