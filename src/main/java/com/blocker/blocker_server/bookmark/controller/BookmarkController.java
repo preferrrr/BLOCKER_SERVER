@@ -42,11 +42,10 @@ public class BookmarkController {
     }
 
     @GetMapping("/boards")
-    public ResponseEntity<ListResponse<GetBoardListResponseDto>> getBookmarkBoards(@AuthenticationPrincipal User user,
-                                                                                   @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<ListResponse<GetBoardListResponseDto>> getBookmarkBoards(@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         return ResponseEntity.ok(
-                ListResponse.ok(bookmarkService.getBookmarkBoards(user, pageable))
+                ListResponse.ok(bookmarkService.getBookmarkBoards(pageable))
         );
     }
 }

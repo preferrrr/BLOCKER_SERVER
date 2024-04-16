@@ -67,7 +67,9 @@ public class BookmarkService {
 
     }
 
-    public List<GetBoardListResponseDto> getBookmarkBoards(User me, Pageable pageable) {
+    public List<GetBoardListResponseDto> getBookmarkBoards(Pageable pageable) {
+
+        User me = currentUserGetter.getCurrentUser();
 
         //내가 북마크한 게시글 엔티티
         List<Board> boards = bookmarkServiceSupport.getBookmarkBoards(me, pageable);
