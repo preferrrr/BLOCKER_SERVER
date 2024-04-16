@@ -61,7 +61,9 @@ public class BoardController {
 
         boardService.saveBoard(requestDto);
 
-        return ResponseEntity.ok(BaseResponse.ok());
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(BaseResponse.of(HttpStatus.CREATED)) ;
     }
 
 
