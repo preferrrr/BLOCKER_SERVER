@@ -42,7 +42,8 @@ class BoardControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data").isArray());
 
         verify(boardService, times(1)).getBoards(any(Pageable.class));
     }
@@ -69,7 +70,7 @@ class BoardControllerTest extends ControllerTestSupport {
                 .info("testInfo")
                 .build();
 
-        given(boardService.getBoard(any(), anyLong())).willReturn(response);
+        given(boardService.getBoard(anyLong())).willReturn(response);
 
         /** when */
 
@@ -79,22 +80,24 @@ class BoardControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.boardId").exists())
-                .andExpect(jsonPath("$.title").isNotEmpty())
-                .andExpect(jsonPath("$.content").isNotEmpty())
-                .andExpect(jsonPath("$.name").isNotEmpty())
-                .andExpect(jsonPath("$.representImage").isNotEmpty())
-                .andExpect(jsonPath("$.view").isNotEmpty())
-                .andExpect(jsonPath("$.bookmarkCount").isNotEmpty())
-                .andExpect(jsonPath("$.createdAt").isNotEmpty())
-                .andExpect(jsonPath("$.modifiedAt").isNotEmpty())
-                .andExpect(jsonPath("$.images").isArray())
-                .andExpect(jsonPath("$.info").isNotEmpty())
-                .andExpect(jsonPath("$.contractId").isNotEmpty())
-                .andExpect(jsonPath("$.isWriter").isNotEmpty())
-                .andExpect(jsonPath("$.isBookmark").isNotEmpty());
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data").isNotEmpty())
+                .andExpect(jsonPath("$.data.boardId").exists())
+                .andExpect(jsonPath("$.data.title").isNotEmpty())
+                .andExpect(jsonPath("$.data.content").isNotEmpty())
+                .andExpect(jsonPath("$.data.name").isNotEmpty())
+                .andExpect(jsonPath("$.data.representImage").isNotEmpty())
+                .andExpect(jsonPath("$.data.view").isNotEmpty())
+                .andExpect(jsonPath("$.data.bookmarkCount").isNotEmpty())
+                .andExpect(jsonPath("$.data.createdAt").isNotEmpty())
+                .andExpect(jsonPath("$.data.modifiedAt").isNotEmpty())
+                .andExpect(jsonPath("$.data.images").isArray())
+                .andExpect(jsonPath("$.data.info").isNotEmpty())
+                .andExpect(jsonPath("$.data.contractId").isNotEmpty())
+                .andExpect(jsonPath("$.data.isWriter").isNotEmpty())
+                .andExpect(jsonPath("$.data.isBookmark").isNotEmpty());
 
-        verify(boardService, times(1)).getBoard(any(), anyLong());
+        verify(boardService, times(1)).getBoard(anyLong());
     }
 
     @DisplayName("게시글을 작성한다.")
@@ -112,7 +115,7 @@ class BoardControllerTest extends ControllerTestSupport {
                 .contractId(1l)
                 .build();
 
-        willDoNothing().given(boardService).saveBoard(any(), any(SaveBoardRequestDto.class));
+        willDoNothing().given(boardService).saveBoard(any(SaveBoardRequestDto.class));
 
         /** when */
 
@@ -123,9 +126,10 @@ class BoardControllerTest extends ControllerTestSupport {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("CREATED"));
 
-        verify(boardService, times(1)).saveBoard(any(), any(SaveBoardRequestDto.class));
+        verify(boardService, times(1)).saveBoard(any(SaveBoardRequestDto.class));
 
     }
 
@@ -144,7 +148,7 @@ class BoardControllerTest extends ControllerTestSupport {
                 .contractId(1l)
                 .build();
 
-        willDoNothing().given(boardService).saveBoard(any(), any(SaveBoardRequestDto.class));
+        willDoNothing().given(boardService).saveBoard(any(SaveBoardRequestDto.class));
 
         /** when */
 
@@ -155,7 +159,10 @@ class BoardControllerTest extends ControllerTestSupport {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("제목은 null 또는 공백일 수 없습니다."));
+
+        verify(boardService, times(0)).saveBoard(any(SaveBoardRequestDto.class));
     }
 
     @DisplayName("게시글을 수정한다.")
@@ -174,10 +181,9 @@ class BoardControllerTest extends ControllerTestSupport {
                 .representImage("test")
                 .build();
 
-        willDoNothing().given(boardService).modifyBoard(any(), anyLong(), any(ModifyBoardRequestDto.class));
+        willDoNothing().given(boardService).modifyBoard(anyLong(), any(ModifyBoardRequestDto.class));
 
         /** when */
-
 
         /** then */
 
@@ -186,9 +192,10 @@ class BoardControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(csrf()))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"));
 
-        verify(boardService, times(1)).modifyBoard(any(), anyLong(), any(ModifyBoardRequestDto.class));
+        verify(boardService, times(1)).modifyBoard(anyLong(), any(ModifyBoardRequestDto.class));
 
     }
 
@@ -208,10 +215,9 @@ class BoardControllerTest extends ControllerTestSupport {
                 .representImage("test")
                 .build();
 
-        willDoNothing().given(boardService).modifyBoard(any(), anyLong(), any(ModifyBoardRequestDto.class));
+        willDoNothing().given(boardService).modifyBoard(anyLong(), any(ModifyBoardRequestDto.class));
 
         /** when */
-
 
         /** then */
 
@@ -220,7 +226,10 @@ class BoardControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(csrf()))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("내용은 null 또는 공백일 수 없습니다."));
+
+        verify(boardService, times(0)).modifyBoard(anyLong(), any(ModifyBoardRequestDto.class));
 
     }
 
@@ -232,7 +241,7 @@ class BoardControllerTest extends ControllerTestSupport {
 
         /** when */
 
-        willDoNothing().given(boardService).deleteBoard(any(), anyLong());
+        willDoNothing().given(boardService).deleteBoard(anyLong());
 
         /** then */
 
@@ -240,9 +249,10 @@ class BoardControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(csrf()))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"));
 
-        verify(boardService, times(1)).deleteBoard(any(), anyLong());
+        verify(boardService, times(1)).deleteBoard(anyLong());
 
     }
 
@@ -254,7 +264,7 @@ class BoardControllerTest extends ControllerTestSupport {
 
         List<GetBoardListResponseDto> response = List.of();
 
-        given(boardService.getMyBoards(any(), any(Pageable.class))).willReturn(response);
+        given(boardService.getMyBoards(any(Pageable.class))).willReturn(response);
 
         /** when */
 
@@ -263,9 +273,10 @@ class BoardControllerTest extends ControllerTestSupport {
         mockMvc.perform(get("/boards/my-boards")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data").isArray());
 
-        verify(boardService, times(1)).getMyBoards(any(), any(Pageable.class));
+        verify(boardService, times(1)).getMyBoards(any(Pageable.class));
 
     }
 
