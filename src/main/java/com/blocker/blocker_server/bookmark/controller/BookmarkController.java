@@ -6,6 +6,7 @@ import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.commons.response.BaseResponse;
 import com.blocker.blocker_server.commons.response.ListResponse;
 import com.blocker.blocker_server.user.domain.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,7 +26,7 @@ public class BookmarkController {
     private final BookmarkService bookmarkService;
 
     @PostMapping("")
-    public ResponseEntity<BaseResponse> saveBookmark(@RequestBody SaveBookmarkRequestDto requestDto) {
+    public ResponseEntity<BaseResponse> saveBookmark(@RequestBody @Valid SaveBookmarkRequestDto requestDto) {
 
         bookmarkService.saveBookmark(requestDto);
 
