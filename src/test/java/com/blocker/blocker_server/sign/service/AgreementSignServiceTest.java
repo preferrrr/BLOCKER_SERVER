@@ -1,6 +1,7 @@
 package com.blocker.blocker_server.sign.service;
 
 import com.blocker.blocker_server.chat.service.ChatService;
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.contract.domain.Contract;
 import com.blocker.blocker_server.contract.domain.ContractState;
 import com.blocker.blocker_server.contract.service.ContractServiceSupport;
@@ -15,9 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -38,6 +37,8 @@ class AgreementSignServiceTest {
     private ContractServiceSupport contractServiceSupport;
     @Mock
     private ChatService chatService;
+    @Mock
+    private CurrentUserGetter currentUserGetter;
 
     private User user;
     private Contract contract;
@@ -54,13 +55,14 @@ class AgreementSignServiceTest {
     void proceedContract() {
 
         /** given */
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(contractServiceSupport.getContractById(anyLong())).willReturn(contract);
         willDoNothing().given(contractServiceSupport).checkIsContractWriter(anyString(), any(Contract.class));
         willDoNothing().given(agreementSignServiceSupport).checkIsNotProceedContract(any(Contract.class));
         willDoNothing().given(agreementSignServiceSupport).checkIsEmptyContractor(anyList());
         given(agreementSignServiceSupport.createAgreementSigns(any(Contract.class), any(User.class), anyList())).willReturn(mock(List.class));
         willDoNothing().given(agreementSignServiceSupport).saveAgreementSigns(anyList());
-        willDoNothing().given(chatService).createChatRoom(any(User.class), anyList());
+        willDoNothing().given(chatService).createChatRoom(anyList());
 
         ProceedSignRequestDto request = ProceedSignRequestDto.builder()
                 .contractId(1l)
@@ -69,7 +71,7 @@ class AgreementSignServiceTest {
 
         /** when */
 
-        agreementSignService.proceedContract(user, request);
+        agreementSignService.proceedContract(request);
 
         /** then */
 
@@ -79,7 +81,7 @@ class AgreementSignServiceTest {
         verify(agreementSignServiceSupport, times(1)).checkIsEmptyContractor(anyList());
         verify(agreementSignServiceSupport, times(1)).createAgreementSigns(any(Contract.class), any(User.class), anyList());
         verify(agreementSignServiceSupport, times(1)).saveAgreementSigns(anyList());
-        verify(chatService, times(1)).createChatRoom(any(User.class), anyList());
+        verify(chatService, times(1)).createChatRoom(anyList());
         assertThat(contract.getContractState()).isEqualTo(ContractState.PROCEED);
     }
 
@@ -89,6 +91,7 @@ class AgreementSignServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(contractServiceSupport.getContractWIthSignsById(anyLong())).willReturn(contract);
         given(agreementSignServiceSupport.getMyAgreementSign(anyString(), anyList())).willReturn(agreementSign);
         willDoNothing().given(agreementSignServiceSupport).checkMySignStateIsN(any(AgreementSign.class));
@@ -96,7 +99,7 @@ class AgreementSignServiceTest {
 
         /** when */
 
-        agreementSignService.signContract(user, 1l);
+        agreementSignService.signContract(1l);
 
         /** then */
 
@@ -116,6 +119,7 @@ class AgreementSignServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(contractServiceSupport.getContractWIthSignsById(anyLong())).willReturn(contract);
         willDoNothing().given(contractServiceSupport).checkIsParticipant(any(User.class), any(Contract.class));
         willDoNothing().given(contractServiceSupport).checkIsProceedContract(any(Contract.class));
@@ -123,7 +127,7 @@ class AgreementSignServiceTest {
 
         /** when */
 
-        agreementSignService.breakContract(user, 1l);
+        agreementSignService.breakContract(1l);
 
         /** then */
 
