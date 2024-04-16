@@ -3,7 +3,6 @@ package com.blocker.blocker_server.chat.service;
 
 import com.blocker.blocker_server.chat.domain.ChatMessage;
 import com.blocker.blocker_server.chat.domain.ChatRoom;
-import com.blocker.blocker_server.chat.domain.ChatUser;
 import com.blocker.blocker_server.chat.dto.request.SendMessageRequestDto;
 import com.blocker.blocker_server.chat.dto.response.GetChatMessagesResponseDto;
 import com.blocker.blocker_server.chat.dto.response.GetChatRoomListDto;
@@ -11,18 +10,17 @@ import com.blocker.blocker_server.chat.dto.response.GetOneToOneChatRoomResponse;
 import com.blocker.blocker_server.commons.jwt.JwtProvider;
 import com.blocker.blocker_server.commons.kafka.KafkaMessage;
 import com.blocker.blocker_server.commons.kafka.MessageSender;
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,6 +42,8 @@ class ChatServiceTest {
     private JwtProvider jwtProvider;
     @Mock
     private MessageSender sender;
+    @Mock
+    private CurrentUserGetter currentUserGetter;
 
     private User user;
     private User user2;
@@ -90,13 +90,14 @@ class ChatServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         willDoNothing().given(chatServiceSupport).saveChatRoom(any(ChatRoom.class));
         given(chatServiceSupport.createChatUsers(any(ChatRoom.class), any(User.class), anyList())).willReturn(mock(List.class));
         willDoNothing().given(chatServiceSupport).saveChatUsers(anyList());
 
         /** when */
 
-        chatService.createChatRoom(user,List.of("testEmail2","testEmail3"));
+        chatService.createChatRoom(List.of("testEmail2","testEmail3"));
 
         /** then */
 
@@ -111,12 +112,13 @@ class ChatServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(chatServiceSupport.getChatRoomsByUser(any(User.class))).willReturn(mock(List.class));
         given(chatServiceSupport.createChatRoomListResponseDto(anyList())).willReturn(mock(List.class));
 
         /** when */
 
-        List<GetChatRoomListDto> result = chatService.getChatRooms(user);
+        List<GetChatRoomListDto> result = chatService.getChatRooms();
 
         /** then */
 
@@ -131,13 +133,14 @@ class ChatServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         willDoNothing().given(chatServiceSupport).checkIsChatParticipant(any(User.class),anyLong());
         given(chatServiceSupport.getChatMessagesByChatRoomId(anyLong(),any(Pageable.class))).willReturn(mock(List.class));
         given(chatServiceSupport.createChatMessageResponseDto(anyList())).willReturn(mock(List.class));
 
         /** when */
 
-        List<GetChatMessagesResponseDto> result = chatService.getMessages(user, 1l, PageRequest.of(0, 20));
+        List<GetChatMessagesResponseDto> result = chatService.getMessages(1l, PageRequest.of(0, 20));
 
         /** then */
 
@@ -153,12 +156,13 @@ class ChatServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(chatServiceSupport.getBoardWriter(anyLong())).willReturn(user);
         given(chatServiceSupport.getOneToOneChatRoomByUsers(anyString(), anyString())).willReturn(1l);
 
         /** when */
 
-        GetOneToOneChatRoomResponse result = chatService.getOneToOneChatRoomId(user, 1l);
+        GetOneToOneChatRoomResponse result = chatService.getOneToOneChatRoomId(1l);
 
         /** then */
 
