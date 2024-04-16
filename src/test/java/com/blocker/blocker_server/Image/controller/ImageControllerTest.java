@@ -14,6 +14,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WithMockUser(roles = "USER")
@@ -29,7 +30,7 @@ class ImageControllerTest extends ControllerTestSupport {
                 MediaType.IMAGE_JPEG_VALUE, "test".getBytes());
 
         SaveImageResponseDto response = SaveImageResponseDto.builder()
-                .address("test")
+                .address("test address")
                 .build();
 
         given(imageService.s3SaveImage(any(MultipartFile.class))).willReturn(response);
@@ -42,14 +43,16 @@ class ImageControllerTest extends ControllerTestSupport {
                         .file(image)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .with(csrf()))
+                .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.address").exists());
+                .andExpect(jsonPath("$.status").value("CREATED"))
+                .andExpect(jsonPath("$.data.address").value("test address"));
 
         verify(imageService, times(1)).s3SaveImage(any(MultipartFile.class));
 
     }
 
-    @DisplayName("s3에 이미지를 저장할 때, 이미지가 없으면 204를 반환한다.")
+    @DisplayName("s3에 이미지를 저장할 때, 이미지가 없으면 400을 반환한다.")
     @Test
     void s3SaveImageNoContent() throws Exception {
 
@@ -60,10 +63,12 @@ class ImageControllerTest extends ControllerTestSupport {
         /** then */
 
         mockMvc.perform(multipart("/images")
-                        .file("image", (byte[]) null)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .with(csrf()))
-                .andExpect(status().isNoContent());
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+        verify(signatureService, times(0)).setSignature(any(MultipartFile.class));
 
 
     }
