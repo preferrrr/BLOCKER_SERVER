@@ -1,9 +1,9 @@
 package com.blocker.blocker_server.contract.service;
 
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.contract.domain.CancelContract;
 import com.blocker.blocker_server.contract.domain.CancelContractState;
 import com.blocker.blocker_server.contract.domain.Contract;
-import com.blocker.blocker_server.contract.dto.response.CancelContractorAndSignState;
 import com.blocker.blocker_server.contract.dto.response.GetCancelContractWithSignStateResponseDto;
 import com.blocker.blocker_server.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +27,8 @@ class CancelContractServiceTest {
     private CancelContractService cancelContractService;
     @Mock
     private CancelContractServiceSupport cancelContractServiceSupport;
+    @Mock
+    private CurrentUserGetter currentUserGetter;
 
     private User user;
     private Contract contract;
@@ -44,12 +46,14 @@ class CancelContractServiceTest {
     void getCancelContractList() {
 
         /** given */
+
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(cancelContractServiceSupport.getCancelContractsByUserAndState(any(User.class), any(CancelContractState.class))).willReturn(mock(List.class));
         given(cancelContractServiceSupport.entityListToDtoList(anyList())).willReturn(mock(List.class));
 
         /** when */
 
-        cancelContractService.getCancelContractList(user, CancelContractState.CANCELING);
+        cancelContractService.getCancelContractList(CancelContractState.CANCELING);
 
         /** then */
 
@@ -64,6 +68,7 @@ class CancelContractServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(cancelContractServiceSupport.getCancelContractWithSignsById(anyLong())).willReturn(cancelContract);
         willDoNothing().given(cancelContractServiceSupport).checkIsCancelingCancelContract(any(CancelContract.class));
         willDoNothing().given(cancelContractServiceSupport).checkIsCancelContractParticipant(any(User.class), any(CancelContract.class));
@@ -71,7 +76,7 @@ class CancelContractServiceTest {
 
         /** when */
 
-        GetCancelContractWithSignStateResponseDto result = cancelContractService.getCancelingContract(user, 1l);
+        GetCancelContractWithSignStateResponseDto result = cancelContractService.getCancelingContract(1l);
 
         /** then */
 
@@ -90,6 +95,7 @@ class CancelContractServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(cancelContractServiceSupport.getCancelContractWithSignsById(anyLong())).willReturn(cancelContract);
         willDoNothing().given(cancelContractServiceSupport).checkIsCanceledCancelContract(any(CancelContract.class));
         willDoNothing().given(cancelContractServiceSupport).checkIsCancelContractParticipant(any(User.class), any(CancelContract.class));
@@ -97,7 +103,7 @@ class CancelContractServiceTest {
 
         /** when */
 
-        GetCancelContractWithSignStateResponseDto result = cancelContractService.getCanceledContract(user, 1l);
+        GetCancelContractWithSignStateResponseDto result = cancelContractService.getCanceledContract(1l);
 
         /** then */
 
