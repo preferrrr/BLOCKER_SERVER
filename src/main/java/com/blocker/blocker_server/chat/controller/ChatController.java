@@ -9,10 +9,12 @@ import com.blocker.blocker_server.chat.dto.response.GetChatRoomListDto;
 import com.blocker.blocker_server.commons.response.BaseResponse;
 import com.blocker.blocker_server.commons.response.ListResponse;
 import com.blocker.blocker_server.commons.response.SingleResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
@@ -42,11 +44,13 @@ public class ChatController {
      * /chatrooms
      */
     @PostMapping("/chatrooms")
-    public ResponseEntity<BaseResponse> createRoom(@RequestBody CreateChatRoomRequestDto createChatRoomRequestDto) {
+    public ResponseEntity<BaseResponse> createRoom(@RequestBody @Valid CreateChatRoomRequestDto createChatRoomRequestDto) {
 
         chatService.createChatRoom(createChatRoomRequestDto.getChatUsers());
 
-        return ResponseEntity.ok(BaseResponse.ok());
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(BaseResponse.of(HttpStatus.CREATED));
     }
 
     /**
