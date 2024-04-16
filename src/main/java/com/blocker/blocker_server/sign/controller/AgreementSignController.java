@@ -4,6 +4,7 @@ import com.blocker.blocker_server.commons.response.BaseResponse;
 import com.blocker.blocker_server.sign.dto.request.ProceedSignRequestDto;
 import com.blocker.blocker_server.sign.service.AgreementSignService;
 import com.blocker.blocker_server.user.domain.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class AgreementSignController {
      * /signs
      */
     @PostMapping("")
-    public ResponseEntity<BaseResponse> proceedContract(@RequestBody ProceedSignRequestDto request) {
+    public ResponseEntity<BaseResponse> proceedContract(@RequestBody @Valid ProceedSignRequestDto request) {
 
         agreementSignService.proceedContract(request);
 
