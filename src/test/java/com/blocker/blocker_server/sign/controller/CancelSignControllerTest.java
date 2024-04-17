@@ -12,6 +12,7 @@ import static org.mockito.BDDMockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WithMockUser(roles = "USER")
@@ -23,7 +24,7 @@ class CancelSignControllerTest extends ControllerTestSupport {
 
         /** given */
 
-        willDoNothing().given(cancelSignService).cancelContract(any(), anyLong());
+        willDoNothing().given(cancelSignService).cancelContract(anyLong());
 
         /** when */
 
@@ -32,9 +33,10 @@ class CancelSignControllerTest extends ControllerTestSupport {
         mockMvc.perform(post("/cancel-signs/contract/{contractId}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(csrf()))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("CREATED"));
 
-        verify(cancelSignService, times(1)).cancelContract(any(), anyLong());
+        verify(cancelSignService, times(1)).cancelContract(anyLong());
 
     }
 
@@ -44,7 +46,7 @@ class CancelSignControllerTest extends ControllerTestSupport {
 
         /** given */
 
-        willDoNothing().given(cancelSignService).signCancelContract(any(), anyLong());
+        willDoNothing().given(cancelSignService).signCancelContract(anyLong());
 
         /** when */
 
@@ -53,9 +55,10 @@ class CancelSignControllerTest extends ControllerTestSupport {
         mockMvc.perform(patch("/cancel-signs/cancel-contract/{contractId}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(csrf()))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"));
 
-        verify(cancelSignService, times(1)).signCancelContract(any(), anyLong());
+        verify(cancelSignService, times(1)).signCancelContract(anyLong());
     }
 
 }
