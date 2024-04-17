@@ -36,4 +36,16 @@ public class UserExceptionHandler {
                 exceptionCode.getHttpStatus()
         ); /**401, 유효하지 않은 리프레스 토큰.*/
     }
+
+    @ExceptionHandler({EmptyRefreshTokenException.class})
+    public ResponseEntity<ExceptionResponse> handleEmptyRefreshTokenException(final EmptyRefreshTokenException e) {
+
+        ExceptionCode exceptionCode = e.getExceptionCode();
+        log.error("{}", e.getMessage());
+
+        return new ResponseEntity<>(
+                ExceptionResponse.of(exceptionCode),
+                exceptionCode.getHttpStatus()
+        ); /**401, 리프레시 토큰이 null.*/
+    }
 }

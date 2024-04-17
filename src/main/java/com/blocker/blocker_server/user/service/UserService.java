@@ -80,6 +80,8 @@ public class UserService {
 
     public HttpHeaders reissueToken(String cookie) {
 
+        userServiceSupport.checkIsEmptyRefreshToken(cookie);
+
         String token = userServiceSupport.getRefreshTokenFromCookie(cookie);
 
         //value(unique key)로 유저 찾음
