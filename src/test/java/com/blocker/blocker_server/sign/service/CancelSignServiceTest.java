@@ -1,36 +1,24 @@
 package com.blocker.blocker_server.sign.service;
 
-import com.blocker.blocker_server.IntegrationTestSupport;
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.contract.domain.CancelContract;
-import com.blocker.blocker_server.contract.domain.CancelContractState;
 import com.blocker.blocker_server.contract.domain.Contract;
-import com.blocker.blocker_server.contract.domain.ContractState;
-import com.blocker.blocker_server.contract.repository.CancelContractRepository;
-import com.blocker.blocker_server.contract.repository.ContractRepository;
 import com.blocker.blocker_server.contract.service.CancelContractServiceSupport;
 import com.blocker.blocker_server.contract.service.ContractServiceSupport;
-import com.blocker.blocker_server.sign.domain.AgreementSign;
 import com.blocker.blocker_server.sign.domain.CancelSign;
 import com.blocker.blocker_server.sign.domain.SignState;
-import com.blocker.blocker_server.sign.repository.AgreementSignRepository;
-import com.blocker.blocker_server.sign.repository.CancelSignRepository;
 import com.blocker.blocker_server.user.domain.User;
-import com.blocker.blocker_server.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
@@ -47,6 +35,8 @@ class CancelSignServiceTest {
     private ContractServiceSupport contractServiceSupport;
     @Mock
     private CancelContractServiceSupport cancelContractServiceSupport;
+    @Mock
+    private CurrentUserGetter currentUserGetter;
 
     private User user;
     private Contract contract;
@@ -67,6 +57,7 @@ class CancelSignServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(contractServiceSupport.getContractWIthSignsById(anyLong())).willReturn(contract);
         willDoNothing().given(cancelSignServiceSupport).checkIsConcludeContract(any(Contract.class));
         willDoNothing().given(cancelSignServiceSupport).checkIsParticipantForCancel(any(User.class), any(Contract.class));
@@ -77,7 +68,7 @@ class CancelSignServiceTest {
 
         /** when */
 
-        cancelSignService.cancelContract(user, 1l);
+        cancelSignService.cancelContract(1l);
 
         /** then */
 
@@ -97,6 +88,8 @@ class CancelSignServiceTest {
     void signCancelContract() {
 
         /** given */
+
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(cancelContractServiceSupport.getCancelContractWithSignsById(anyLong())).willReturn(cancelContract);
         given(cancelSignServiceSupport.getMyCancelSign(anyString(), anyList())).willReturn(cancelSign);
         willDoNothing().given(cancelSignServiceSupport).checkMySignStateIsN(any(CancelSign.class));
@@ -104,7 +97,7 @@ class CancelSignServiceTest {
 
         /** when */
 
-        cancelSignService.signCancelContract(user, 1l);
+        cancelSignService.signCancelContract(1l);
 
         /** then */
 
