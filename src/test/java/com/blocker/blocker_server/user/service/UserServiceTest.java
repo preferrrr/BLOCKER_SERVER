@@ -36,6 +36,7 @@ class UserServiceTest {
     void reissueToken() {
 
         /** given */
+        willDoNothing().given(userServiceSupport).checkIsEmptyRefreshToken(anyString());
         given(userServiceSupport.getRefreshTokenFromCookie(anyString())).willReturn("testValue");
         given(userServiceSupport.getUserByRefreshTokenValue(anyString())).willReturn(user);
         given(userServiceSupport.getNewRefreshTokenValue()).willReturn("newValue");
@@ -47,6 +48,7 @@ class UserServiceTest {
 
         /** then */
 
+        verify(userServiceSupport, times(1)).checkIsEmptyRefreshToken(anyString());
         verify(userServiceSupport, times(1)).getRefreshTokenFromCookie(anyString());
         verify(userServiceSupport, times(1)).getUserByRefreshTokenValue(anyString());
         verify(userServiceSupport, times(1)).createHeadersWithJwt(anyString(),anyString(),anyString(),anyList());
