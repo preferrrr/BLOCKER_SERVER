@@ -1,6 +1,7 @@
 package com.blocker.blocker_server.signature.service;
 
 import com.blocker.blocker_server.Image.service.S3Service;
+import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
 import com.blocker.blocker_server.signature.domain.Signature;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.user.service.UserServiceSupport;
@@ -30,6 +31,8 @@ class SignatureServiceTest {
     private UserServiceSupport userServiceSupport;
     @Mock
     private S3Service s3Service;
+    @Mock
+    private CurrentUserGetter currentUserGetter;
 
     private User user;
     private Signature signature;
@@ -46,6 +49,7 @@ class SignatureServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(userServiceSupport.getUserByEmail(anyString())).willReturn(user);
         willDoNothing().given(signatureServiceSupport).checkAlreadyHaveSignature(any(User.class));
         given(s3Service.saveSignature(any(MultipartFile.class))).willReturn("testAddress");
@@ -54,7 +58,7 @@ class SignatureServiceTest {
 
         /** when */
 
-        signatureService.setSignature(user, mock(MultipartFile.class));
+        signatureService.setSignature(mock(MultipartFile.class));
 
         /** then */
 
@@ -72,13 +76,14 @@ class SignatureServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(userServiceSupport.getUserByEmail(anyString())).willReturn(user);
         given(s3Service.saveSignature(any(MultipartFile.class))).willReturn("testAddress");
         willDoNothing().given(signatureServiceSupport).saveSignature(any(Signature.class));
 
         /** when */
 
-        signatureService.modifySignature(user, mock(MultipartFile.class));
+        signatureService.modifySignature(mock(MultipartFile.class));
 
         /** then */
 
@@ -95,11 +100,12 @@ class SignatureServiceTest {
 
         /** given */
 
+        given(currentUserGetter.getCurrentUser()).willReturn(user);
         given(signatureServiceSupport.getMySignature(any(User.class))).willReturn(signature);
 
         /** when */
 
-        signatureService.getSignature(user);
+        signatureService.getSignature();
 
         /** then */
 
