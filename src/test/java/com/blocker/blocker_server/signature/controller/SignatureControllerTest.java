@@ -31,7 +31,7 @@ class SignatureControllerTest extends ControllerTestSupport {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer accessToken");
 
-        given(signatureService.setSignature(any(), any(MultipartFile.class))).willReturn(headers);
+        given(signatureService.setSignature(any(MultipartFile.class))).willReturn(headers);
 
         MockMultipartFile signature = new MockMultipartFile("signature", "file.jpeg",
                 MediaType.IMAGE_JPEG_VALUE, "test".getBytes());
@@ -46,12 +46,13 @@ class SignatureControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .with(csrf()))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"))
                 .andExpect(header().exists("Authorization"));
 
-        verify(signatureService, times(1)).setSignature(any(), any(MultipartFile.class));
+        verify(signatureService, times(1)).setSignature(any(MultipartFile.class));
     }
 
-    @DisplayName("전자서명을 등록할 때, 파일을 보내지 않으면 204를 반환한다.")
+    @DisplayName("전자서명을 등록할 때, 파일을 보내지 않으면 400을 반환한다.")
     @Test
     void setSignatureNoContent() throws Exception {
 
@@ -62,10 +63,11 @@ class SignatureControllerTest extends ControllerTestSupport {
         /** then */
 
         mockMvc.perform(multipart("/signatures")
-                        .file("signature", (byte[]) null)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .with(csrf()))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isBadRequest());
+
+        verify(signatureService, times(0)).setSignature(any(MultipartFile.class));
     }
 
     @DisplayName("전자서명을 수정한다.")
@@ -74,7 +76,7 @@ class SignatureControllerTest extends ControllerTestSupport {
 
         /** given */
 
-        willDoNothing().given(signatureService).modifySignature(any(), any(MultipartFile.class));
+        willDoNothing().given(signatureService).modifySignature(any(MultipartFile.class));
 
         MockMultipartFile signature = new MockMultipartFile("signature", "file.jpeg",
                 MediaType.IMAGE_JPEG_VALUE, "test".getBytes());
@@ -94,18 +96,19 @@ class SignatureControllerTest extends ControllerTestSupport {
         mockMvc.perform(builder.file(signature)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .with(csrf()))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"));
 
-        verify(signatureService, times(1)).modifySignature(any(), any(MultipartFile.class));
+        verify(signatureService, times(1)).modifySignature(any(MultipartFile.class));
     }
 
-    @DisplayName("전자서명을 수정하는데 이미지가 없으면 204을 반환한다.")
+    @DisplayName("전자서명을 수정하는데 이미지가 없으면 400을 반환한다.")
     @Test
     void modifySignatureNoContent() throws Exception {
 
         /** given */
 
-        willDoNothing().given(signatureService).modifySignature(any(), any(MultipartFile.class));
+        willDoNothing().given(signatureService).modifySignature(any(MultipartFile.class));
 
 
         /** when */
@@ -119,10 +122,12 @@ class SignatureControllerTest extends ControllerTestSupport {
             return request;
         });
 
-        mockMvc.perform(builder.file("signature",(byte[]) null)
+        mockMvc.perform(builder
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .with(csrf()))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isBadRequest());
+
+        verify(signatureService, times(0)).modifySignature(any(MultipartFile.class));
 
     }
 
@@ -132,10 +137,10 @@ class SignatureControllerTest extends ControllerTestSupport {
 
         /** given */
         GetSignatureResponseDto response = GetSignatureResponseDto.builder()
-                .address("test")
+                .address("test address")
                 .build();
 
-        given(signatureService.getSignature(any())).willReturn(response);
+        given(signatureService.getSignature()).willReturn(response);
 
         /** when */
 
@@ -144,7 +149,11 @@ class SignatureControllerTest extends ControllerTestSupport {
         mockMvc.perform(get("/signatures")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.address").exists());
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data").isNotEmpty())
+                .andExpect(jsonPath("$.data.address").value("test address"));
+
+        verify(signatureService, times(1)).getSignature();
 
     }
 }
