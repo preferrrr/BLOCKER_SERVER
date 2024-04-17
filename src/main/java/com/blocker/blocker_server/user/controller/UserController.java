@@ -1,16 +1,14 @@
 package com.blocker.blocker_server.user.controller;
 
+import com.blocker.blocker_server.commons.response.BaseResponse;
 import com.blocker.blocker_server.commons.response.ListResponse;
 import com.blocker.blocker_server.user.dto.request.LoginRequestDto;
 import com.blocker.blocker_server.user.dto.response.SearchUserResponse;
 import com.blocker.blocker_server.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,11 +24,11 @@ public class UserController {
     }
 
     @GetMapping("/reissue-token")
-    public ResponseEntity<HttpHeaders> reissueToken(@RequestHeader("Cookie") String cookie) {
+    public ResponseEntity<BaseResponse> reissueToken(@RequestHeader("Cookie") String cookie) {
 
-        return ResponseEntity.ok(
-                userService.reissueToken(cookie)
-        );
+        return ResponseEntity.ok()
+                .headers(userService.reissueToken(cookie))
+                .body(BaseResponse.ok());
     }
 
     @GetMapping("/search")
