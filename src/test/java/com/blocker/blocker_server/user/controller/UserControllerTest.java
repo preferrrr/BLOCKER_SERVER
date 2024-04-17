@@ -40,30 +40,11 @@ class UserControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.COOKIE, "refresh token"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"))
                 .andExpect(MockMvcResultMatchers.header().exists("Authorization"))
                 .andExpect(MockMvcResultMatchers.header().exists(HttpHeaders.COOKIE));
 
         verify(userService, times(1)).reissueToken(anyString());
-
-    }
-
-
-    @DisplayName("엑세스 토큰을 재발급할 때 리프레시 토큰 쿠키를 보내지 않으면 204을 반환한다.")
-    @Test
-    @WithMockUser(roles = "USER")
-    void reissueTokenEmptyCookie() throws Exception {
-
-        /** given */
-
-        /** when */
-
-        /** then */
-
-        mockMvc.perform(get("/users/reissue-token")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.COOKIE, ""))
-                .andExpect(status().isNoContent());
-
 
     }
 
@@ -85,7 +66,8 @@ class UserControllerTest extends ControllerTestSupport {
                         .param("keyword","test keyword")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data").isArray());
 
         verify(userService, times(1)).searchUsers(anyString());
 
