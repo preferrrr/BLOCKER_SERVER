@@ -1,6 +1,7 @@
 package com.blocker.blocker_server.user.service;
 
 import com.blocker.blocker_server.commons.jwt.JwtProvider;
+import com.blocker.blocker_server.user.exception.EmptyRefreshTokenException;
 import com.blocker.blocker_server.user.exception.InvalidRefreshTokenException;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.user.dto.response.SearchUserResponse;
@@ -67,5 +68,10 @@ public class UserServiceSupport {
 
     public String getNewRefreshTokenValue() {
         return UUID.randomUUID().toString().replaceAll("-", "");
+    }
+
+    public void checkIsEmptyRefreshToken(String cookie) {
+        if (cookie.isEmpty() || cookie.isBlank())
+            throw new EmptyRefreshTokenException();
     }
 }
