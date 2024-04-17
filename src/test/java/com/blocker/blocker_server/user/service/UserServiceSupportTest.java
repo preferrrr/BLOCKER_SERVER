@@ -4,24 +4,19 @@ import com.blocker.blocker_server.IntegrationTestSupport;
 import com.blocker.blocker_server.commons.jwt.JwtProvider;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.user.dto.response.SearchUserResponse;
-import com.blocker.blocker_server.user.exception.InvalidRefreshTokenException;
+import com.blocker.blocker_server.user.exception.EmptyRefreshTokenException;
 import com.blocker.blocker_server.user.exception.UserNotFoundException;
 import com.blocker.blocker_server.user.repository.UserRepository;
-import org.apache.kafka.common.protocol.types.Field;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceSupportTest extends IntegrationTestSupport {
 
@@ -178,6 +173,18 @@ class UserServiceSupportTest extends IntegrationTestSupport {
         /** then */
 
         assertThat(!result.contains("-")).isTrue();
+    }
+
+    @DisplayName("refresh token이 null 혹은 공백이면 EmptyRefreshTokenException을 던진다.")
+    @Test
+    void checkIsEmptyRefreshToken() {
+
+        /** given */
+
+        /** when then */
+
+        assertThatThrownBy(() -> userServiceSupport.checkIsEmptyRefreshToken(""))
+                .isInstanceOf(EmptyRefreshTokenException.class);
     }
 
 
