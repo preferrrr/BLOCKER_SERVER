@@ -4,6 +4,7 @@ import com.blocker.blocker_server.IntegrationTestSupport;
 import com.blocker.blocker_server.commons.jwt.JwtProvider;
 import com.blocker.blocker_server.signature.domain.Signature;
 import com.blocker.blocker_server.signature.exception.AlreadyHaveSignatureException;
+import com.blocker.blocker_server.signature.exception.SignatureNotFoundException;
 import com.blocker.blocker_server.signature.repository.SignatureRepository;
 import com.blocker.blocker_server.user.domain.User;
 import com.blocker.blocker_server.user.repository.UserRepository;
@@ -115,5 +116,19 @@ class SignatureServiceSupportTest extends IntegrationTestSupport {
 
     }
 
+    @DisplayName("전자서명이 없는데 조회하면, SignatureNotFoundException을 던진다.")
+    @Test
+    void getMySignatureException() {
+
+        /** given */
+        User user = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
+        userRepository.save(user);
+
+        /** when then */
+
+        assertThatThrownBy(() -> signatureServiceSupport.getMySignature(user))
+                .isInstanceOf(SignatureNotFoundException.class);
+
+    }
 
 }
