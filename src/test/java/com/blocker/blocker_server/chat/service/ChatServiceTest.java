@@ -52,7 +52,7 @@ class ChatServiceTest {
     @BeforeEach
     void setUp() {
         user = User.create("testEmail", "testName", "testPicture", "testValue", List.of("USER"));
-        user2 = User.create("testEmail2", "testName2", "testPicture", "testValue2",List.of("USER"));
+        user2 = User.create("testEmail2", "testName2", "testPicture", "testValue2", List.of("USER"));
         chatRoom = ChatRoom.create(LocalDateTime.of(2024, 1, 1, 12, 0));
     }
 
@@ -65,7 +65,7 @@ class ChatServiceTest {
         given(jwtProvider.getUsername(anyString())).willReturn("testName");
         willDoNothing().given(chatServiceSupport).saveChatMessage(any(ChatMessage.class));
         given(chatServiceSupport.getChatRoomById(anyLong())).willReturn(chatRoom);
-        willDoNothing().given(sender).send(anyString(), any(KafkaMessage.class));
+        willDoNothing().given(sender).send(anyString(), anyString(), any(KafkaMessage.class));
 
         SendMessageRequestDto request = SendMessageRequestDto.builder().content("testContent").build();
 
@@ -79,7 +79,7 @@ class ChatServiceTest {
         verify(jwtProvider, times(1)).getUsername(anyString());
         verify(chatServiceSupport, times(1)).saveChatMessage(any(ChatMessage.class));
         verify(chatServiceSupport, times(1)).getChatRoomById(anyLong());
-        verify(sender, times(1)).send(anyString(), any(KafkaMessage.class));
+        verify(sender, times(1)).send(anyString(), anyString(), any(KafkaMessage.class));
 
         assertThat(chatRoom.getLastChat()).isEqualTo("testContent");
     }
@@ -97,7 +97,7 @@ class ChatServiceTest {
 
         /** when */
 
-        chatService.createChatRoom(List.of("testEmail2","testEmail3"));
+        chatService.createChatRoom(List.of("testEmail2", "testEmail3"));
 
         /** then */
 
@@ -134,8 +134,8 @@ class ChatServiceTest {
         /** given */
 
         given(currentUserGetter.getCurrentUser()).willReturn(user);
-        willDoNothing().given(chatServiceSupport).checkIsChatParticipant(any(User.class),anyLong());
-        given(chatServiceSupport.getChatMessagesByChatRoomId(anyLong(),any(Pageable.class))).willReturn(mock(List.class));
+        willDoNothing().given(chatServiceSupport).checkIsChatParticipant(any(User.class), anyLong());
+        given(chatServiceSupport.getChatMessagesByChatRoomId(anyLong(), any(Pageable.class))).willReturn(mock(List.class));
         given(chatServiceSupport.createChatMessageResponseDto(anyList())).willReturn(mock(List.class));
 
         /** when */
