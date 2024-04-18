@@ -55,7 +55,7 @@ public class ChatService {
         KafkaMessage message = KafkaMessage.create(String.valueOf(chatRoomId), username, requestDto.getContent());
 
         //카프카로 메세지 전송
-        sender.send(KafkaChatConstant.KAFKA_TOPIC, message);
+        sender.send(KafkaChatConstant.KAFKA_TOPIC, String.valueOf(chatRoomId), message);
 
     }
 
