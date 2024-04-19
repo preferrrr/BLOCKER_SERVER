@@ -74,7 +74,7 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
                 .distinct()
                 .join(board.user, user).fetchJoin()
                 .join(board.contract, contract).fetchJoin()
-                .join(board.bookmarks, bookmark).fetchJoin()
+                .join(board.bookmarks, bookmark)
                 .where(bookmark.user.email.eq(me.getEmail()))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
