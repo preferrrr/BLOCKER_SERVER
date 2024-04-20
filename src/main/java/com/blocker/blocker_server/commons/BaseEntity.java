@@ -21,12 +21,12 @@ public class BaseEntity {
 
     @CreatedDate //엔티티가 생성되어 저장될 때 시간을 자동으로 저장
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    protected LocalDateTime createdAt;
 
     @LastModifiedDate // 엔티티의 값을 변경할 때 시간을 자동으로 저장
     @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
+    protected LocalDateTime modifiedAt;
 
     @ColumnDefault("'y'")
-    private String status;
+    protected String status;
 }
