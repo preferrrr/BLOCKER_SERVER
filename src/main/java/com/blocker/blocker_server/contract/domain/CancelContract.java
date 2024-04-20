@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +52,8 @@ public class CancelContract extends BaseEntity {
         this.title = title + "의 파기계약서";
         this.content = content + "을 파기하는데 동의합니다.";
         this.cancelContractState = CancelContractState.CANCELING;
+        this.createdAt = LocalDateTime.now();
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public static CancelContract create(User user, Contract contract, String title, String content) {

@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "AGREEMENT_SIGN")
 @Getter
@@ -44,6 +46,8 @@ public class AgreementSign extends BaseEntity {
         this.contract = contract;
         this.user = user;
         this.signState = SignState.N;
+        this.createdAt = LocalDateTime.now();
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public static AgreementSign create(User user, Contract contract) {

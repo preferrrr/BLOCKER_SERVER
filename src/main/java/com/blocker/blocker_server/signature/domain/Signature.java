@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Table(name = "SIGNATURE")
@@ -33,6 +35,8 @@ public class Signature extends BaseEntity {
                 .build();
         this.id = id;
         this.user = user;
+        this.createdAt = LocalDateTime.now();
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public static Signature create(User user, String signatureAddress) {

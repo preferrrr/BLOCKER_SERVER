@@ -18,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -72,6 +73,8 @@ public class User extends BaseEntity implements UserDetails {
         this.picture = picture;
         this.refreshtokenValue = refreshtokenValue;
         this.roles = roles;
+        this.createdAt = LocalDateTime.now();
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public static User create(String email, String name, String picture, String refreshtokenValue,List<String> roles) {
