@@ -54,6 +54,31 @@ public class BoardQueryRepository {
 
     }
 
+    public List<GetBoardListResponseDto> getMyBoardsByQuery(String me, Pageable pageable) {
+
+        JPAQuery<GetBoardListResponseDto> getMyBoardsDtoQuery = jpaQueryFactory
+                .select(Projections.fields(GetBoardListResponseDto.class,
+                        board.boardId,
+                        board.title,
+                        board.user.name,
+                        board.content,
+                        board.representImage,
+                        board.view,
+                        board.bookmarkCount,
+                        board.contract.contractState,
+                        board.createdAt,
+                        board.modifiedAt))
+                .from(board)
+                .join(board.user, user)
+                .join(board.contract, contract)
+                .where(board.user.email.eq(me))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        sort(getMyBoardsDtoQuery, pageable);
+
+        return getMyBoardsDtoQuery.fetch();
+    }
 
     private void sort(JPAQuery<?> query, Pageable pageable) {
         for (Sort.Order o : pageable.getSort()) {
