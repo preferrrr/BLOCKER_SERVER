@@ -68,19 +68,67 @@ class BoardQueryRepositoryTest {
         List<GetBoardListResponseDto> result = boardQueryRepository.getBoardListDtoByQuery(pageRequest);
 
         //then
-        GetBoardListResponseDto dto = result.get(0);
 
-        assertThat(dto.getBoardId()).isNotNull();
-        assertThat(dto.getName()).isNotNull();
-        assertThat(dto.getTitle()).isNotNull();
-        assertThat(dto.getContent()).isNotNull();
-        assertThat(dto.getContractState()).isNotNull();
-        assertThat(dto.getRepresentImage()).isNotNull();
-        assertThat(dto.getBookmarkCount()).isNotNull();
-        assertThat(dto.getView()).isNotNull();
-        assertThat(dto.getCreatedAt()).isNotNull();
-        assertThat(dto.getModifiedAt()).isNotNull();
+        assertThat(result.size()).isEqualTo(10);
+
+        for (int i = 0; i < result.size(); i++) {
+            GetBoardListResponseDto dto = result.get(0);
+
+            assertThat(dto.getBoardId()).isNotNull();
+            assertThat(dto.getName()).isNotNull();
+            assertThat(dto.getTitle()).isNotNull();
+            assertThat(dto.getContent()).isNotNull();
+            assertThat(dto.getContractState()).isNotNull();
+            assertThat(dto.getRepresentImage()).isNotNull();
+            assertThat(dto.getBookmarkCount()).isNotNull();
+            assertThat(dto.getView()).isNotNull();
+            assertThat(dto.getCreatedAt()).isNotNull();
+            assertThat(dto.getModifiedAt()).isNotNull();
+        }
+
 
     }
 
+    @Test
+    @DisplayName("내가 쓴 게시글 리스트를 dto로 조회하고, dto의 필드들은 null이 아니다.")
+    void 내가_쓴_게시글_리스트_dto_조회() {
+
+        //given
+        User me = User.create("email2@email.com", "name2", "picture", "my value", List.of("USER"));
+        userRepository.save(me);
+
+        Contract contract = Contract.create(me, "title", "content");
+        contractRepository.save(contract);
+
+        Board myBoard1 = Board.create(me, "title1", "content1", "image", "info", contract);
+        Board myBoard2 = Board.create(me, "title2", "content1", "image", "info", contract);
+        Board myBoard3 = Board.create(me, "title3", "content1", "image", "info", contract);
+        boardRepository.saveAll(List.of(myBoard1, myBoard2, myBoard3));
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+
+        //when
+        List<GetBoardListResponseDto> result = boardQueryRepository.getMyBoardsByQuery(me.getEmail(), pageRequest);
+
+        //then
+
+        assertThat(result.size()).isEqualTo(3);
+
+        for (int i = 0; i < result.size(); i++) {
+            GetBoardListResponseDto dto = result.get(0);
+
+            assertThat(dto.getBoardId()).isNotNull();
+            assertThat(dto.getName()).isNotNull();
+            assertThat(dto.getTitle()).isNotNull();
+            assertThat(dto.getContent()).isNotNull();
+            assertThat(dto.getContractState()).isNotNull();
+            assertThat(dto.getRepresentImage()).isNotNull();
+            assertThat(dto.getBookmarkCount()).isNotNull();
+            assertThat(dto.getView()).isNotNull();
+            assertThat(dto.getCreatedAt()).isNotNull();
+            assertThat(dto.getModifiedAt()).isNotNull();
+        }
+
+
+    }
 }
