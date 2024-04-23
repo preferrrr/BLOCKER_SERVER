@@ -22,77 +22,36 @@ BLOCKER는 비대면 전자 계약 플랫폼으로, 프라이빗 블록체인(�
 </br>
 
 
-## 기술 스택
-- Springboot 3.1.1
-- Spring Security
-    - jwt
-- Spring Data JPA
+## Skills
+
+- Springboot 3.1.1, Spring Security (jwt), Spring Data Jpa
 - QueryDSL
 - JUnit5
 - Kafka
 - WebSocket (stomp)
-- DB
-    - MongoDB
-    - MySql
-- AWS
-    - EC2
-    - RDS
-    - S3
-- NGINX
-    - load balancing
-    - https
+- MySQL, MongoDB
+- AWS EC2, RDS, S3, Route 53
+- nginx load balancing, https
 
 </br>
 
-## Goal
 
-- 계약서에 참여자들이 모두 서명하면 계약이 체결됩니다.
-- 체결된 계약서를 파기할 수 있습니다.
-- ios와 웹에서 모두 사용하도록 합니다.
-- 테스트 커버리지 80%를 목표로 테스트 코드를 작성합니다.
-- 실시간 단체 채팅을 구현합니다.
-- 이미지를 클라우드 서버에 저장합니다.
-- 서버를 로드밸런싱 합니다.
-- AWS 배포 후 도메인과 https를 적용합니다.
+## 주요 사항
 
-</br>
-
-## Challenge
-
-- 계약서의 상태를 미체결, 진행 중, 체결, 파기 4가지로 분류
-  - enum으로 계약서의 상태를 구분
-  - 계약을 진행하면 계약서의 상태가 ‘진행 중’으로 바뀌고 참여자들의 서명 상태가 DB에 저장되고, 모두 서명할 시 계약서의 상태가 ‘체결’로 바뀜
-- ios와 웹 모두 같은 인가 방식을 사용하기 위해 **JWT**로 선택
-  - ios에서 웹 뷰를 쓰는 것이 아니므로 세션 방식 사용이 어려움
-  - 또한 **JWT를 사용하는 것이 확장성 측면에서 유리**하다고 판단
-- 모든 비즈니스 로직의 단위 테스트 코드를 작성하여 **라인 커버리지 80프로**까지 작성
-  - Mocking 하지 않고 실제 데이터를 사용한 테스트 중 fetch join에서 문제 발생
-    - 트랜잭션 중첩과 JPA의 1차 캐시에 의한 것이었고,
-      **@AfterEach**로 DB를 리셋하여 문제 해결
-    - 테스트 또한 유지 보수의 대상과 비용이기 때문에, 성능을 고려하여 **deleteAllInBatch()**로 리셋
-    - [**https://prefercoding.tistory.com/42**](https://prefercoding.tistory.com/42)
-- 게시글의 이미지 저장을 **AWS S3**에 저장
-  - 응답 시간이 오래 걸리는 문제가 있음
-  - github의 issue에서 이미지를 업로드하는 것과 같은 방식으로, 이미지 업로드 api를 따로 만들어 게시글 저장과 따로 처리함
-- 서버에 docker를 사용해서 스프링 인스턴스 2개를 실행하고, **nginx의 리버스 프록시를 사용하여 로드 밸런싱**
-- 실시간 단체 채팅 기능을 구현하기 위해 **STOMP** 프로토콜 사용
-  - 종종 채팅이 전달되지 않는 문제 발견
-    - 스프링 인스턴스들은 nginx로 로드 밸런싱 되고 있으며,
-      STOMP의 pub/sub 구조에서 **구독 정보는 각 인스턴스끼리 공유되지 않기 때문**
-  - **Kafka**를 사용하여 메시지를 Kafka Topic으로 보내고, 각 인스턴스의 group id를 다르게 사용하여 해결
-- 채팅 메시지를 영구 저장하기 위해 **MongoDB** 사용
-- MySQL Replication으로 DB Master-Slave 구축
-  - [**https://prefercoding.tistory.com/51**](https://prefercoding.tistory.com/51)
-- 분산된 서버와 DB에서의 동시성 문제
-  - [**https://prefercoding.tistory.com/66**](https://prefercoding.tistory.com/66)
-- 가비아에서 도메인 구입 후 AWS의 Route 53으로 도메인을 적용
-- nginx와 certbot을 사용하여 https 적용
-
+- [QueryDSL 성능 최적화와 테스트](https://prefercoding.tistory.com/67) **🔗**
+- [분산된 서버와 DB에서의 동시성 문제를 Redis 분산락으로 해결](https://prefercoding.tistory.com/66) **🔗**
+- [MySQL Replication으로 DB Master-Slave 구축](https://prefercoding.tistory.com/51) **🔗**
+- [테스트 코드 작성 중 fetch join 문제](https://prefercoding.tistory.com/42) **🔗**
+- 분산 서버에서 실시간 단체 채팅을 위해 **Kafka** 사용
+- 계약서의 상태를 **enum**으로 구분하며 계약 진행
+- 확장성과 ios와 웹 모두 같은 인가 방식을 사용하기 위해 **JWT**로 선택
+- nginx의 리버스 프록시를 사용하여 **로드 밸런싱**
+- 채팅 메시지를 영구 저장하기 위해 **MongoDB** 사용
 </br>
 
 
 ## 아키텍처 구조
-![아키텍쳐3](https://github.com/preferrrr/BLOCKER_SERVER/assets/99793526/49dfab42-c702-4c8c-a796-6f218e016325)
+![image](https://github.com/preferrrr/BLOCKER_SERVER/assets/99793526/25c6a38f-b0e1-4cc3-8717-fa90a037d24d)
 
 ## Rest API 명세서
 - [API 명세서 구글시트](https://docs.google.com/spreadsheets/d/1DFMd0ERGCjn0O0FpOp1oUvjnTeKOAhN43ziPQ3hMcdg/edit#gid=2006977463) 
