@@ -40,7 +40,6 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
 
         JPAQuery<Board> getBoardListQuery = jpaQueryFactory
                 .selectFrom(board)
-                .distinct()
                 .join(board.user, user).fetchJoin()
                 .join(board.contract, contract).fetchJoin()
                 .offset(pageable.getOffset())
@@ -71,7 +70,6 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
     public List<Board> getBookmarkBoards(User me, Pageable pageable) {
         JPAQuery<Board> getBookmarkBoardsQuery = jpaQueryFactory
                 .selectFrom(board)
-                .distinct()
                 .join(board.user, user).fetchJoin()
                 .join(board.contract, contract).fetchJoin()
                 .join(board.bookmarks, bookmark)
@@ -88,7 +86,6 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom{
     public List<Board> getMyBoards(String me, Pageable pageable) {
         JPAQuery<Board> getMyBoardsQuery = jpaQueryFactory
                 .selectFrom(board)
-                .distinct()
                 .join(board.user, user).fetchJoin()
                 .join(board.contract, contract).fetchJoin()
                 .where(board.user.email.eq(me))
