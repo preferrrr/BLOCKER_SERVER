@@ -2,6 +2,7 @@ package com.blocker.blocker_server.board.service;
 
 import com.blocker.blocker_server.board.domain.Board;
 import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
+import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDtoInterface;
 import com.blocker.blocker_server.board.exception.BoardNotFoundException;
 import com.blocker.blocker_server.board.exception.UnauthorizedDeleteBoardException;
 import com.blocker.blocker_server.board.exception.UnauthorizedModifyBoardException;
@@ -93,5 +94,9 @@ public class BoardServiceSupport {
 
     public List<Board> getMyBoards(String me, Pageable pageable) {
         return boardRepository.getMyBoards(me, pageable);
+    }
+
+    public List<GetBoardListResponseDtoInterface> getBoardsByNativeQuery(Pageable pageable) {
+        return boardRepository.getBoardListDtosWithUseIndex(pageable.getPageSize(), pageable.getPageNumber());
     }
 }

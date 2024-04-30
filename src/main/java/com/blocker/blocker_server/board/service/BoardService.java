@@ -6,6 +6,7 @@ import com.blocker.blocker_server.Image.domain.Image;
 import com.blocker.blocker_server.board.dto.request.ModifyBoardRequestDto;
 import com.blocker.blocker_server.board.dto.request.SaveBoardRequestDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
+import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDtoInterface;
 import com.blocker.blocker_server.board.dto.response.GetBoardResponseDto;
 import com.blocker.blocker_server.Image.dto.response.ImageDto;
 import com.blocker.blocker_server.commons.utils.CurrentUserGetter;
@@ -146,12 +147,9 @@ public class BoardService {
     }
 
 
-
-
-
-
-
-
+    public List<GetBoardListResponseDtoInterface> getBoardsByNativeQuery(Pageable pageable) {
+        return boardServiceSupport.getBoardsByNativeQuery(pageable);
+    }
 }
 
 

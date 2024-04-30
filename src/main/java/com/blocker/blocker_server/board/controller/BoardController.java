@@ -1,5 +1,6 @@
 package com.blocker.blocker_server.board.controller;
 
+import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDtoInterface;
 import com.blocker.blocker_server.board.repository.BoardQueryRepository;
 import com.blocker.blocker_server.board.service.BoardService;
 import com.blocker.blocker_server.board.dto.request.ModifyBoardRequestDto;
@@ -27,17 +28,16 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
-    private final BoardQueryRepository boardQueryRepository;
 
     /**
      * 메인페이지 게시글 리스트
      * /boards
      */
     @GetMapping("")
-    public ResponseEntity<ListResponse<GetBoardListResponseDto>> getBoards(@PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<ListResponse<GetBoardListResponseDtoInterface>> getBoards(@PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         return ResponseEntity.ok(
-                ListResponse.ok(boardQueryRepository.getBoardListDtoByQuery(pageable))
+                ListResponse.ok(boardService.getBoardsByNativeQuery(pageable))
         );
     }
 
