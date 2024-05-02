@@ -38,12 +38,12 @@ BLOCKER는 비대면 전자 계약 플랫폼으로, 프라이빗 블록체인(�
 
 ## 주요 사항
 
-- [QueryDSL 성능 최적화와 테스트](https://prefercoding.tistory.com/67) **🔗**
+- [QueryDSL을 사용하여 성능 최적화와 테스트](https://prefercoding.tistory.com/67) **🔗**
+- [실행 계획 분석 및 쿼리 튜닝](https://prefercoding.tistory.com/68) **🔗**
 - [분산된 서버와 DB에서의 동시성 문제를 Redis 분산락으로 해결](https://prefercoding.tistory.com/66) **🔗**
 - [MySQL Replication으로 DB Master-Slave 구축](https://prefercoding.tistory.com/51) **🔗**
 - [테스트 코드 작성 중 fetch join 문제](https://prefercoding.tistory.com/42) **🔗**
 - 분산 서버에서 실시간 단체 채팅을 위해 **Kafka** 사용
-- 계약서의 상태를 **enum**으로 구분하며 계약 진행
 - 확장성과 ios와 웹 모두 같은 인가 방식을 사용하기 위해 **JWT**로 선택
 - nginx의 리버스 프록시를 사용하여 **로드 밸런싱**
 - 채팅 메시지를 영구 저장하기 위해 **MongoDB** 사용
