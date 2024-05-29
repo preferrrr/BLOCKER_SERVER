@@ -1,12 +1,13 @@
-package com.blocker.blocker_server.commons.response;
+package com.blocker.blocker_server.commons.response.response_code;
 
+import com.blocker.blocker_server.commons.response.SuccessCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum CancelSignResponseCode implements SuccessCode{
+public enum CancelSignResponseCode implements SuccessCode {
 
     POST_CANCEL_SIGN(HttpStatus.CREATED, "파기 계약 진행에 성공헀습니다."),
     SIGN_CANCEL_CONTRACT(HttpStatus.OK, "파기 계약 서명에 성공했습니다.");

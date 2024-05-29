@@ -1,5 +1,6 @@
-package com.blocker.blocker_server.commons.response;
+package com.blocker.blocker_server.commons.response.response_code;
 
+import com.blocker.blocker_server.commons.response.SuccessCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
