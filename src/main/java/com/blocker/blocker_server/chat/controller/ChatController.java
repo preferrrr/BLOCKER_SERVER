@@ -6,21 +6,19 @@ import com.blocker.blocker_server.chat.service.ChatService;
 import com.blocker.blocker_server.chat.dto.request.SendMessageRequestDto;
 import com.blocker.blocker_server.chat.dto.request.CreateChatRoomRequestDto;
 import com.blocker.blocker_server.chat.dto.response.GetChatRoomListDto;
-import com.blocker.blocker_server.commons.response.BaseResponse;
-import com.blocker.blocker_server.commons.response.ListResponse;
-import com.blocker.blocker_server.commons.response.SingleResponse;
+import com.blocker.blocker_server.commons.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import static com.blocker.blocker_server.commons.response.response_code.ChatResponseCode.*;
 
 
 @Controller
@@ -44,23 +42,22 @@ public class ChatController {
      * /chatrooms
      */
     @PostMapping("/chatrooms")
-    public ResponseEntity<BaseResponse> createRoom(@RequestBody @Valid CreateChatRoomRequestDto createChatRoomRequestDto) {
+    public ApiResponse createRoom(@RequestBody @Valid CreateChatRoomRequestDto createChatRoomRequestDto) {
 
         chatService.createChatRoom(createChatRoomRequestDto.getChatUsers());
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(BaseResponse.of(HttpStatus.CREATED));
+        return ApiResponse.of(POST_CHAT_ROOM);
     }
 
     /**
      * 채팅방 리스트 조회
      */
     @GetMapping("/chatrooms")
-    public ResponseEntity<ListResponse<GetChatRoomListDto>> getChatRooms() {
+    public ApiResponse<GetChatRoomListDto> getChatRooms() {
 
-        return ResponseEntity.ok(
-                ListResponse.ok(chatService.getChatRooms())
+        return ApiResponse.of(
+                chatService.getChatRooms(),
+                GET_CHAT_ROOM_LIST
         );
     }
 
@@ -68,11 +65,12 @@ public class ChatController {
      * 채팅방 메세지 조회
      */
     @GetMapping("/chatrooms/{chatRoomId}")
-    public ResponseEntity<ListResponse<GetChatMessagesResponseDto>> getMessages(@PathVariable("chatRoomId") Long chatRoomId,
-                                                                                @PageableDefault(size = 20, sort = "sendAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ApiResponse<GetChatMessagesResponseDto> getMessages(@PathVariable("chatRoomId") Long chatRoomId,
+                                                               @PageableDefault(size = 20, sort = "sendAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return ResponseEntity.ok(
-                ListResponse.ok(chatService.getMessages(chatRoomId, pageable))
+        return ApiResponse.of(
+                chatService.getMessages(chatRoomId, pageable),
+                GET_CHAT_MESSAGES
         );
     }
 
@@ -80,10 +78,11 @@ public class ChatController {
      * 게시글에서 작성자와 1:1 채팅
      */
     @GetMapping("/chatrooms/boards/{boardId}")
-    public ResponseEntity<SingleResponse<GetOneToOneChatRoomResponse>> getOneToOneChatRoom(@PathVariable("boardId") Long boardId) {
+    public ApiResponse<GetOneToOneChatRoomResponse> getOneToOneChatRoom(@PathVariable("boardId") Long boardId) {
 
-        return ResponseEntity.ok(
-                SingleResponse.ok(chatService.getOneToOneChatRoomId(boardId))
+        return ApiResponse.of(
+                chatService.getOneToOneChatRoomId(boardId),
+                GET_CHAT_ROOM_ID
         );
     }
 

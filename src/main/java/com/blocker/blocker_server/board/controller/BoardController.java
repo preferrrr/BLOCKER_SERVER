@@ -1,26 +1,19 @@
 package com.blocker.blocker_server.board.controller;
 
-import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDtoInterface;
-import com.blocker.blocker_server.board.repository.BoardQueryRepository;
 import com.blocker.blocker_server.board.service.BoardService;
 import com.blocker.blocker_server.board.dto.request.ModifyBoardRequestDto;
 import com.blocker.blocker_server.board.dto.request.SaveBoardRequestDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardListResponseDto;
 import com.blocker.blocker_server.board.dto.response.GetBoardResponseDto;
-import com.blocker.blocker_server.commons.response.BaseResponse;
-import com.blocker.blocker_server.commons.response.ListResponse;
-import com.blocker.blocker_server.commons.response.SingleResponse;
+import com.blocker.blocker_server.commons.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import static com.blocker.blocker_server.commons.response.response_code.BoardResponseCode.*;
 
 @RestController
 @RequestMapping("/boards")
@@ -34,10 +27,11 @@ public class BoardController {
      * /boards
      */
     @GetMapping("")
-    public ResponseEntity<ListResponse<GetBoardListResponseDtoInterface>> getBoards(@PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ApiResponse<GetBoardListResponseDto> getBoards(@PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return ResponseEntity.ok(
-                ListResponse.ok(boardService.getBoardsByNativeQuery(pageable))
+        return ApiResponse.of(
+                boardService.getBoards(pageable),
+                GET_MY_BOARD_LIST
         );
     }
 
@@ -46,10 +40,11 @@ public class BoardController {
      * /boards/{boardId}
      */
     @GetMapping("/{boardId}")
-    public ResponseEntity<SingleResponse<GetBoardResponseDto>> getBoard(@PathVariable("boardId") Long boardId) {
+    public ApiResponse<GetBoardResponseDto> getBoard(@PathVariable("boardId") Long boardId) {
 
-        return ResponseEntity.ok(
-                SingleResponse.ok(boardService.getBoard(boardId))
+        return ApiResponse.of(
+                boardService.getBoard(boardId),
+                GET_BOARD
         );
 
     }
@@ -59,13 +54,11 @@ public class BoardController {
      * /boards
      */
     @PostMapping("")
-    public ResponseEntity<BaseResponse> saveBoard(@RequestBody @Valid SaveBoardRequestDto requestDto) {
+    public ApiResponse saveBoard(@RequestBody @Valid SaveBoardRequestDto requestDto) {
 
         boardService.saveBoard(requestDto);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(BaseResponse.of(HttpStatus.CREATED)) ;
+        return ApiResponse.of(POST_BOARD);
     }
 
 
@@ -74,11 +67,11 @@ public class BoardController {
      * /boards
      */
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<BaseResponse> deleteBoard(@PathVariable("boardId") Long boardId) {
+    public ApiResponse deleteBoard(@PathVariable("boardId") Long boardId) {
 
         boardService.deleteBoard(boardId);
 
-        return ResponseEntity.ok(BaseResponse.ok());
+        return ApiResponse.of(DELETE_BOARD);
     }
 
     /**
@@ -86,12 +79,12 @@ public class BoardController {
      * /boards/{boardId}
      */
     @PatchMapping("/{boardId}")
-    public ResponseEntity<BaseResponse> modifyBoard(@PathVariable("boardId") Long boardId,
-                                                  @RequestBody @Valid ModifyBoardRequestDto requestDto) {
+    public ApiResponse modifyBoard(@PathVariable("boardId") Long boardId,
+                                   @RequestBody @Valid ModifyBoardRequestDto requestDto) {
 
         boardService.modifyBoard(boardId, requestDto);
 
-        return ResponseEntity.ok(BaseResponse.ok());
+        return ApiResponse.of(MODIFY_BOARD);
 
     }
 
@@ -100,10 +93,11 @@ public class BoardController {
      * /boards/my-boards
      */
     @GetMapping("/my-boards")
-    public ResponseEntity<ListResponse<GetBoardListResponseDto>> getMyBoards(@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ApiResponse<GetBoardListResponseDto> getMyBoards(@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return ResponseEntity.ok(
-                ListResponse.ok(boardService.getMyBoards(pageable))
+        return ApiResponse.of(
+                boardService.getMyBoards(pageable),
+                GET_MY_BOARD_LIST
         );
     }
 }

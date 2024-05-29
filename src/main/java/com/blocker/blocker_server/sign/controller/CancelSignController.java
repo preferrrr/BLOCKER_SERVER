@@ -1,13 +1,11 @@
 package com.blocker.blocker_server.sign.controller;
 
-import com.blocker.blocker_server.commons.response.BaseResponse;
+import com.blocker.blocker_server.commons.response.ApiResponse;
 import com.blocker.blocker_server.sign.service.CancelSignService;
-import com.blocker.blocker_server.user.domain.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import static com.blocker.blocker_server.commons.response.response_code.CancelSignResponseCode.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -20,14 +18,11 @@ public class CancelSignController {
      * 파기 계약 진행
      */
     @PostMapping("/contract/{contractId}")
-    public ResponseEntity<BaseResponse> cancelContract(@PathVariable("contractId") Long contractId) {
+    public ApiResponse cancelContract(@PathVariable("contractId") Long contractId) {
 
         cancelSignService.cancelContract(contractId);
 
-        return new ResponseEntity<>(
-                BaseResponse.of(HttpStatus.CREATED),
-                HttpStatus.CREATED
-        );
+        return ApiResponse.of(POST_CANCEL_SIGN);
     }
 
     /**
@@ -35,11 +30,11 @@ public class CancelSignController {
      * /cancel-signs/cancel-contract/{contractId}
      */
     @PatchMapping("/cancel-contract/{contractId}")
-    public ResponseEntity<BaseResponse> signContract(@PathVariable("contractId") Long cancelContractId) {
+    public ApiResponse signContract(@PathVariable("contractId") Long cancelContractId) {
 
         cancelSignService.signCancelContract(cancelContractId);
 
-        return ResponseEntity.ok(BaseResponse.ok());
+        return ApiResponse.of(SIGN_CANCEL_CONTRACT);
     }
 
 }

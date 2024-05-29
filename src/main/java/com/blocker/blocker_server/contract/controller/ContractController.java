@@ -1,8 +1,6 @@
 package com.blocker.blocker_server.contract.controller;
 
-import com.blocker.blocker_server.commons.response.BaseResponse;
-import com.blocker.blocker_server.commons.response.ListResponse;
-import com.blocker.blocker_server.commons.response.SingleResponse;
+import com.blocker.blocker_server.commons.response.ApiResponse;
 import com.blocker.blocker_server.contract.dto.request.ModifyContractRequestDto;
 import com.blocker.blocker_server.contract.dto.response.GetConcludeContractResponseDto;
 import com.blocker.blocker_server.contract.service.ContractService;
@@ -13,9 +11,9 @@ import com.blocker.blocker_server.contract.dto.response.GetProceedContractRespon
 import com.blocker.blocker_server.contract.exception.InvalidContractStateException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static com.blocker.blocker_server.commons.response.response_code.ContractResponseCode.*;
 
 
 @RestController
@@ -30,14 +28,11 @@ public class ContractController {
      * /contracts
      */
     @PostMapping("")
-    public ResponseEntity<BaseResponse> saveContract(@RequestBody @Valid SaveContractRequestDto requestDto) {
+    public ApiResponse saveContract(@RequestBody @Valid SaveContractRequestDto requestDto) {
 
         contractService.saveContract(requestDto);
 
-        return new ResponseEntity<>(
-                BaseResponse.of(HttpStatus.CREATED),
-                HttpStatus.CREATED
-        );
+        return ApiResponse.of(SAVE_CONTRACT);
     }
 
     /**
@@ -45,14 +40,12 @@ public class ContractController {
      * /contracts/{contractId}
      */
     @PatchMapping("/{contractId}")
-    public ResponseEntity<BaseResponse> modifyContract(@RequestBody @Valid ModifyContractRequestDto requestDto,
+    public ApiResponse modifyContract(@RequestBody @Valid ModifyContractRequestDto requestDto,
                                                        @PathVariable Long contractId) {
 
         contractService.modifyContract(contractId, requestDto);
 
-        return ResponseEntity.ok(
-                BaseResponse.ok()
-        );
+        return ApiResponse.of(MODIFY_CONTRACT);
     }
 
 
@@ -61,13 +54,14 @@ public class ContractController {
      * /contracts
      */
     @GetMapping("")
-    public ResponseEntity<ListResponse<GetContractResponseDto>> getContracts(@RequestParam(name = "state") ContractState state) {
+    public ApiResponse<GetContractResponseDto> getContracts(@RequestParam(name = "state") ContractState state) {
 
         if (!state.equals(ContractState.PROCEED) && !state.equals(ContractState.NOT_PROCEED) && !state.equals(ContractState.CONCLUDE))
             throw new InvalidContractStateException();
 
-        return ResponseEntity.ok(
-                ListResponse.ok(contractService.getContracts(state))
+        return ApiResponse.of(
+                contractService.getContracts(state),
+                GET_CONTRACT_LIST
         );
     }
 
@@ -76,10 +70,11 @@ public class ContractController {
      * /contracts/not-proceed/{contractId}
      */
     @GetMapping("/not-proceed/{contractId}")
-    public ResponseEntity<SingleResponse<GetContractResponseDto>> getContract(@PathVariable("contractId") Long contractId) {
+    public ApiResponse<GetContractResponseDto> getContract(@PathVariable("contractId") Long contractId) {
 
-        return ResponseEntity.ok(
-                SingleResponse.ok(contractService.getNotProceedContract(contractId))
+        return ApiResponse.of(
+                contractService.getNotProceedContract(contractId),
+                GET_NOT_PROCEED_CONTRACT
         );
     }
 
@@ -88,11 +83,11 @@ public class ContractController {
      * /contracts/{contractId}
      */
     @DeleteMapping("/{contractId}")
-    public ResponseEntity<BaseResponse> deleteContract(@PathVariable("contractId") Long contractId) {
+    public ApiResponse deleteContract(@PathVariable("contractId") Long contractId) {
 
         contractService.deleteContract(contractId);
 
-        return ResponseEntity.ok(BaseResponse.ok());
+        return ApiResponse.of(DELETE_CONTRACT);
     }
 
     /**
@@ -100,10 +95,11 @@ public class ContractController {
      * /contracts/proceed/{contractId}
      */
     @GetMapping("/proceed/{contractId}")
-    public ResponseEntity<SingleResponse<GetProceedContractResponseDto>> getProceedContract(@PathVariable("contractId") Long contractId) {
+    public ApiResponse<GetProceedContractResponseDto> getProceedContract(@PathVariable("contractId") Long contractId) {
 
-        return ResponseEntity.ok(
-                SingleResponse.ok(contractService.getProceedContract(contractId))
+        return ApiResponse.of(
+                contractService.getProceedContract(contractId),
+                GET_PROCEED_CONTRACT
         );
     }
 
@@ -112,10 +108,11 @@ public class ContractController {
      * /contracts/with-boards/{contractId}
      */
     @DeleteMapping("/with-boards/{contractId}")
-    public ResponseEntity<BaseResponse> deleteContractWithBoards(@PathVariable("contractId") Long contractId) {
+    public ApiResponse deleteContractWithBoards(@PathVariable("contractId") Long contractId) {
+
         contractService.deleteContractWithBoards(contractId);
 
-        return ResponseEntity.ok(BaseResponse.ok());
+        return ApiResponse.of(DELETE_CONTRACT_WITH_BOARD);
     }
 
     /**
@@ -123,10 +120,11 @@ public class ContractController {
      * /contracts/conclude/{contractId}
      */
     @GetMapping("/conclude/{contractId}")
-    public ResponseEntity<SingleResponse<GetConcludeContractResponseDto>> getConcludeContract(@PathVariable("contractId") Long contractId) {
+    public ApiResponse<GetConcludeContractResponseDto> getConcludeContract(@PathVariable("contractId") Long contractId) {
 
-        return ResponseEntity.ok(
-                SingleResponse.ok(contractService.getConcludeContract(contractId))
+        return ApiResponse.of(
+                contractService.getConcludeContract(contractId),
+                GET_CONCLUDE_CONTRACT
         );
     }
 

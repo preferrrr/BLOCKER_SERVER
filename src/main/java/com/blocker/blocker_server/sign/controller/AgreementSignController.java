@@ -1,15 +1,13 @@
 package com.blocker.blocker_server.sign.controller;
 
-import com.blocker.blocker_server.commons.response.BaseResponse;
+import com.blocker.blocker_server.commons.response.ApiResponse;
 import com.blocker.blocker_server.sign.dto.request.ProceedSignRequestDto;
 import com.blocker.blocker_server.sign.service.AgreementSignService;
-import com.blocker.blocker_server.user.domain.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import static com.blocker.blocker_server.commons.response.response_code.AgreementSignResponseCode.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,14 +28,11 @@ public class AgreementSignController {
      * /signs
      */
     @PostMapping("")
-    public ResponseEntity<BaseResponse> proceedContract(@RequestBody @Valid ProceedSignRequestDto request) {
+    public ApiResponse proceedContract(@RequestBody @Valid ProceedSignRequestDto request) {
 
         agreementSignService.proceedContract(request);
 
-        return new ResponseEntity<>(
-                BaseResponse.of(HttpStatus.CREATED),
-                HttpStatus.CREATED
-        );
+        return ApiResponse.of(POST_SIGN);
     }
 
 
@@ -46,11 +41,11 @@ public class AgreementSignController {
      * /signs/contract/{contractId}
      */
     @PatchMapping("/contract/{contractId}")
-    public ResponseEntity<BaseResponse> signContract(@PathVariable("contractId") Long contractId) {
+    public ApiResponse signContract(@PathVariable("contractId") Long contractId) {
 
         agreementSignService.signContract(contractId);
 
-        return ResponseEntity.ok(BaseResponse.ok());
+        return ApiResponse.of(SIGN_CONTRACT);
     }
 
     /**
@@ -58,11 +53,11 @@ public class AgreementSignController {
      * /signs/contract/{contractId}
      */
     @DeleteMapping("/contract/{contractId}")
-    public ResponseEntity<BaseResponse> breakContract(@PathVariable("contractId") Long contractId) {
+    public ApiResponse breakContract(@PathVariable("contractId") Long contractId) {
 
         agreementSignService.breakContract(contractId);
 
-        return ResponseEntity.ok(BaseResponse.ok());
+        return ApiResponse.of(DELETE_CONTRACT);
 
     }
 
