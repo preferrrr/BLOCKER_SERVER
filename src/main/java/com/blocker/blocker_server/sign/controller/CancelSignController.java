@@ -18,7 +18,7 @@ public class CancelSignController {
      * 파기 계약 진행
      */
     @PostMapping("/contract/{contractId}")
-    public ApiResponse cancelContract(@PathVariable("contractId") Long contractId) {
+    public ApiResponse<Void> cancelContract(@PathVariable("contractId") Long contractId) {
 
         cancelSignService.cancelContract(contractId);
 
@@ -30,7 +30,7 @@ public class CancelSignController {
      * /cancel-signs/cancel-contract/{contractId}
      */
     @PatchMapping("/cancel-contract/{contractId}")
-    public ApiResponse signContract(@PathVariable("contractId") Long cancelContractId) {
+    public ApiResponse<Void> signContract(@PathVariable("contractId") Long cancelContractId) {
 
         cancelSignService.signCancelContract(cancelContractId);
 

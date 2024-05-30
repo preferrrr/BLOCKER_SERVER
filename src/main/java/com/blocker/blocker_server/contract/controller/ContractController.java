@@ -28,7 +28,7 @@ public class ContractController {
      * /contracts
      */
     @PostMapping("")
-    public ApiResponse saveContract(@RequestBody @Valid SaveContractRequestDto requestDto) {
+    public ApiResponse<Void> saveContract(@RequestBody @Valid SaveContractRequestDto requestDto) {
 
         contractService.saveContract(requestDto);
 
@@ -40,7 +40,7 @@ public class ContractController {
      * /contracts/{contractId}
      */
     @PatchMapping("/{contractId}")
-    public ApiResponse modifyContract(@RequestBody @Valid ModifyContractRequestDto requestDto,
+    public ApiResponse<Void> modifyContract(@RequestBody @Valid ModifyContractRequestDto requestDto,
                                                        @PathVariable Long contractId) {
 
         contractService.modifyContract(contractId, requestDto);
@@ -83,7 +83,7 @@ public class ContractController {
      * /contracts/{contractId}
      */
     @DeleteMapping("/{contractId}")
-    public ApiResponse deleteContract(@PathVariable("contractId") Long contractId) {
+    public ApiResponse<Void> deleteContract(@PathVariable("contractId") Long contractId) {
 
         contractService.deleteContract(contractId);
 
@@ -108,7 +108,7 @@ public class ContractController {
      * /contracts/with-boards/{contractId}
      */
     @DeleteMapping("/with-boards/{contractId}")
-    public ApiResponse deleteContractWithBoards(@PathVariable("contractId") Long contractId) {
+    public ApiResponse<Void> deleteContractWithBoards(@PathVariable("contractId") Long contractId) {
 
         contractService.deleteContractWithBoards(contractId);
 

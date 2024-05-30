@@ -28,7 +28,7 @@ public class SignatureController {
     }
 
     @PatchMapping("")
-    public ApiResponse modifySignature(@RequestPart("signature") MultipartFile file) throws IOException {
+    public ApiResponse<Void> modifySignature(@RequestPart("signature") MultipartFile file) throws IOException {
 
         signatureService.modifySignature(file);
 

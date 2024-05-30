@@ -42,7 +42,7 @@ public class ChatController {
      * /chatrooms
      */
     @PostMapping("/chatrooms")
-    public ApiResponse createRoom(@RequestBody @Valid CreateChatRoomRequestDto createChatRoomRequestDto) {
+    public ApiResponse<Void> createRoom(@RequestBody @Valid CreateChatRoomRequestDto createChatRoomRequestDto) {
 
         chatService.createChatRoom(createChatRoomRequestDto.getChatUsers());
 

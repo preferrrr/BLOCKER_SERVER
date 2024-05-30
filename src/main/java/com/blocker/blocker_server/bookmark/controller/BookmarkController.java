@@ -21,7 +21,7 @@ public class BookmarkController {
     private final BookmarkService bookmarkService;
 
     @PostMapping("")
-    public ApiResponse saveBookmark(@RequestBody @Valid SaveBookmarkRequestDto requestDto) {
+    public ApiResponse<Void> saveBookmark(@RequestBody @Valid SaveBookmarkRequestDto requestDto) {
 
         bookmarkService.saveBookmark(requestDto);
 
@@ -30,7 +30,7 @@ public class BookmarkController {
     }
 
     @DeleteMapping("/{boardId}")
-    public ApiResponse deleteBookmark(@PathVariable("boardId") Long boardId) {
+    public ApiResponse<Void> deleteBookmark(@PathVariable("boardId") Long boardId) {
 
         bookmarkService.deleteBookmark(boardId);
 

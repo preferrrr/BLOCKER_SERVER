@@ -26,7 +26,7 @@ public class ApiResponse<T> extends ResponseEntity {
         super(new ResponseMessageDto(successCode.getMessage()), httpHeaders, successCode.getHttpStatus());
     }
 
-    public static ApiResponse of(final SuccessCode successCode) {
+    public static ApiResponse<Void> of(final SuccessCode successCode) {
         return new ApiResponse<>(successCode);
     }
 
@@ -39,6 +39,6 @@ public class ApiResponse<T> extends ResponseEntity {
     }
 
     public static ApiResponse<HttpHeaders> of(final HttpHeaders headers, final SuccessCode successCode) {
-        return new ApiResponse(headers, successCode);
+        return new ApiResponse<>(headers, successCode);
     }
 }

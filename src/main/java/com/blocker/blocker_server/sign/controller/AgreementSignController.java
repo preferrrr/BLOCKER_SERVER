@@ -28,7 +28,7 @@ public class AgreementSignController {
      * /signs
      */
     @PostMapping("")
-    public ApiResponse proceedContract(@RequestBody @Valid ProceedSignRequestDto request) {
+    public ApiResponse<Void> proceedContract(@RequestBody @Valid ProceedSignRequestDto request) {
 
         agreementSignService.proceedContract(request);
 
@@ -41,7 +41,7 @@ public class AgreementSignController {
      * /signs/contract/{contractId}
      */
     @PatchMapping("/contract/{contractId}")
-    public ApiResponse signContract(@PathVariable("contractId") Long contractId) {
+    public ApiResponse<Void> signContract(@PathVariable("contractId") Long contractId) {
 
         agreementSignService.signContract(contractId);
 
@@ -53,7 +53,7 @@ public class AgreementSignController {
      * /signs/contract/{contractId}
      */
     @DeleteMapping("/contract/{contractId}")
-    public ApiResponse breakContract(@PathVariable("contractId") Long contractId) {
+    public ApiResponse<Void> breakContract(@PathVariable("contractId") Long contractId) {
 
         agreementSignService.breakContract(contractId);
 

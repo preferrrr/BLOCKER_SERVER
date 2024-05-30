@@ -54,7 +54,7 @@ public class BoardController {
      * /boards
      */
     @PostMapping("")
-    public ApiResponse saveBoard(@RequestBody @Valid SaveBoardRequestDto requestDto) {
+    public ApiResponse<Void> saveBoard(@RequestBody @Valid SaveBoardRequestDto requestDto) {
 
         boardService.saveBoard(requestDto);
 
@@ -67,7 +67,7 @@ public class BoardController {
      * /boards
      */
     @DeleteMapping("/{boardId}")
-    public ApiResponse deleteBoard(@PathVariable("boardId") Long boardId) {
+    public ApiResponse<Void> deleteBoard(@PathVariable("boardId") Long boardId) {
 
         boardService.deleteBoard(boardId);
 
@@ -79,7 +79,7 @@ public class BoardController {
      * /boards/{boardId}
      */
     @PatchMapping("/{boardId}")
-    public ApiResponse modifyBoard(@PathVariable("boardId") Long boardId,
+    public ApiResponse<Void> modifyBoard(@PathVariable("boardId") Long boardId,
                                    @RequestBody @Valid ModifyBoardRequestDto requestDto) {
 
         boardService.modifyBoard(boardId, requestDto);
